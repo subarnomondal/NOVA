@@ -54,6 +54,12 @@ class UserProfile:
                     "occupation": "",
                     "interests": []
                 },
+                "routine": {
+                    "wake_up": 8.0,  # 8:00 AM
+                    "sleep": 22.0,   # 10:00 PM
+                    "midday_break": 13.0, # 1:00 PM
+                    "evening_start": 18.0  # 6:00 PM
+                },
                 "interaction_stats": {
                     "total_interactions": 0,
                     "first_interaction": datetime.now().isoformat(),

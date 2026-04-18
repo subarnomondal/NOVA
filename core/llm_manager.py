@@ -130,7 +130,8 @@ class LLMManager:
                 from core.user_profile import UserProfile
                 up = UserProfile()
             
-            tc = TimeContextManager()
+            timezone_str = up.profile.get('preferences', {}).get('timezone', 'Asia/Kolkata')
+            tc = TimeContextManager(routine=up.profile.get('routine'), timezone_str=timezone_str)
             day_context = tc.get_day_context()
             user_name = up.get_name()
             
@@ -559,7 +560,7 @@ class LLMManager:
 
 
     def _process_response_text(self, response_text, user_input, include_tags):
-        """Helper to filter and store response text"""
+        """Helper to filter, store response text, and perform autonomous learning."""
         if include_tags:
             self.add_to_memory(user_input, response_text)
             return response_text
@@ -573,8 +574,25 @@ class LLMManager:
             # Humanize the final text to remove 'model' feel
             humanized = self.personality_manager.humanize_text(filtered)
             self.add_to_memory(user_input, humanized)
+            
+            # --- AUTONOMOUS LEARNING ---
+            # Extract facts from the exchange in the background
+            threading.Thread(target=self.extract_user_facts_with_llm, args=(user_input, humanized), daemon=True).start()
+            
             return humanized
         return None
+
+    def extract_user_facts_with_llm(self, user_input, assistant_response):
+        """Uses a local, regex-driven engine to extract persistent facts about the user. Ensures 100% privacy."""
+        try:
+            from core.ltm_manager import LTMManager
+            ltm = LTMManager()
+            
+            # Feed input to the local extraction engine (No data leaves the PC)
+            ltm.auto_extract_facts(user_input)
+            
+        except Exception as e:
+            print(f"⚠️ Learning process error: {e}")
 
     def get_stats(self):
         """Get LLM statistics status."""

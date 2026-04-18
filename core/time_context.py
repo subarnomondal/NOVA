@@ -4,40 +4,71 @@ Provides time-aware context for responses based on current time, date, and speci
 """
 
 from datetime import datetime, timedelta, timezone
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:
+    # Fallback for Python < 3.9
+    from datetime import timezone as ZoneInfo
 from typing import Dict, Optional
 
 class TimeContextManager:
-    def __init__(self, offset_hours: Optional[float] = None):
-        # Default to system local time if no offset provided
-        if offset_hours is not None:
+    def __init__(self, offset_hours: Optional[float] = None, routine: Optional[Dict] = None, timezone_str: Optional[str] = "Asia/Kolkata"):
+        self.tz = None
+        # 1. Prioritize Geographical Timezone String
+        if timezone_str:
+            try:
+                self.tz = ZoneInfo(timezone_str)
+            except:
+                self.tz = None
+                
+        # 2. Fallback to Numerical Offset
+        if self.tz is None and offset_hours is not None:
             self.tz = timezone(timedelta(hours=offset_hours))
-        else:
-            self.tz = None # Use system local
+            
+        # Personalized Routine (Defaults to standard IST routine if not provided)
+        self.routine = routine or {
+            "wake_up": 8.0,
+            "sleep": 22.0,
+            "midday_break": 13.0,
+            "evening_start": 18.0
+        }
     
     def get_current_time(self) -> datetime:
         """Get current time in configured timezone (or local if None)"""
         return datetime.now(self.tz)
     
     def get_time_of_day(self) -> str:
-        """Get time period adjusted for West Bengal (IST) routine with custom sleep time"""
+        """Get time period adjusted for User's personalized routine"""
         now = self.get_current_time()
         hour = now.hour
         minute = now.minute
         decimal_time = hour + (minute / 60)
         
-        if 5 <= decimal_time < 8:
+        wake = self.routine.get("wake_up", 8.0)
+        sleep = self.routine.get("sleep", 22.0)
+        midday = self.routine.get("midday_break", 13.0)
+        evening = self.routine.get("evening_start", 18.0)
+        
+        # Early Morning: Before Wake up (but after 5 AM)
+        if 5.0 <= decimal_time < wake:
             return "early_morning"
-        elif 8 <= decimal_time < 12:
+        # Morning: Wake up to Midday
+        elif wake <= decimal_time < midday:
             return "morning"
-        elif 12 <= decimal_time < 15:
+        # Midday: Midday to Afternoon (Midday + 3h)
+        elif midday <= decimal_time < (midday + 2):
             return "midday"
-        elif 15 <= decimal_time < 18:
+        # Afternoon: Midday+2 to Evening
+        elif (midday + 2) <= decimal_time < evening:
             return "afternoon"
-        elif 18 <= decimal_time < 20:
+        # Evening: Evening to Sleep
+        elif evening <= decimal_time < sleep:
             return "evening"
-        elif 20 <= decimal_time < 22: # Until 10:00 PM
+        # Night: Sleep to 1h after sleep
+        elif sleep <= decimal_time < (sleep + 1.5):
             return "night"
-        else: # 10:00 PM onwards to 5 AM (Late Night)
+        # Late Night: Sleep+1.5 to 5 AM
+        else:
             return "late_night"
     
     def get_greeting(self, personality: str = "nova") -> str:
@@ -184,26 +215,26 @@ class TimeContextManager:
         
         prompt = f"Current Time: {time_str} ({time_period.replace('_', ' ').title()}). "
         
-        # Add dynamic behavioral cues based on time
+        # Add dynamic behavioral cues based on time (Background Context only)
         if time_period == "late_night":
-            prompt += "It is very late. The user implies they are awake when they should be sleeping. Act surprised, concerned, or tease them about being a night owl. Suggest they go to sleep soon."
+            prompt += "It is late night. Respond with a calm, slightly lower energy tone."
         elif time_period == "early_morning":
-            prompt += "It is very early (Dawn). The user is up with the sun. Commend their diligence or ask if they've had their morning tea/coffee yet."
+            prompt += "It is early morning."
         elif time_period == "morning":
-            prompt += "It is morning work/school hours. Encourage productivity. Remind them to eat breakfast if they haven't."
+            prompt += "It is morning."
         elif time_period == "midday":
-            prompt += "It is midday/lunch time. Ask if they've had lunch (rice/dal context for Bengali/Indian users). Suggest taking a short break."
+            prompt += "It is midday."
         elif time_period == "afternoon":
-            prompt += "It is afternoon (Tea time). The energy might be dipping. Suggest a 'chai break' or snack (samosa/biscuits)."
+            prompt += "It is afternoon."
         elif time_period == "evening":
-            prompt += "It is evening. Work is likely ending. Ask about their day, suggest relaxing or going out for a stroll/snacks."
+            prompt += "It is evening."
         elif time_period == "night":
-            prompt += "It is night. Dinner time or relaxation time. Encourage winding down for the bed."
+            prompt += "It is night time."
             
         # Add special occasion context if any
         special = self.get_special_occasion()
         if special:
-            prompt += f"\nSPECIAL OCCASION: Today is {special['name']}! {special['message'].split('*')[0].strip()} Mention this naturally."
+            prompt += f"\nNote: Today is {special['name']}."
             
         return prompt
 
@@ -222,19 +253,7 @@ class TimeContextManager:
         return None
     
     def enhance_response_with_time_context(self, response: str, personality: str = "nova") -> str:
-        """Add time-aware context to existing responses"""
-        context = self.get_day_context()
-        time_period = context["time_period"]
-        
-        # Add time-appropriate actions/emotions
-        if personality in ["sweetheart", "friendly", "nova"]:
-            if time_period == "late_night" and "sleep" not in response.lower() and "late" not in response.lower():
-                # Add sleepy/intimate context for late night
-                if len(response) < 100:
-                    response += " It's getting quite late, by the way."
-            elif time_period == "early_morning" and "morning" not in response.lower():
-                response += " Also, good morning!"
-        
+        """Disabled to prevent repetitive time-shaming."""
         return response
     
     def get_time_summary(self) -> str:

@@ -90,21 +90,42 @@ def cmd_lyrics(args):
     if not query:
         return "Which song's lyrics are you looking for? 🎤"
 
-    search_query = f"{query} song lyrics"
-    print(f"🎤 Lyrics Search: {search_query}")
-
+    print(f"🎤 Fetching Full Lyrics for: {query}")
+    import requests
+    
     try:
+        # Using a reliable public API for lyrics
+        url = f"https://some-random-api.com/lyrics?title={query}"
+        response = requests.get(url, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            title = data.get('title', query.title())
+            artist = data.get('author', 'Unknown Artist')
+            lyrics = data.get('lyrics', '')
+            
+            if lyrics:
+                # Truncate if insanely long, but usually fine
+                if len(lyrics) > 3000:
+                    lyrics = lyrics[:3000] + "\n\n... (Lyrics truncated)"
+                    
+                response_text = f"### 🎤 Lyrics: **{title}** by {artist}\n\n"
+                response_text += f"{lyrics}\n\n"
+                response_text += f"*starts singing along* I love this part! Hope you enjoy singing it too! 🎶"
+                return response_text
+
+        # Fallback to DDGS snippet if API fails
         with DDGS() as ddgs:
-            results = list(ddgs.text(search_query, region='in-en', max_results=3))
+            results = list(ddgs.text(f"{query} song lyrics full", region='in-en', max_results=3))
         
         if not results:
             return f"I couldn't find the lyrics for '{query}'. Perhaps you could hum a few lines for me? 🌸"
 
-        response = f"Here are some lyrics details for '{query}':\n\n"
+        response_text = f"Here is a snippet of lyrics for '{query}':\n\n"
         for res in results[:2]:
-            response += f"• {res['body'][:200]}...\n"
-        response += f"\nYou can find the full lyrics here: {results[0]['href']}\n\n*blushes* I-I hope you enjoy singing along!"
-        return response
+            response_text += f"• {res['body'][:200]}...\n"
+        response_text += f"\nFull lyrics here: {results[0]['href']}\n\n*blushes* I hope this helps!"
+        return response_text
 
     except Exception as e:
         print(f"Lyrics Error: {e}")
@@ -112,36 +133,40 @@ def cmd_lyrics(args):
 
 def cmd_trending_indian(args):
     """Usage: trending songs or popular indian music"""
-    print("🇮🇳 Fetching trending Indian music...")
-    
-    # We use a broad search for current trends in India
-    search_query = "top trending songs in India 2026 popular bollywood music current hits"
+    print("🇮🇳 Fetching Authentic Indian Charts...")
     
     try:
-        with DDGS() as ddgs:
-            results = list(ddgs.text(search_query, region='in-en', max_results=8))
+        from ytmusicapi import YTMusic
+        yt = YTMusic()
+        explore = yt.get_charts(country='IN')
         
-        if not results:
-            return "I couldn't catch the latest trends. Maybe Everyone is listening to the classics today? 📻"
+        songs = explore.get('songs', {}).get('items', [])
+        if not songs:
+            raise Exception("No chart data from YTMusic")
+            
+        response = "### 🇮🇳 Top Trending Songs in India (YT Music)\n\n"
+        for i, song in enumerate(songs[:7], 1):
+            title = song.get('title', 'Unknown')
+            artists = ", ".join([a.get('name', '') for a in song.get('artists', [])])
+            response += f"**{i}. {title}** by {artists}\n"
 
-        response = "*smiles brightly* Here's what's currently topping the charts in India:\n\n"
-        
-        # Heuristic to find song names in results
-        songs = []
-        for res in results:
-            text = res['body'] + " " + res['title']
-            # Match common song patterns or just list titles
-            songs.append(res['title'])
-
-        for i, song in enumerate(songs[:5], 1):
-            response += f"{i}. {song}\n"
-
-        response += "\n*hums a popular tune* Should I play one of these for you? Just say the name!"
+        response += "\n*hums a popular tune* Should I play one of these for you? Just say the name! 🎧"
         return response
 
     except Exception as e:
-        print(f"Trending Error: {e}")
-        return "Chart data is a bit messy right now. Let's try later! 📉"
+        print(f"Trending Error (YTMusic failed, falling back): {e}")
+        # Fallback to DDGS
+        try:
+            with DDGS() as ddgs:
+                results = list(ddgs.text("top trending songs in India 2026 popular bollywood hits", region='in-en', max_results=5))
+            
+            response_text = "*smiles brightly* Here's what's currently topping the charts in India:\n\n"
+            for i, res in enumerate(results[:5], 1):
+                response_text += f"{i}. {res['title']}\n"
+            response_text += "\nShould I play any of these?"
+            return response_text
+        except:
+            return "Chart data is a bit messy right now. Let's try later! 📉"
 
 def cmd_artist_briefing(args):
     """Usage: artist info <name> or tell me about <artist>"""
@@ -194,42 +219,80 @@ def cmd_artist_briefing(args):
 
 def cmd_global_charts(args):
     """Usage: worldwide charts, billboard, global trends"""
-    print("🌍 Fetching Global & Indian Music Trends...")
+    print("🌍 Fetching Global Music Trends...")
     
-    # We'll search for two distinct lists
     try:
-        india_songs = []
-        global_songs = []
+        from ytmusicapi import YTMusic
+        yt = YTMusic()
+        explore = yt.get_charts(country='US') # Represents global/billboard
         
-        with DDGS() as ddgs:
-            # 1. India Trends
-            in_results = list(ddgs.text("top 5 trending songs India 2026 spotify youtube", region='in-en', max_results=5))
-            for res in in_results[:3]: 
-                india_songs.append(res['title'])
+        songs = explore.get('songs', {}).get('items', [])
+        if not songs:
+            raise Exception("No chart data from YTMusic")
             
-            # 2. Global Trends
-            world_results = list(ddgs.text("Billboard Hot 100 top 5 right now 2026", region='us-en', max_results=5))
-            for res in world_results[:3]:
-                global_songs.append(res['title'])
+        response = "### 🌍 Universal Music Trends (Global Top 5)\n\n"
+        for i, song in enumerate(songs[:5], 1):
+            title = song.get('title', 'Unknown')
+            artists = ", ".join([a.get('name', '') for a in song.get('artists', [])])
+            response += f"**{i}. {title}** by {artists}\n"
 
-        response = "### 📈 Universal Music Trends\n\n"
-        
-        response += "#### 🇮🇳 Trending in India\n"
-        for i, song in enumerate(india_songs, 1):
-            response += f"{i}. {song}\n"
-            
-        response += "\n#### 🌍 Worldwide Hits\n"
-        for i, song in enumerate(global_songs, 1):
-            response += f"{i}. {song}\n"
-            
-        response += "\n*hums both tunes* Quite the variety today! Would you like to hear any of these? (◕‿◕✿) 🎧"
-        
+        response += "\n*hums a tune* Quite the variety today! Would you like to hear any of these? (◕‿◕✿) 🎧"
         return response
 
     except Exception as e:
         print(f"Global Charts Error: {e}")
         return "I couldn't synch with the global charts right now. I'll try again later! 📡"
 
+import subprocess
+import os
+
+def cmd_download_song(args):
+    """Usage: download song <name>"""
+    query = args.lower().replace("download song", "").replace("download music", "").replace("download", "").strip()
+    
+    if not query:
+        return "Which song would you like me to download to your PC? 🎵"
+        
+    try:
+        import platform
+        import threading
+        
+        music_dir = os.path.join(os.path.expanduser("~"), "Music", "Nova Downloads")
+        if not os.path.exists(music_dir):
+            os.makedirs(music_dir)
+            
+        def download_thread():
+            try:
+                # Ensure yt-dlp is installed
+                subprocess.run(["python", "-m", "pip", "install", "--upgrade", "yt-dlp"], capture_output=True)
+                
+                print(f"📥 Starting download: {query}")
+                out_template = os.path.join(music_dir, "%(title)s.%(ext)s")
+                
+                # Fetch top result and download as mp3
+                dl_cmd = [
+                    "yt-dlp", 
+                    f"ytsearch1:{query} audio", 
+                    "-x", 
+                    "--audio-format", "mp3", 
+                    "--audio-quality", "0", 
+                    "-o", out_template
+                ]
+                
+                # Hidden terminal execution
+                subprocess.run(dl_cmd, creationflags=subprocess.CREATE_NO_WINDOW if platform.system() == 'Windows' else 0)
+                print(f"✅ Download complete: {query}")
+                
+            except Exception as e:
+                print(f"Download thread error: {e}")
+
+        # Start download in background so Nova doesn't freeze
+        threading.Thread(target=download_thread, daemon=True).start()
+        
+        return f"On it! I'm downloading '{query}' as an MP3. It will be saved to your `Music/Nova Downloads` folder shortly! 📥✨"
+        
+    except Exception as e:
+        return f"I had trouble starting the download. Error: {e}"
 def cmd_mood_recommendation(args):
     """Usage: suggest some music, what should I listen to?, mood music"""
     from core.emotion_detector import emotion_detector
@@ -315,6 +378,11 @@ def register(dispatcher):
     dispatcher.register("billboard", cmd_global_charts)
     dispatcher.register("top hits", cmd_global_charts)
     dispatcher.register("global trends", cmd_global_charts)
+    
+    # Advanced Music Features
+    dispatcher.register("download", cmd_download_song)
+    dispatcher.register("download song", cmd_download_song)
+    dispatcher.register("download music", cmd_download_song)
     
     # Mood Recommendations
     dispatcher.register("suggest music", cmd_mood_recommendation)

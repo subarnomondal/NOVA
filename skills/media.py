@@ -49,6 +49,31 @@ def get_emotional_reaction(mood):
     }
     return reactions.get(mood, ("*smiles*", "Sure thing! Let me play that for you! ✨"))
 
+def find_local_music(query):
+    """Search for music files in standard Windows music directories"""
+    music_dirs = [
+        os.path.join(os.path.expanduser("~"), "Music"),
+        os.path.join(os.path.expanduser("~"), "Downloads")
+    ]
+    
+    clean_query = query.lower().strip()
+    found_files = []
+    
+    extensions = ('.mp3', '.m4a', '.wav', '.flac')
+    
+    for d in music_dirs:
+        if not os.path.exists(d): continue
+        for root, dirs, files in os.walk(d):
+            # Limit depth for performance
+            if root.count(os.sep) - d.count(os.sep) > 2: continue
+            
+            for file in files:
+                if file.lower().endswith(extensions):
+                    if clean_query in file.lower():
+                        found_files.append(os.path.join(root, file))
+    
+    return found_files
+
 def get_nova_taste(query):
     """Nova's personal music preferences"""
     q = query.lower()
@@ -66,12 +91,37 @@ def cmd_play(args):
     """Usage: play <query> or play music <query>"""
     try:
         # Extract query
-        query = args.lower()
+        query_raw = args.lower()
+        query = query_raw
         for prefix in ["play music", "play song", "play video", "play"]:
-            if query.startswith(prefix):
-                query = query[len(prefix):].strip()
+            if query_raw.startswith(prefix):
+                query = query_raw[len(prefix):].strip()
                 break
         
+        # --- NEW: User Taste Discovery via LTM ---
+        if query in ["my taste", "something i like", "my favorites", "some music i like", "my favorite music"]:
+            try:
+                from core.ltm_manager import LTMManager
+                ltm = LTMManager()
+                # Gather possible music interests
+                taste_clues = []
+                for cat in ["artist", "band", "genre", "singer"]:
+                    fact = ltm.get_fact(cat)
+                    if fact: taste_clues.append(fact)
+                for item in ltm.facts.get("interest", []):
+                    if "music" in item["value"].lower():
+                        taste_clues.append(item["value"])
+                
+                if taste_clues:
+                    query = random.choice(taste_clues)
+                    print(f"🧠 LTM Taste selected: {query}")
+                else:
+                    # Fallback if no taste exists in LTM yet
+                    query = "lofi chill beats"
+            except Exception as e:
+                print(f"LTM fetch error: {e}")
+                query = "lofi chill beats"
+
         if not query:
             # AGI Context Support: Check if a previous step gave us a query
             from core.agi_context import agi_context
@@ -81,9 +131,19 @@ def cmd_play(args):
                 # Media toggle fallback
                 print("⏯️ Toggling media playback...")
                 pyautogui.press("playpause")
-            
                 return "Toggled media playback. ⏯️"
             
+        # --- NEW: LOCAL FILE SEARCH ---
+        if "local" in query_raw or "pc" in query_raw or "computer" in query_raw:
+            clean_query = query.replace("local", "").replace("pc", "").replace("on", "").strip()
+            print(f"📂 Searching local files for: {clean_query}")
+            local_files = find_local_music(clean_query)
+            if local_files:
+                target = local_files[0]
+                print(f"🎶 Playing local file: {target}")
+                os.startfile(target)
+                return f"*smiles* Found it on your PC! Playing '{os.path.basename(target)}' for you. 🎵"
+
         # Persona & Mood Check
         special_reaction = get_nova_taste(query)
         if special_reaction:
