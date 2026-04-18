@@ -31,6 +31,8 @@ venv.bak/
 # User Data, Secrets & Keys
 # CRITICAL: Never upload user interaction history or API keys
 userdata/
+!userdata/documents/
+userdata/documents/*.md
 keys.json
 .env
 secret*/
