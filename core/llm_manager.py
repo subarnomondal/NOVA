@@ -13,6 +13,7 @@ from core.key_manager import key_manager
 import base64
 import json
 import requests # type: ignore
+from core.chat_history import chat_history
 
 class LLMManager:
     _instance = None
@@ -29,8 +30,8 @@ class LLMManager:
         if not hasattr(self, 'initialized'):
             self._llm = None 
             self.provider = "custom" # Locked to Local
-            self.conversation_memory = []
-            self.max_memory = 5 
+            self.conversation_memory = chat_history.history[-5:] # Start with last 5 from disk
+            self.max_memory = 10 
             self.emotion_detector = emotion_detector
             self.initialized = True
             
@@ -107,13 +108,16 @@ class LLMManager:
 
 
     def add_to_memory(self, user_input, assistant_response):
-        """Add exchange to conversation memory."""
+        """Add exchange to conversation memory and persistent log."""
         self.conversation_memory.append({
             "user": user_input,
             "assistant": assistant_response
         })
         if len(self.conversation_memory) > self.max_memory:
             self.conversation_memory.pop(0)
+            
+        # Save to disk via history manager
+        chat_history.save_chat(user_input, assistant_response)
     
     def get_temporal_context(self, user_profile=None):
         """Build temporal and profile context."""
@@ -166,13 +170,9 @@ class LLMManager:
         except:
             return ""
 
-    def get_context_prompt(self):
-        if not self.conversation_memory: return ""
-        context = "\n\nRECENT CONVERSATION:\n"
-        for exchange in self.conversation_memory[-3:]:
-            context += f"User: {exchange['user']}\n"
-            context += f"Nova: {exchange['assistant']}\n"
-        return context
+    def get_context_prompt(self, limit=10):
+        """Build conversation context from persistent history."""
+        return chat_history.get_recent_context(limit=limit)
     
     def filter_response(self, response):
         if not response: return None
