@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova AI</title>
+    <link rel="stylesheet" href="popup.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="nova-app">
+        <!-- Header -->
+        <header class="nova-header">
+            <div class="header-left">
+                <div class="nova-logo-pulse"></div>
+                <span class="nova-title">NOVA</span>
+                <span id="model-badge" class="model-badge">Connecting...</span>
+            </div>
+            <div class="header-right">
+                <button id="think-toggle" class="icon-btn" title="Toggle Thinking Panel">
+                    <i class="fas fa-brain"></i>
+                </button>
+                <div id="status-dot" class="status-dot offline"></div>
+            </div>
+        </header>
+
+        <!-- Thinking Panel (Collapsible) -->
+        <div id="thinking-panel" class="thinking-panel collapsed">
+            <div class="thinking-header">
+                <i class="fas fa-cogs"></i>
+                <span>Reasoning Process</span>
+                <span id="think-model" class="think-model-badge"></span>
+            </div>
+            <div id="thinking-content" class="thinking-content">
+                <div class="thinking-empty">Nova's thoughts will appear here...</div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-area" class="chat-area">
+            <div class="welcome-state">
+                <div class="welcome-glow"></div>
+                <h2>Hey there! 👋</h2>
+                <p>I'm Nova, your AI assistant.</p>
+                <p class="welcome-hint">Type anything below to start chatting.</p>
+            </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="input-bar">
+            <input type="text" id="user-input" placeholder="Ask Nova anything..." autocomplete="off">
+            <button id="send-btn" class="send-btn" title="Send">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="nova-footer">
+            Nova AI v2.0 • Connected to localhost:5000
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

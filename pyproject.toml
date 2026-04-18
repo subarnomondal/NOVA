@@ -1,0 +1,13 @@
+[project]
+name = "nova"
+version = "1.0.0"
+description = "NOVA - Personal AI Assistant"
+
+[tool.pyrefly]
+source = ["."]
+
+[tool.pyright]
+extraPaths = ["."]
+
+[tool.mypy]
+mypy_path = "."
