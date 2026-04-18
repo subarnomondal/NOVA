@@ -1,98 +1,93 @@
 <div align="center">
   <img src="assets/banner.png" alt="NOVA Banner" width="100%" />
   <br/><br/>
-  <h1>🌟 NOVA - Advanced Local AI Desktop Assistant</h1>
-  <p>An intelligent, highly capable, and localized AI desktop assistant built to seamlessly manage your digital life, control your system, and understand complex commands via voice and text.</p>
+  <h1>🌌 NOVA — The Autonomous Local AGI Desktop</h1>
+  <p><strong>A sovereign, privacy-first personal intelligence engine designed for seamless digital orchestration.</strong></p>
 
-  ![License](https://img.shields.io/badge/License-MIT-blue.svg)
-  ![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)
-  ![Status](https://img.shields.io/badge/Status-Active-success.svg)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-7149f4.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+  [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+  [![Status](https://img.shields.io/badge/Status-Production--Ready-success.svg?style=for-the-badge)](https://github.com/subarnomondal/NOVA)
   
 </div>
 
-## 🧠 About NOVA
-NOVA is a proactive, context-aware artificial intelligence designed to run directly on your desktop environment. Unlike simple chatbots, NOVA features an interconnected brain capable of executing system commands, analyzing documents, navigating the web autonomously, and retaining conversational context over long periods. 
+---
 
-It heavily relies on free-tier LLM providers through APIs and advanced caching capabilities to offer deep intelligence without high subscription costs.
+## 💎 The Vision
+**NOVA** (Neural Orchestration & Virtual Assistant) is not just a chatbot—it is an **Autonomous Personal Agent**. Designed with a privacy-first philosophy, NOVA operates as a localized "Brain" that manages system architecture, explores the web, and automates professional workflows directly from your desktop. 
 
-## ✨ Features and Abiltites (Skills)
-
-NOVA possesses an extensive architecture of modules known as **Skills**. Here is what NOVA can do for you:
-
-### ⚙️ System & Productivity
-- **System Control** (`system.py`): Complete control over your OS operations, volume, brightness, battery checking, media controls.
-- **Reminders & Calendar** (`reminders.py`, `calendar_skill.py`): Intelligent scheduling and reminders.
-- **Document Analysis & Writing** (`document_analysis.py`, `document_writer.py`): Extract, summarize, and generate professional documents (PDFs, Word).
-- **Code Architect & Codebase Reader** (`code_architect.py`, `codebase_reader.py`): Assist with local software development and codebase explanations.
-
-### 🌐 Web & Media
-- **Browser Agent & Control** (`browser_agent.py`, `browser_control.py`): Unrestricted autonomous web browsing and control.
-- **Search & Info** (`search.py`, `info.py`, `knowledge_expansion.py`): Deep dive into DuckDuckGo/Wikipedia to fetch highly accurate answers.
-- **Media & Music & Downloader** (`media.py`, `music.py`, `downloader.py`): Complete music streaming and video download orchestration.
-
-### 💬 Communication & Automation
-- **WhatsApp Calls & Messenger** (`whatsapp_call.py`, `messenger.py`): Fully automated messaging and VOIP calls.
-- **Email Service** (`email_service.py`): Draft, parse, and send emails effortlessly.
-- **Phone & Automation** (`phone.py`, `automation.py`): Interface with your phone connectivity and UI automations.
-
-### 🤖 Cognition & AI
-- **Vision Manager** (`vision.py`, `vision_skill.py`): "See" your screen or uploaded images to understand context via OCR.
-- **Emotion & Natural Events** (`emotion_analytics.py`, `natural_events.py`): Detect emotions to reply appropriately and naturally.
-- **Training & CAR Workflow** (`training.py`, `online_training.py`, `car_workflow.py`): Nova grows with you actively via Copy-Analyze-Rebuild integrations.
-- **Math & Finance** (`math_skill.py`, `finance.py`): Manage budgets and execute complex calculations.
+### 🛡️ Why NOVA?
+- **Privacy-First**: Your data stays local. Interactions and logs are stored on your machine.
+- **Autonomous Reasoning**: Uses a sophisticated cognitive loop (Observation → Thought → Action) to solve multi-step problems without supervision.
+- **Zero-Latency Orchestration**: Optimized Python core for instant response times and low resource overhead.
+- **Unlimited Extensibility**: A modular "Skill" architecture allows developers to build and plug in new capabilities in minutes.
 
 ---
 
-## 🚀 Installation & Getting Started
+## 🛠️ Integrated Capabilities (The Skill Matrix)
 
-1. **Clone the repository**
-```bash
-git clone https://github.com/your-username/NOVA.git
+NOVA’s power is derived from its modular skill system, spanning across four primary domains:
+
+### ⚡ System & Infrastructure
+*   **Deep OS Integration**: Native control of Windows/System parameters, hardware monitoring, and media transport.
+*   **Code Architect**: A specialized module for analyzing local codebases and generating architectural improvements.
+*   **Automated Productivity**: Intelligent reminder systems and professional document generation (PDF/DOCX).
+
+### 🌐 Autonomous Web Intelligence
+*   **Web Agent**: A Playwright-powered autonomous browser that can "see" and interact with any website.
+*   **Cognitive Search**: Multi-source research via DuckDuckGo and Wikipedia with synthesized summarization.
+*   **Mail & Messaging**: Enterprise-grade automation for Email, WhatsApp, and Messenger.
+
+### 👁️ Perception & Vision
+*   **Proactive Vision**: Real-time screen analysis and image understanding via advanced OCR and Vision-LLM integration.
+*   **Emotion Analytics**: Context-aware interactions driven by sentiment detection within conversations.
+
+---
+
+## 🚀 Deployment Guide
+
+### Prerequisites
+*   Python 3.10 or higher
+*   Windows OS (for full system integration)
+*   Playwright dependencies
+
+### installation
+```powershell
+# Clone the repository
+git clone https://github.com/subarnomondal/NOVA.git
 cd NOVA
-```
 
-2. **Install Dependencies**
-Ensure you have Python 3.10+ installed.
-```bash
+# Initialize environment & dependencies
 pip install -r requirements.txt
 playwright install
 ```
 
-3. **Configure API Keys**
-Rename `keys.example.json` within the `userdata/` folder (or create it) to `keys.json` and insert your respective LLM API Keys (Gemini, OpenRouter, Groq, etc).
->  **⚠️ CRITICAL: NEVER commit your `keys.json` or `.env` files to GitHub! They are ignored in the `.gitignore` by default.**
-
-4. **Run NOVA**
-```bash
-python desktop.py
-```
-
-## 📂 Project Structure
-
-- `/core/` - The foundational AGI-like architecture (memory, LLM managing, vision, NLU, etc.)
-- `/skills/` - The modular actionable abilities defining what NOVA can explicitly do.
-- `/tools/` - Standalone tools for CLI interactions (knowledge injection, model training).
-- `/scripts/` - Scripts for datasets and automated learning ingestion.
-- `/userdata/` - **Exempt from version control.** Contains your local logs, user profiles, API keys, and models.
-
-## 🤝 Contributing
-
-**Contributions are highly welcome!** 
-Whether it involves squashing a bug, adding a new skill to `skills/`, or refining the core reasoning engine, your input helps make NOVA truly extraordinary. 
-
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingSkill`).
-3. Commit your Changes (`git commit -m 'Add some AmazingSkill'`).
-4. Push to the Branch (`git push origin feature/AmazingSkill`).
-5. Open a Pull Request.
-
-*If you don't know where to start, feel free to check the active issues or submit a question!*
-
-## 📜 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
+### Configuration
+1.  Navigate to `userdata/keys.example.json`.
+2.  Rename to `keys.json`.
+3.  Inject your API keys (Gemini, OpenRouter, or Groq handles most heavy lifting).
 
 ---
+
+## 📂 Architecture Overview
+
+*   `/core/` — **The Central Nervous System**: Handles Memory (KV), LLM Routing, Vision Management, and NLU Parsing.
+*   `/skills/` — **The Front-line Workers**: Indpendent Python modules that provide specific capabilities.
+*   `/web/` — **The Dashboard**: A sleek, Glassmorphism-inspired Three.js interface for desktop interaction.
+*   `/userdata/` — **The Vault**: Securely stores your local context, logs, and encrypted keys.
+
+---
+
+## 🤝 Roadmap & Contribution
+NOVA is an evolving intelligence. We welcome contributions to the **Cognitive Loop** and **New Skill Modules**.
+
+1. **Fork** the repository.
+2. Create your **Feature Branch**.
+3. **Submit a Pull Request** with detailed technical documentation.
+
+---
+
 <div align="center">
+  <sub>Built with ❤️ by <a href="https://github.com/subarnomondal">Subarno Mondal</a></sub>
+  <br/>
   <i>"A companion designed to run everywhere, and optimize everything."</i>
 </div>
