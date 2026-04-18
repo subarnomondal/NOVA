@@ -998,10 +998,38 @@ def clear_memory():
         # 3. Clean Uploads
         cleanup_uploads()
             
-        print("🗑️ All memory and facts have been cleared by user request.")
-        return jsonify({"status": "success", "message": "All memories cleared."})
+@app.route('/api/history', methods=['GET'])
+def get_chat_history():
+    """Returns the persistent chat history for the UI."""
+    try:
+        from core.chat_history import chat_history
+        return jsonify({"history": chat_history.history})
     except Exception as e:
-        logging.error(f"Memory clear error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/memory/clear', methods=['POST'])
+def clear_memory():
+    """Wipes all persistent and volatile memories."""
+    try:
+        # 1. Clear Long Term Memory (Facts) - existing behavior
+        from core.ltm_manager import LTMManager
+        ltm = LTMManager(memory_file=os.path.join("userdata", "user_facts.json"))
+        ltm.facts = {}
+        ltm.save_facts()
+        
+        # 2. Clear Short Term Memory (Volatile)
+        llm_manager.conversation_memory.clear()
+        
+        # 3. Clear Persistent Chat History (Disk)
+        from core.chat_history import chat_history
+        chat_history.history = []
+        if os.path.exists(chat_history.history_file):
+            os.remove(chat_history.history_file)
+            
+        print("🗑️ All memory, facts, and chat history have been cleared by user request.")
+        return jsonify({"status": "success", "message": "All memories and chat history cleared."})
+    except Exception as e:
+        logging.error(f"History clear error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/suggestions', methods=['GET'])

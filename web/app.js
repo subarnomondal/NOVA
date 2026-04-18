@@ -2877,6 +2877,40 @@ function toggleEventsDashboard(show) {
     }
 }
 
+// --- STARTUP INITIALIZATION ---
+async function loadChatHistory() {
+    try {
+        const res = await fetch(`${API_URL}/history`);
+        const data = await res.json();
+        
+        if (data.history && data.history.length > 0) {
+            console.log(`📜 Loading ${data.history.length} past exchanges...`);
+            
+            // Remove welcome screen if history exists
+            const welcome = document.querySelector('.welcome-screen');
+            if (welcome) welcome.style.display = 'none';
+            
+            data.history.forEach(exchange => {
+                // Add user message
+                addLine(exchange.user, 'user-msg');
+                // Add assistant message
+                addLine(exchange.assistant, 'nova-msg');
+            });
+            
+            // Scroll to bottom
+            outputArea.scrollTop = outputArea.scrollHeight;
+        }
+    } catch (e) {
+        console.error("Failed to load history:", e);
+    }
+}
+
+// Global Init Call
+window.addEventListener('load', () => {
+    // Existing Three.js/UI inits would be triggered here if not already
+    loadChatHistory();
+});
+
 function updateEventsList(events) {
     const list = document.getElementById('events-list');
     if (!list) return;
