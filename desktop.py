@@ -449,11 +449,13 @@ def select_best_microphone():
     print("🎙️ [HearingConfig] Using system default microphone.")
     # Use the global sr import
     try:
+        microphone = None
         if 'sr' in globals():
-            return sr.Microphone()
+            microphone = sr.Microphone()
         else:
             import speech_recognition as sr_internal
-            return sr_internal.Microphone()
+            microphone = sr_internal.Microphone()
+        return microphone
     except:
         return None
 
@@ -1081,7 +1083,7 @@ def upload_file():
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
-    filepath = os.path.join(upload_dir, filename)
+    filepath = os.path.join(upload_dir, str(filename or 'uploaded_file'))
     file.save(filepath)
     
     # Set context for Document Analysis Skill
@@ -1091,7 +1093,8 @@ def upload_file():
     analysis_data = {}
     
     # Determine File Type and Process
-    ext = os.path.splitext(filename)[1].lower()
+    safe_filename = filename if filename else ""
+    ext = os.path.splitext(safe_filename)[1].lower()
     
     # 1. Image Handling
     if ext in ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.webp']:
@@ -1190,9 +1193,12 @@ def transcribe():
                 r = sr.Recognizer()
                 with sr.AudioFile(temp_path) as source: audio_data = r.record(source)
                 try: 
-                    text = r.recognize_google(audio_data, language="en-IN")
-                    detected_language = "en"
-                    print(f"🎤 Fallback Transcribed (Google): {text}")
+                    # Use getattr to safely check for the method
+                    recognizer_func = getattr(r, "recognize_google", None)
+                    if recognizer_func:
+                        text = recognizer_func(audio_data, language="en-IN")
+                        detected_language = "en"
+                        print(f"🎤 Fallback Transcribed (Google): {text}")
                 except: pass
             except Exception as e:
                 print(f"Fallback Transcription Error: {e}")
@@ -1460,6 +1466,7 @@ def cmd_admin_test(mode="single"):
 def get_skills_status():
     """Returns a list of all skills and their current state (Active/Lazy)."""
     try:
+        if not nova: return jsonify([])
         skills = []
         
         # 1. Lazy Skills (Dormant)
@@ -1505,8 +1512,8 @@ def stop_skill():
     try:
         data = request.json
         module_path = data.get("path")
-        if not module_path:
-            return jsonify({"success": False, "error": "No path provided"}), 400
+        if not nova:
+             return jsonify({"success": False, "error": "Nova instance not initialized"}), 503
             
         success = nova.dispatcher.unload_module_manually(module_path)
         return jsonify({"success": success})
@@ -1519,8 +1526,8 @@ def load_skill():
     try:
         data = request.json
         module_path = data.get("path")
-        if not module_path:
-            return jsonify({"success": False, "error": "No path provided"}), 400
+        if not nova:
+             return jsonify({"success": False, "error": "Nova instance not initialized"}), 503
             
         success = nova.dispatcher.load_module_manually(module_path)
         return jsonify({"success": success})
@@ -1699,9 +1706,9 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
     primary_res = nlu_results[0] if nlu_results else {"intent": None, "confidence": 0.0, "sentiment": "neutral"}
     
     state = drl.get_state_key(
-        intent=primary_res.get('intent', 'unknown'),
-        sentiment=primary_res.get('sentiment', 'neutral'),
-        confidence=primary_res.get('confidence', 0.0)
+        intent=str(primary_res.get('intent', 'unknown')),
+        sentiment=str(primary_res.get('sentiment', 'neutral')),
+        confidence=float(primary_res.get('confidence') or 0.0)
     )
     
     action = drl.select_action(state)
@@ -1719,7 +1726,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
                 # Fall through to agent loop below
             else:
                 # Skill handled it fully — record reward and return
-                reward = drl.calculate_reward(user_feedback="neutral", response_time=0.3, confidence=primary_res.get('confidence', 1.0))
+                reward = drl.calculate_reward(user_feedback="neutral", response_time=0.3, confidence=float(primary_res.get('confidence') or 1.0))
                 drl.update_q_value(state, action, reward, state)
                 memory.add_conversation(user_input, response, detected_lang)
                 return {"response": response, "skill_direct": True, "emotion": detect_emotion(response)}
@@ -1732,7 +1739,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
     response = nova_data.get("response", "")
     
     if response:
-        reward = drl.calculate_reward(user_feedback="neutral", response_time=0.5, confidence=primary_res.get('confidence', 1.0))
+        reward = drl.calculate_reward(user_feedback="neutral", response_time=0.5, confidence=float(primary_res.get('confidence') or 1.0))
         drl.update_q_value(state, action, reward, state)
         memory.add_conversation(user_input, response, detected_lang)
         return {
@@ -1835,6 +1842,8 @@ def cleanup_uploads():
         try:
             # Iterate and delete
             for filename in os.listdir(upload_dir):
+                if not filename:
+                     filename = f"received_file_{int(time.time())}"
                 file_path = os.path.join(upload_dir, filename)
                 try:
                     if os.path.isfile(file_path):

@@ -12,6 +12,7 @@ class LTMManager:
     def __init__(self, memory_file=os.path.join("userdata", "user_facts.json"), decay_threshold_days=60):
         self.memory_file = memory_file
         self.decay_threshold_days = decay_threshold_days
+        self.enabled = True # Added to fix desktop.py attribute error
         # Structure: { "category": { "value": "x", "last_seen": ts, "reinforcement": 5 } }
         self.facts = self._migrate_and_prune(self._load_memory())
 

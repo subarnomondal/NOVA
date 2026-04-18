@@ -8,7 +8,7 @@ import time
 import logging
 from duckduckgo_search import DDGS
 try:
-    from playwright.sync_api import sync_playwright
+    from playwright.sync_api import sync_playwright # type: ignore
     HAS_PLAYWRIGHT = True
 except ImportError:
     HAS_PLAYWRIGHT = False
