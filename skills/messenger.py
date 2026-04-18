@@ -1,7 +1,7 @@
 import json
 import os
 import time
-from skills.knowledge_expansion import fetch_summary
+
 from core.llm_manager import llm_manager
 
 class ContactManager:
@@ -94,7 +94,7 @@ def cmd_find_contact(args):
     """Usage: find contact <name>"""
     try:
         import re
-        import pyautogui
+        import pyautogui # type: ignore
         import time
         import webbrowser
         
@@ -259,7 +259,7 @@ def cmd_send_message(args):
             clean_phone = "91" + clean_phone # Default to India prefix if 10 digits
         
         import webbrowser
-        import pyautogui
+        import pyautogui # type: ignore
         
         uri = f"whatsapp://send?phone={clean_phone}"
         print(f"🚀 Launching WhatsApp: {uri}")

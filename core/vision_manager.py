@@ -10,7 +10,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import shutil
 import time
-import pyautogui
+import pyautogui # type: ignore
 from datetime import datetime
 
 class VisionManager:

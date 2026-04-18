@@ -15,10 +15,10 @@ import io
 import wave
 import tempfile
 import os
-import requests
+import requests # type: ignore
 import numpy as np
 import sounddevice as sd
-import pyautogui
+import pyautogui # type: ignore
 import pygetwindow as gw
 
 # ─── Audio Config ─────────────────────────────────────────────────────────────

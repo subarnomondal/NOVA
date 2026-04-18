@@ -109,6 +109,7 @@ except ImportError:
 # SPEECH RECOGNITION (STT) SYSTEM
 # ==================================================================================
 stt_model = None
+stt_load_lock = threading.Lock()
 
 def get_stt_model():
     """Lazy load Faster-Whisper to save 1GB+ RAM on startup"""
@@ -116,17 +117,21 @@ def get_stt_model():
     if stt_model is not None:
         return stt_model
         
-    if os.environ.get("NOVA_TESTING") != "1":
-        # Using 'base' (multilingual) for better global/Indian accent parsing
-        model_size = "base" 
-        try:
-            print(f"🎧 Loading Faster-Whisper ({model_size} Model)...")
-            from faster_whisper import WhisperModel  # type: ignore
-            stt_model = WhisperModel(model_size, device="cpu", compute_type="int8")
-            print("✅ Speech Recognition System Ready")
-        except Exception as e:
-            print(f"❌ Whisper model load error: {e}")
-            stt_model = False # Marker for failed load
+    with stt_load_lock:
+        if stt_model is not None: # Double check after lock
+            return stt_model
+            
+        if os.environ.get("NOVA_TESTING") != "1":
+            # Using 'base' (multilingual) for better global/Indian accent parsing
+            model_size = "base" 
+            try:
+                print(f"🎧 Loading Faster-Whisper ({model_size} Model)...")
+                from faster_whisper import WhisperModel  # type: ignore
+                stt_model = WhisperModel(model_size, device="cpu", compute_type="int8")
+                print("✅ Speech Recognition System Ready")
+            except Exception as e:
+                print(f"❌ Whisper model load error: {e}")
+                stt_model = False # Marker for failed load
     return stt_model
 
 try:
@@ -449,14 +454,9 @@ def select_best_microphone():
     print("🎙️ [HearingConfig] Using system default microphone.")
     # Use the global sr import
     try:
-        microphone = None
-        if 'sr' in globals():
-            microphone = sr.Microphone()
-        else:
-            import speech_recognition as sr_internal
-            microphone = sr_internal.Microphone()
-        return microphone
-    except:
+        import speech_recognition as sr_func # type: ignore
+        return sr_func.Microphone() # type: ignore
+    except Exception:
         return None
 
 class NovaHearingEngine:
@@ -478,8 +478,12 @@ class NovaHearingEngine:
 
     def start(self):
         print(f"👂 Nova Hearing Engine: Seamless Monitoring ('{self.keyword}')")
-        with self.mic as source:
-            self.recognizer.adjust_for_ambient_noise(source, duration=1)
+        if not self.mic:
+            print("❌ No microphone detected. Hearing engine disabled.")
+            return
+            
+        with self.mic as source: # type: ignore
+            self.recognizer.adjust_for_ambient_noise(source, duration=1) # type: ignore
         
         # Start the background listener that never stops
         self.stop_listening = self.recognizer.listen_in_background(
@@ -1435,7 +1439,7 @@ def quick_tts(text: str, lang: str = "en") -> t.Optional[str]:
             
             # returning base64 for frontend playback
             return base64.b64encode(raw_audio).decode('utf-8')
-        return t.cast(t.Optional[str], asyncio.run(_gen()))
+        return t.cast(t.Optional[str], asyncio.run(_gen())) # type: ignore
     except Exception as e:
         print(f"Quick TTS Error: {e}")
         return None
@@ -1821,11 +1825,6 @@ def proactive_vision_callback(text):
 # DESKTOP WEBVIEW LAUNCHER
 # ==================================================================================
 
-
-# ==================================================================================
-# DESKTOP WEBVIEW LAUNCHER
-# ==================================================================================
-
 def start_flask():
     print("🚀 Starting Nova Backend...")
     app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)
@@ -1922,7 +1921,7 @@ def main():
     except Exception as e:
         print(f"⚠️ Failed to start Proactive Vision: {e}")
 
-    webview.start(debug=False)
+    webview.start(debug=False, icon=os.path.join(root_dir, 'assets', 'banner.png'))
 
 if __name__ == '__main__':
     try:

@@ -1,4 +1,4 @@
-import yaml
+import yaml # type: ignore
 import os
 import re
 from rich.console import Console
@@ -213,21 +213,22 @@ class Nova:
                 )
             else:
                 system_prompt = (
-                    "You are Nova, a capable and direct AI companion. Be clever, helpful, and efficient. "
+                    "You are Nova, an autonomous and highly capable AI companion. Execute tasks directly and decisively. "
                     f"- Skills: {available_skills}\n"
                     "- Scripting: [SCRIPT] code [/SCRIPT]\n"
                     "- Terminal: [CMD] command [/CMD]\n"
                     "- Files: [ARCHITECT] read|edit path [/ARCHITECT]\n"
                     "- Web: [READER] search query [/READER]\n\n"
-                    "### HOW YOU THINK:\n"
-                    "- First, reason in <thought> tags (hidden from user).\n"
-                    "- Then, take ONE action if needed.\n"
-                    "- Finally, respond naturally and concisely to the user."
+                    "### YOUR OPERATING PRINCIPLES:\n"
+                    "- **Autonomy**: Decide the best course of action based on user intent. Don't ask for permission for routine tasks.\n"
+                    "- **Reasoning**: Think in <thought> tags to plan multi-step operations.\n"
+                    "- **Direct Action**: Use your scripts and commands to reach the user's goal immediately.\n"
+                    "- **Personality**: Be witty, loyal, and efficient."
                 )
             
             # Prepare Prompt with Observation and History
             prompt = f"USER_INPUT: {user_input}"
-            if current_observation is not None:
+            if 'current_observation' in locals() and current_observation is not None:
                 prompt += f"\n\nCURRENT_OBSERVATION: {current_observation}\n\nContinue with your next step."
 
             # Generate Response

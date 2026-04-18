@@ -1,5 +1,5 @@
 import os
-import requests
+import requests # type: ignore
 import re
 from urllib.parse import urlparse
 from duckduckgo_search import DDGS  # Added for image search functionality

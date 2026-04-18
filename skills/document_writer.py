@@ -52,23 +52,7 @@ def cmd_write_essay(args):
         content = _extract_content(response)
             
     except Exception as e:
-        # Fallback to web search summary if LLM fails
-        try:
-            from skills.knowledge_expansion import fetch_summary
-            summary = fetch_summary(topic)
-            if summary:
-                content = (
-                    f"Title: {topic.title()}\n\n"
-                    f"(Generated via Web Search Summary)\n\n{summary}\n\n"
-                    f"[Full essay generation requires the Neural Brain to be loaded]"
-                )
-            else:
-                content = None
-        except Exception:
-            pass
-        
-        if not content:
-            return f"Essay generation failed: {e}"
+        return f"Essay generation failed: {e}"
 
     # Save to file
     if content:

@@ -12,7 +12,7 @@ from core.personality_manager import PersonalityManager
 from core.key_manager import key_manager
 import base64
 import json
-import requests
+import requests # type: ignore
 
 class LLMManager:
     _instance = None
@@ -247,7 +247,7 @@ class LLMManager:
     def _generate_openrouter(self, user_input, system_prompt, history=None):
         """Primary Brain via OpenRouter API with Smart Multi-Key Swarm support."""
         try:
-            import requests
+            import requests # type: ignore
             headers_base = {
                 "Content-Type": "application/json",
                 "HTTP-Referer": "https://nova-assistant.local", 

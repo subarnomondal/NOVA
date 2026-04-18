@@ -2,7 +2,7 @@
 import os
 import time
 import random
-import pyautogui
+import pyautogui # type: ignore
 import pygetwindow as gw
 from core.personality_manager import PersonalityManager
 
@@ -12,9 +12,9 @@ class TrollSkill:
 
     def register(self, dispatcher):
         """Register keywords to the command dispatcher."""
-        dispatcher.register_command("bully_mode", self.cmd_bully_mode)
-        dispatcher.register_command("roast_target", self.cmd_roast_target)
-        dispatcher.register_command("roast_me", self.cmd_refuse_roast_user)
+        dispatcher.register("bully_mode", self.cmd_bully_mode)
+        dispatcher.register("roast_target", self.cmd_roast_target)
+        dispatcher.register("roast_me", self.cmd_refuse_roast_user)
 
     def cmd_bully_mode(self, args):
         """Switch manually to Loyal Bully (Hitman) mode."""

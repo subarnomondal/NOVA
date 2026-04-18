@@ -1,7 +1,7 @@
 import os
 import subprocess
-import psutil
-import pyautogui
+import psutil # type: ignore
+import pyautogui # type: ignore
 from datetime import datetime
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 from comtypes import CLSCTX_ALL, CoInitialize

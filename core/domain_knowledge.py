@@ -34,68 +34,9 @@ class DomainKnowledge:
             print(f"Knowledge save error: {e}")
     
     def initialize_default_knowledge(self):
-        """Initialize with default domain knowledge"""
+        """Initialize with default domain knowledge (Identity ONLY)"""
         if not self.domains:
             self.domains = {
-                "technology": {
-                    "description": "Technology and computing knowledge",
-                    "keywords": ["computer", "software", "hardware", "programming", "code", "app", "tech"],
-                    "facts": {
-                        "AI": "Artificial Intelligence is the simulation of human intelligence by machines",
-                        "Python": "Python is a high-level programming language known for simplicity",
-                        "Cloud": "Cloud computing delivers computing services over the internet"
-                    }
-                },
-                "science": {
-                    "description": "Scientific knowledge",
-                    "keywords": ["science", "physics", "chemistry", "biology", "astronomy", "space"],
-                    "facts": {
-                        "Gravity": "Gravity is the force that attracts objects toward each other",
-                        "DNA": "DNA carries genetic information in living organisms",
-                        "Photosynthesis": "Plants convert sunlight into energy through photosynthesis"
-                    }
-                },
-                "india": {
-                    "description": "Knowledge about India",
-                    "keywords": ["india", "indian", "delhi", "mumbai", "hindi", "bengali"],
-                    "facts": {
-                        "Capital": "New Delhi is the capital of India",
-                        "Population": "India is the most populous country in the world",
-                        "Languages": "India has 22 official languages including Hindi and Bengali",
-                        "Independence": "India gained independence on August 15, 1947"
-                    }
-                },
-                "general": {
-                    "description": "General knowledge",
-                    "keywords": ["what", "who", "when", "where", "why", "how"],
-                    "facts": {
-                        "Earth": "Earth is the third planet from the Sun",
-                        "Water": "Water covers about 71% of Earth's surface"
-                    }
-                },
-                "holidays": {
-                    "description": "Holiday greetings and facts",
-                    "keywords": ["christmas", "xmas", "new year", "holiday", "santa"],
-                    "facts": {
-                        "Merry Christmas": "Merry Christmas! May your days be merry and bright! 🎄",
-                        "Happy New Year": "Happy New Year! Wishing you success and happiness in the year ahead! 🎆",
-                        "Christmas": "Christmas is celebrated on December 25th to commemorate the birth of Jesus.",
-                        "New Year": "New Year's Day marks the start of a new calendar year."
-                    }
-                },
-                "culture": {
-                    "description": "Cultural knowledge and greetings",
-                    "keywords": ["bengali", "bangla", "greeting", "nomoshkar", "kemon", "acho"],
-                    "facts": {
-                        "Shubho Noboborsho": "Shubho Noboborsho! (Happy Bengali New Year!) 🏵️",
-                        "Eid Mubarak": "Eid Mubarak! Wishing you joy and peace! 🌙",
-                        "Kemon Acho": "Ami bhalo achi! (I am fine!) How are you? 😊",
-                        "Nomoshkar": "Nomoshkar! Welcome! 🙏",
-                        "Valo Achi": "That is good to hear! Thik ache! 👍",
-                        "Suprovat": "Suprovat! (Good Morning!) ☀️",
-                        "Shubho Ratri": "Shubho Ratri! (Good Night!) 🌙"
-                    }
-                },
                 "identity": {
                     "description": "Knowledge about myself (Nova)",
                     "keywords": ["who", "birthday", "height", "likes", "dislikes", "creator", "nova", "spirit", "silver", "purpose", "age"],
