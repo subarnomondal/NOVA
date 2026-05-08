@@ -73,7 +73,8 @@ class LLMManager:
         try:
             if os.path.exists(dataset_path):
                 # Basic keyword extraction for relevance
-                keywords = re.findall(r'\w+', user_input.lower())
+                text_input = user_input if not isinstance(user_input, dict) else user_input.get("text", "")
+                keywords = re.findall(r'\w+', text_input.lower())
                 
                 with open(dataset_path, "r", encoding="utf-8") as f:
                     lines = f.readlines()
@@ -140,32 +141,37 @@ class LLMManager:
             
             time_prompt = tc.get_time_prompt()
             context += f"- Time Context: {time_prompt}\n"
-            
             context += f"- Current Date: {day_context['date']}\n"
             context += f"- Day of Week: {day_context['day_of_week']}\n"
             
-            personal_context = up.get_personalization_context()
-            if personal_context:
-                context += f"- {personal_context}\n"
+            # Privacy check
+            is_strict_privacy = up.profile.get('preferences', {}).get('strict_privacy', True)
+            
+            if not is_strict_privacy:
+                personal_context = up.get_personalization_context()
+                if personal_context:
+                    context += f"- {personal_context}\n"
 
-            # Added: Long-Term Memory (Facts)
-            try:
-                from core.ltm_manager import LTMManager
-                ltm_temp = LTMManager(memory_file=os.path.join("userdata", "user_facts.json"))
-                if ltm_temp.facts:
-                    facts_str = ", ".join(list(ltm_temp.facts.values())[-5:])
-                    context += f"- User Facts: {facts_str}\n"
-            except: pass
+                # Long-Term Memory (Facts) filtering
+                try:
+                    from core.ltm_manager import LTMManager
+                    ltm_temp = LTMManager(memory_file=os.path.join("userdata", "user_facts.json"))
+                    if ltm_temp.facts:
+                        # Safely extract 'value' from the dictionary format
+                        fact_values = [f["value"] if isinstance(f, dict) else str(f) for f in list(ltm_temp.facts.values())[-5:]]
+                        facts_str = ", ".join(fact_values)
+                        context += f"- User Facts: {facts_str}\n"
+                except: pass
 
-            # Added: User Patterns
-            try:
-                patterns_path = os.path.join("userdata", "user_patterns.json")
-                if os.path.exists(patterns_path):
-                    with open(patterns_path, "r") as f:
-                        patterns = json.load(f)
-                        if patterns:
-                            context += f"- Behavior Patterns: {list(patterns.keys())[:3]}\n"
-            except: pass
+                # User Patterns
+                try:
+                    patterns_path = os.path.join("userdata", "user_patterns.json")
+                    if os.path.exists(patterns_path):
+                        with open(patterns_path, "r") as f:
+                            patterns = json.load(f)
+                            if patterns:
+                                context += f"- Behavior Patterns: {list(patterns.keys())[:3]}\n"
+                except: pass
             
             return context
         except:
@@ -256,8 +262,9 @@ class LLMManager:
             }
             
             # Current validated free models on OpenRouter (Swarm priorities)
+            is_multimodal = isinstance(user_input, dict) and user_input.get("image_path")
             models = [
-                "mistralai/pixtral-12b:free" if user_input.get("image_path") else "openrouter/free", 
+                "mistralai/pixtral-12b:free" if is_multimodal else "openrouter/free", 
                 "google/gemini-flash-1.5-free",
                 "openrouter/free", # Let OpenRouter choose a working free model
                 "google/gemma-2-9b-it:free",
@@ -304,8 +311,8 @@ class LLMManager:
                         from core.vision_manager import vision_manager
                         b64_image = vision_manager.encode_image_base64(user_input["image_path"])
                         if b64_image:
-                            content_blocks = [
-                                {"type": "text", "text": user_input.get("text", "")},
+                            content_parts = [
+                                {"type": "text", "text": user_input.get("text", "What is in this image?")},
                                 {
                                     "type": "image_url",
                                     "image_url": {
@@ -313,12 +320,11 @@ class LLMManager:
                                     }
                                 }
                             ]
-                            # Ensure content is passed as string if the provider doesn't support blocks
-                            messages_payload.append({"role": "user", "content": str(content_blocks)})
+                            messages_payload.append({"role": "user", "content": content_parts})
                         else:
                             messages_payload.append({"role": "user", "content": user_input.get("text", "")})
                     else:
-                        messages_payload.append({"role": "user", "content": user_input})
+                        messages_payload.append({"role": "user", "content": str(user_input)})
 
                     data = {
                         "model": model,
@@ -386,7 +392,9 @@ class LLMManager:
                             elif line.startswith("Nova:"):
                                 messages.append({"role": "assistant", "content": line.replace("Nova:", "").strip()})
                     
-                    messages.append({"role": "user", "content": user_input})
+                    # Ensure user_input is a string for Groq (No vision support yet)
+                    groq_text = user_input.get("text", "") if isinstance(user_input, dict) else str(user_input)
+                    messages.append({"role": "user", "content": groq_text})
 
                     payload = {
                         "model": model,
@@ -505,7 +513,7 @@ class LLMManager:
                 # 1. Specifically forced
                 # 2. Online Mode is enabled AND query is complex/long
                 # 3. Intent is knowledge-seeking
-                is_complex = len(user_input.split()) > 15 or "?" in user_input
+                is_complex = len(text_for_emotion.split()) > 15 or "?" in text_for_emotion
                 knowledge_intents = ['knowledge_query', 'science_query', 'history_query', 'philosophical_queries', 'problem_solving', 'search_query', 'news_query', 'news', 'search']
                 
                 # Provider Routing: OpenRouter -> Groq -> Gemini -> Ollama

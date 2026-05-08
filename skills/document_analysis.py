@@ -64,11 +64,11 @@ class DocumentAnalysis:
         # FORCE LOCAL LLM for Document Analysis (Privacy/Cost/Offline)
         # We prefer 'custom' (Native GPT4All) if available, or 'local_api' if that's the active one.
         
-        target_provider = "custom" # Default to Native Local
+        target_provider = None # Use system default
         
-        # If we are already using a local provider, stick with it
-        if llm_manager.provider in ["custom", "local_api"]:
-            target_provider = llm_manager.provider
+        # If a specific provider is requested via settings, we could use it here
+        # For now, we allow llm_manager to decide based on its swarm logic.
+
             
         try:
             # We try to force the local provider. 

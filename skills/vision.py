@@ -40,9 +40,10 @@ class VisionSkill:
         try:
             response = llm_manager.generate(
                 prompt, 
-                max_tokens=200,
+                max_tokens=300,
                 temperature=0.7,
-                system_prompt="You are a helpful tutor solving questions from images."
+                system_prompt="You are a helpful tutor solving questions from images.",
+                image_path=text if os.path.exists(text) else None # solve_mcq is sometimes called with just text
             )
             if response:
                 return response.get('text', response) if isinstance(response, dict) else response
@@ -70,6 +71,10 @@ class VisionSkill:
             # Format the visual analysis
             formatted = self.vision.format_analysis(analysis)
             
+            # Ensure analysis is a dict for safe access
+            if not isinstance(analysis, dict):
+                analysis = {"text": str(analysis)}
+                
             # Check if there's text that looks like a question
             raw_text = analysis.get("text", "")
             if raw_text and self._is_question(raw_text):
@@ -78,11 +83,14 @@ class VisionSkill:
                 formatted += f"\n\n🧠 **Nova Analysis**:\n{answer}"
             else:
                 # If no question, use LLM to comment on visual content
-                if analysis.get("objects"):
-                    top_objects = [obj['label'] for obj in analysis['objects'][:3]]
+                if isinstance(analysis, dict) and analysis.get("objects"):
+                    objects = analysis.get("objects", [])
+                    top_objects = [obj['label'] if isinstance(obj, dict) else str(obj) for obj in objects[:3]]
                     context = f"Visual: {', '.join(top_objects)}"
-                    if analysis.get("metadata", {}).get("timestamp"):
-                        context += f" | Taken: {analysis['metadata']['timestamp']}"
+                    
+                    metadata = analysis.get("metadata", {})
+                    if isinstance(metadata, dict) and metadata.get("timestamp"):
+                        context += f" | Taken: {metadata['timestamp']}"
                     
                     prompt = f"""You are Nova. The user showed you an image.
                     
@@ -94,8 +102,9 @@ Nova:"""
                     try:
                         comment = llm_manager.generate(
                             prompt, 
-                            max_tokens=80,
-                            temperature=0.8
+                            max_tokens=150,
+                            temperature=0.8,
+                            image_path=path
                         )
                         if comment:
                             comment_text = comment.get('text', comment) if isinstance(comment, dict) else comment

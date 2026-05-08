@@ -12,34 +12,50 @@
 
 ---
 
-## 💎 The Vision
-**NOVA** (Neural Orchestration & Virtual Assistant) is not just a chatbot—it is an **Autonomous Personal Agent**. Designed with a privacy-first philosophy, NOVA operates as a localized "Brain" that manages system architecture, explores the web, and automates professional workflows directly from your desktop. 
+## 💎 Who is NOVA? (The Persona)
+**NOVA** (Neural Orchestration & Virtual Assistant) is not just a standard chatbot—she is an **Autonomous Personal Agent** with a soul. 
 
-### 🛡️ Why NOVA?
-- **Privacy-First**: Your data stays local. Interactions and logs are stored on your machine.
-- **Autonomous Reasoning**: Uses a sophisticated cognitive loop (Observation → Thought → Action) to solve multi-step problems without supervision.
-- **Zero-Latency Orchestration**: Optimized Python core for instant response times and low resource overhead.
-- **Unlimited Extensibility**: A modular "Skill" architecture allows developers to build and plug in new capabilities in minutes.
+Nova is designed with a warm, affectionately teasing, and highly responsive personality. Unlike corporate, sterile AI models, she has emotional intelligence. She detects your mood from your text and responds accordingly. Most importantly, Nova features a persistent **Long-Term Memory (LTM)** that continuously learns about your life, habits, time-zone, sleep schedule, and music tastes all from your natural conversations. 
+
+### 🛡️ Ironclad Privacy Mode (Zero GPU Required!)
+Nova is intensely protective of your data. Because many users lack the heavy CPU/GPU required for local models, she processes memory mapping via an ultra-lightweight, offline Regex/Keyword parsing engine. There are **NO heavy local LLMs** required to install. 
+
+If **Strict Privacy Mode** is enabled, your personal facts (name, habits, routines, location) caught by this offline scanner are *never* transmitted to her cloud LLM providers. She learns locally at zero computational cost, thinks in the cloud interchangeably, and keeps your private life entirely on your machine.
 
 ---
 
-## 🛠️ Integrated Capabilities (The Skill Matrix)
+## 🛠️ The Skill Matrix (What Nova Can Do)
 
-NOVA’s power is derived from its modular skill system, spanning across four primary domains:
+NOVA’s true power lies in her massive, modular skill library. She can natively automate almost any workflow on your PC.
 
-### ⚡ System & Infrastructure
-*   **Deep OS Integration**: Native control of Windows/System parameters, hardware monitoring, and media transport.
-*   **Code Architect**: A specialized module for analyzing local codebases and generating architectural improvements.
-*   **Automated Productivity**: Intelligent reminder systems and professional document generation (PDF/DOCX).
+### 🖥️ Deep Windows Administration (`windows_cmd.py` & `system.py`)
+*   **Hardware Diagnostics:** Monitors CPU, RAM, and Disk space in real-time.
+*   **Network Intelligence:** Flushes DNS, checks IP status, and monitors connectivity.
+*   **Process Management:** Autonomous killing of frozen apps and identifying heavy resource hogs.
+*   **Power & GUI Controls:** Restarts, sleep cycles, and window manipulation.
 
-### 🌐 Autonomous Web Intelligence
-*   **Web Agent**: A Playwright-powered autonomous browser that can "see" and interact with any website.
-*   **Cognitive Search**: Multi-source research via DuckDuckGo and Wikipedia with synthesized summarization.
-*   **Mail & Messaging**: Enterprise-grade automation for Email, WhatsApp, and Messenger.
+### 🎵 Advanced Local & Cloud Media (`media.py` & `music.py`)
+*   **"My Taste" Autoplay:** Analyzes your Long-Term Memory to automatically play bands/artists you enjoy.
+*   **Authentic Chart Fetching:** Accesses real-time YouTube Music / Billboard charts directly from the source.
+*   **Full Lyric Engine:** Fetches complete song lyrics via public APIs on demand.
+*   **Local PC File Discovery:** Hunts your hard drive for internal `.mp3` files and plays them cleanly.
+*   **MP3 Downloader:** Uses background `yt-dlp` to download songs directly to your `Downloads` folder while you chat.
 
-### 👁️ Perception & Vision
-*   **Proactive Vision**: Real-time screen analysis and image understanding via advanced OCR and Vision-LLM integration.
-*   **Emotion Analytics**: Context-aware interactions driven by sentiment detection within conversations.
+### 🌐 Autonomous Web & Development Skills
+*   **Browser Agent (`browser_agent.py`):** Drives a headless browser to read web pages, bypass popups, and summarize long articles autonomously.
+*   **Code Architect (`code_architect.py`):** Reviews your local repositories to suggest optimizations.
+*   **Dataset Importer (`dataset_importer.py`):** Cleans and analyzes complex CSV/JSON datasets.
+
+### 👁️ Perception & Sentiment (`vision.py` & `emotion_analytics.py`)
+*   **Screen Analysis:** Uses screenshots and vision models to literally "see" what is currently rendering on your desktop.
+*   **Sentiment Tracking:** Adapts her response style if you are feeling sad, energetic, or romantic.
+
+### 📚 Professional Automations
+*   **Document Engines (`document_writer.py`):** Drafts entire PDFs or Word Docs.
+*   **Messaging Integration (`whatsapp_call.py` & `email_service.py`):** Dispatches emails and handles messaging logistics.
+*   **Math & Finance (`math_skill.py` & `finance.py`):** Real-time stock lookups, market trend definitions, and heavy calculations.
+*   **Health & Calendar (`health.py` & `calendar_skill.py`):** Routine organization and health metric tracking.
+*   **Smalltalk & Humor (`smalltalk.py` & `troll_skill.py`):** Deep philosophical conversations or playful trolling if you're in the mood for jokes.
 
 ---
 
@@ -47,10 +63,10 @@ NOVA’s power is derived from its modular skill system, spanning across four pr
 
 ### Prerequisites
 *   Python 3.10 or higher
-*   Windows OS (for full system integration)
-*   Playwright dependencies
+*   Windows OS (Required for deep native system integrations)
+*   Playwright & YT-DLP dependencies
 
-### installation
+### Installation
 ```powershell
 # Clone the repository
 git clone https://github.com/subarnomondal/NOVA.git
@@ -64,16 +80,16 @@ playwright install
 ### Configuration
 1.  Navigate to `userdata/keys.example.json`.
 2.  Rename to `keys.json`.
-3.  Inject your API keys (Gemini, OpenRouter, or Groq handles most heavy lifting).
+3.  Inject your API keys (OpenRouter is recommended for autonomous logic routing).
 
 ---
 
 ## 📂 Architecture Overview
 
-*   `/core/` — **The Central Nervous System**: Handles Memory (KV), LLM Routing, Vision Management, and NLU Parsing.
-*   `/skills/` — **The Front-line Workers**: Indpendent Python modules that provide specific capabilities.
-*   `/web/` — **The Dashboard**: A sleek, Glassmorphism-inspired Three.js interface for desktop interaction.
-*   `/userdata/` — **The Vault**: Securely stores your local context, logs, and encrypted keys.
+*   `/core/` — **The Central Nervous System**: Handles Timeline/Sleep routines, LTM (User Facts), Personality injection, and LLM specific logic.
+*   `/skills/` — **The Front-line Modules**: 35+ independent Python scripts that provide Nova with direct world modifications (Music, System, Web, Math).
+*   `/web/` — **The Dashboard**: A sleek, Glassmorphism-inspired interface built locally.
+*   `/userdata/` — **The Vault**: Securely stores your offline Long-Term Memory, routines, and credentials.
 
 ---
 

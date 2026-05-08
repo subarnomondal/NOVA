@@ -56,3 +56,5 @@ Thumbs.db
 .vs/
 temp/
 MY_CREDENTIALS_BACKUP.txt
+graphify-out/
+graphify_out/

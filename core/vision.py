@@ -27,5 +27,28 @@ class ImageAnalyzer:
         print("✅ Vision System: Ready (API-Only Mode)")
 
     def analyze(self, image_path, top_k=3):
-        """Vision analysis is deferred to Gemini."""
-        return ["API-Only Vision Enabled"]
+        """Vision analysis is deferred to Gemini/LLM API."""
+        try:
+            from core.llm_manager import llm_manager
+            
+            prompt = "Analyze this image and return a list of the 5 most important objects or activities you see. Format as a simple comma-separated list. No preamble."
+            
+            # Use raw_gen=True to get clean output
+            result = llm_manager.generate(
+                prompt,
+                max_tokens=50,
+                temperature=0.2,
+                image_path=image_path,
+                raw_gen=True
+            )
+            
+            if result:
+                # Clean and split
+                labels = [label.strip().replace(".", "") for label in result.split(",")]
+                return labels[:top_k]
+            
+            return ["Vision Analysis Failed"]
+        except Exception as e:
+            print(f"❌ API Vision Error: {e}")
+            return ["API Error"]
+

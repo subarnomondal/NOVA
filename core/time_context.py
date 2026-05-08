@@ -17,7 +17,7 @@ class TimeContextManager:
         # 1. Prioritize Geographical Timezone String
         if timezone_str:
             try:
-                self.tz = ZoneInfo(timezone_str)
+                self.tz = ZoneInfo(timezone_str) # type: ignore
             except:
                 self.tz = None
                 

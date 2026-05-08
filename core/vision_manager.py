@@ -10,6 +10,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 import shutil
 import time
+import base64
 import pyautogui # type: ignore
 from datetime import datetime
 
@@ -100,14 +101,23 @@ class VisionManager:
 
     def classify_image(self, image_path, top_k=5):
         """Image classification deferred to Gemini API."""
-        return []
+        try:
+            from core.vision import ImageAnalyzer
+            analyzer = ImageAnalyzer()
+            labels = analyzer.analyze(image_path, top_k=top_k)
+            # Format to match expected structure: [{'label': 'name', 'confidence': 1.0}]
+            return [{"label": label, "confidence": 1.0} for label in labels]
+        except Exception as e:
+            print(f"⚠️ Classification Error: {e}")
+            return []
+
 
     def process_image(self, image_path, cleanup=True):
         """
         Comprehensive image analysis: OCR + Classification + Metadata
         """
         if not os.path.exists(image_path):
-            return "❌ Error: Image file not found."
+            return {"error": "Image file not found."}
             
         try:
             print(f"👁️ Analyzing image: {image_path}")
@@ -158,12 +168,18 @@ class VisionManager:
         result = []
         
         # Visual Content
-        if analysis.get("objects"):
-            top_obj = analysis["objects"][0]
-            result.append(f"🖼️ I see: {top_obj['label']} ({top_obj['confidence']*100:.1f}% confident)")
+        objects = analysis.get("objects", [])
+        if objects:
+            top_obj = objects[0]
+            if isinstance(top_obj, dict):
+                label = top_obj.get('label', 'Unknown')
+                conf = top_obj.get('confidence', 0.0)
+                result.append(f"🖼️ I see: {label} ({conf*100:.1f}% confident)")
+            else:
+                result.append(f"🖼️ I see: {str(top_obj)}")
             
             # Detect categories
-            all_labels = [obj['label'].lower() for obj in analysis["objects"]]
+            all_labels = [obj['label'].lower() if isinstance(obj, dict) else str(obj).lower() for obj in objects]
             
             # Animals
             animal_keywords = ['dog', 'cat', 'bird', 'horse', 'elephant', 'tiger', 'lion', 'bear', 'fish', 'snake']
@@ -209,10 +225,24 @@ class VisionManager:
         """
         Auto-cleans the entire temp folder on startup.
         """
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
-            os.makedirs(self.temp_dir)
+        try:
+            if os.path.exists(self.temp_dir):
+                shutil.rmtree(self.temp_dir)
+            os.makedirs(self.temp_dir, exist_ok=True)
             print("🧹 Vision temp storage cleared.")
+        except Exception as e:
+            print(f"⚠️ Vision Cleanup Error: {e}")
+
+    def encode_image_base64(self, image_path):
+        """Helper to encode image to base64 for multimodal LLM calls."""
+        if not os.path.exists(image_path):
+            return None
+        try:
+            with open(image_path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode('utf-8')
+        except Exception as e:
+            print(f"⚠️ Image Encoding Error: {e}")
+            return None
 
 # Global singleton
 vision_manager = VisionManager()

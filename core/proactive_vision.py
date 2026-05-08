@@ -3,10 +3,10 @@ import threading
 import time
 import random
 import os
-from datetime import datetime
 from core.vision_manager import vision_manager
 from core.llm_manager import llm_manager
 from core.personality_manager import PersonalityManager
+import pygetwindow as gw
 
 class ProactiveVisionEngine:
     def __init__(self, callback=None):
@@ -59,12 +59,14 @@ class ProactiveVisionEngine:
             analysis = vision_manager.process_image(filepath, cleanup=False)
             
             # Extract notable context
-            text_context = analysis.get("text", "")
+            if not isinstance(analysis, dict):
+                analysis = {"error": "Invalid analysis format"}
+                
+            text_context = analysis.get("text", "") or ""
             objects = analysis.get("objects", [])
-            obj_labels = ", ".join([o['label'] for o in objects]) if objects else "desktop activity"
+            obj_labels = ", ".join([o['label'] if isinstance(o, dict) else str(o) for o in objects]) if objects else "desktop activity"
             
             # Get active window (can be helpful for context)
-            import pygetwindow as gw
             try:
                 active_window = gw.getActiveWindow()
                 window_title = active_window.title if active_window else "Unknown Window"
@@ -113,7 +115,7 @@ class ProactiveVisionEngine:
                 "- Nova:"
             )
 
-            response = llm_manager.generate(prompt, max_tokens=100)
+            response = llm_manager.generate(prompt, max_tokens=100, image_path=filepath)
             
             if response and "IGNORE" not in response.upper():
                 print(f"👁️ Proactive Vision Engine: Nova has something to say: {response}")

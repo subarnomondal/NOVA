@@ -1,4 +1,4 @@
-import webview  # type: ignore
+import webview
 import threading
 import time
 import sys
@@ -404,23 +404,29 @@ def cleanup_temp_files():
             for f in os.listdir(temp_dir):
                 if any(f.endswith(ext) for ext in [".wav", ".mp3", ".webm"]):
                     try:
-                        os.remove(os.path.join(temp_dir, f))
-                        removed.append(f)
-                    except: pass
+                        file_path = os.path.join(temp_dir, f)
+                        # Check if file is still being used before deletion
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+                            removed.append(f)
+                    except Exception:
+                        pass # Silently skip locked files
         
         # 2. Clean root directory for specific patterns
         import glob
-        for pattern in ["temp_audio_*.webm", "temp_voice_*.webm", "temp_audio_*.wav"]:
+        for pattern in ["temp_audio_*.webm", "temp_voice_*.webm", "temp_audio_*.wav", "temp_voice_*.wav"]:
             for f in glob.glob(pattern):
                 try:
-                    os.remove(f)
-                    removed.append(f)
-                except: pass
+                    if os.path.exists(f):
+                        os.remove(f)
+                        removed.append(f)
+                except Exception:
+                    pass
 
         if removed:
-            print(f"🧹 Cleanup: Removed {len(removed)} orphaned temp files.")
+            safe_print(f"🧹 Cleanup: Removed {len(removed)} orphaned temp files.")
     except Exception as e:
-        print(f"⚠️ Cleanup Error: {e}")
+        safe_print(f"⚠️ Cleanup Error: {e}")
 
 def select_best_microphone():
     """Scavenges for a real microphone, avoiding 'Stereo Mix' or 'Loopback'."""
@@ -526,6 +532,8 @@ class NovaHearingEngine:
                     initial_prompt="Nova, weather, news, remind, call, time, play music, search, screenshot, volume."
                 )
                 text = " ".join([s.text for s in segments]).strip()
+                del segments
+                
                 # Use a small delay or try-except to handle Windows file locking during Faster-Whisper iteration
                 try:
                     if os.path.exists(temp_wav): os.remove(temp_wav)
@@ -975,29 +983,6 @@ def export_conversation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/memory/clear', methods=['POST'])
-def clear_memory():
-    """Wipes conversation history and learned facts (LTM)"""
-    try:
-        # 1. Clear conversation memory file
-        memory_file = os.path.join('userdata', 'conversation_history.json')
-        if os.path.exists(memory_file):
-            with open(memory_file, 'w', encoding='utf-8') as f:
-                json.dump([], f)
-            # Reset internal memory object
-            memory.clear_memory()
-        
-        # 2. Clear Long-Term Memory (LTM)
-        ltm_file = os.path.join('userdata', 'user_facts.json')
-        if os.path.exists(ltm_file):
-            with open(ltm_file, 'w', encoding='utf-8') as f:
-                json.dump({}, f)
-            # Reset internal LTM object
-            ltm.facts = {}
-            
-        # 3. Clean Uploads
-        cleanup_uploads()
-            
 @app.route('/api/history', methods=['GET'])
 def get_chat_history():
     """Returns the persistent chat history for the UI."""
@@ -1015,7 +1000,7 @@ def clear_memory():
         from core.ltm_manager import LTMManager
         ltm = LTMManager(memory_file=os.path.join("userdata", "user_facts.json"))
         ltm.facts = {}
-        ltm.save_facts()
+        ltm.save_memory()
         
         # 2. Clear Short Term Memory (Volatile)
         llm_manager.conversation_memory.clear()
@@ -1053,44 +1038,35 @@ def test_voice():
         # Sample text for testing
         sample_text = "Ara-ara~ Hi there! This is how I sound. Did you like my voice?"
         
-        # Generate TTS with the specified settings
-        # Temporarily override settings
-        try:
-            loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(loop)
+        # Convert speed/pitch to Edge-TTS format
+        rate_str = f"{'+' if speed >= 1.0 else ''}{int((speed - 1.0) * 100)}%"
+        pitch_str = f"{'+' if pitch >= 0 else ''}{pitch}Hz"
+        
+        async def _gen():
+            communicate = edge_tts.Communicate(sample_text, voice, rate=rate_str, pitch=pitch_str)
+            audio_chunks = []
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    audio_chunks.append(chunk["data"])
             
-            communicate = edge_tts.Communicate(
-                text=sample_text,
-                voice=voice,
-                rate=f"+{int((speed - 1) * 100)}%",
-                pitch=f"{pitch:+d}Hz"
-            )
+            if not audio_chunks:
+                return None
             
-            async def collect_audio():
-                chunks = []
-                async for chunk in communicate.stream():
-                    if chunk["type"] == "audio":
-                        chunks.append(chunk["data"])
-                return chunks
+            raw_audio = b"".join(audio_chunks)
+            return base64.b64encode(raw_audio).decode('utf-8')
             
-            audio_chunks = loop.run_until_complete(collect_audio())
-            
-            audio_data = b"".join(audio_chunks)
-            loop.close()
-            
-            if audio_data:
-                audio_b64 = base64.b64encode(audio_data).decode('utf-8')
-                return jsonify({
-                    "status": "success",
-                    "audio_base64": audio_b64
-                })
-            else:
-                return jsonify({"status": "error", "message": "No audio generated"}), 500
-                
-        except Exception as e:
-            return jsonify({"status": "error", "message": f"TTS failed: {str(e)}"}), 500
+        audio_b64 = asyncio.run(_gen())
+        
+        if audio_b64:
+            return jsonify({
+                "status": "success",
+                "audio_base64": audio_b64
+            })
+        else:
+            return jsonify({"status": "error", "message": "Failed to generate voice sample"}), 500
             
     except Exception as e:
+        print(f"Voice Test Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 # Import DocumentReader and Analyzer
@@ -1137,6 +1113,9 @@ def upload_file():
         
         # LLM Context
         if llm_executor or (llm_manager and getattr(llm_manager, 'model', None)):
+            # Pre-warm LLM Status
+            if getattr(llm_manager, 'last_model', None):
+                print(f"🧠 Nova Intelligence: {llm_manager.last_model} API mode active.")
             active_persona = personality_manager.get_active_personality()
             system_prompt = f"{active_persona['system_prompt']}\nCONTEXT: User uploaded an image.\nIMAGE CONTENTS: {objects}\nTASK: Comment briefly on what you see.\nNova:"
             response_text = llm_manager.generate(system_prompt, max_tokens=80, temperature=0.7)
@@ -1202,6 +1181,7 @@ def transcribe():
                     initial_prompt="Nova, weather, news, remind, call, time, play music, search, screenshot, volume."
                 )
                 text = " ".join([s.text for s in segments]).strip()
+                del segments
                 detected_language = "en"
                 
                 # HALLUCINATION FILTER
@@ -1274,6 +1254,7 @@ def voice_command():
                     vad_parameters=dict(min_silence_duration_ms=800)
                 )
                 text = " ".join([s.text for s in segments]).strip()
+                del segments
                 detected_lang = str(getattr(info, 'language', 'en'))
                 if detected_lang != "en":
                     print(f"🌍 Detected language: {detected_lang} — will reply in English")
@@ -1571,6 +1552,8 @@ def save_settings():
     try:
         data = request.json
         print(f"Info: Saving Settings: {len(str(data))} bytes")
+        if not os.path.exists('userdata'):
+            os.makedirs('userdata')
         
         # Save to disk
         with open(os.path.join('userdata', 'settings.json'), 'w', encoding='utf-8') as f:
@@ -1604,46 +1587,6 @@ def save_settings():
         return jsonify({"status": "success", "message": "Settings saved to userdata/settings.json"})
     except Exception as e:
         print(f"Settings Save Error: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
-
-@app.route('/api/voice/test', methods=['POST'])
-def test_voice_api():
-    """Generates a brief sample of a specific voice for the Settings preview."""
-    try:
-        data = request.json
-        voice = data.get('voice', 'en-US-AvaNeural')
-        speed = data.get('speed', 1.0)
-        pitch = data.get('pitch', 0)
-        
-        # Convert speed/pitch to Edge-TTS format
-        # e.g., 1.0 -> "+0%", 1.5 -> "+50%", 0.5 -> "-50%"
-        rate_percent = int((speed - 1.0) * 100)
-        rate_str = f"{'+' if rate_percent >= 0 else ''}{rate_percent}%"
-        pitch_str = f"{'+' if pitch >= 0 else ''}{pitch}Hz"
-        
-        test_text = "Hello! I am Nova. This is a preview of my voice with your current settings. How do I sound?"
-        
-        async def _gen():
-            communicate = edge_tts.Communicate(test_text, voice, rate=rate_str, pitch=pitch_str)
-            audio_chunks = []
-            async for chunk in communicate.stream():
-                if chunk["type"] == "audio":
-                    audio_chunks.append(chunk["data"])
-            
-            if not audio_chunks:
-                return None
-            
-            raw_audio = b"".join(audio_chunks)
-            return base64.b64encode(raw_audio).decode('utf-8')
-            
-        audio_b64 = asyncio.run(_gen())
-        
-        if audio_b64:
-            return jsonify({"status": "success", "audio_base64": audio_b64})
-        return jsonify({"status": "error", "message": "Failed to generate voice sample"}), 500
-        
-    except Exception as e:
-        print(f"Voice Test Error: {e}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/settings', methods=['GET'])

@@ -41,8 +41,9 @@ class UserProfile:
                 "role": "user", # Default role
                 "preferences": {
                     "language": "en",
-                    "voice": "en-IE-EmilyNeural",  # Super cute native English! 💕
-                    "timezone": "Asia/Kolkata"
+                    "voice": "en-IE-EmilyNeural",
+                    "timezone": "Asia/Kolkata",
+                    "strict_privacy": True  # Prevents sending personal profile data to external LLMs
                 },
                 "habits": {
                     "common_commands": {},
