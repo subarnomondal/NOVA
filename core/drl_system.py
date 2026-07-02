@@ -34,6 +34,7 @@ class DRLSystem:
     def save_model(self):
         """Save DRL model to file"""
         try:
+            os.makedirs(os.path.dirname(self.drl_file), exist_ok=True)
             with open(self.drl_file, 'w', encoding='utf-8') as f:
                 json.dump({
                     'q_table': self.q_table,

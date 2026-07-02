@@ -1,694 +1,342 @@
 <!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOVA | Advanced AI</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="https://unpkg.com/@pixiv/three-vrm@0.6.11/lib/three-vrm.js"></script>
-    <link rel="icon" type="image/png" href="assets/banner.png">
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aether AI Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#0e0e0f",
+                        "primary-fixed-dim": "#d0bcff",
+                        "inverse-on-surface": "#313031",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "tertiary": "#4edea3",
+                        "surface": "#131314",
+                        "outline-variant": "#494454",
+                        "on-primary": "#3c0091",
+                        "on-primary-container": "#340080",
+                        "on-background": "#e5e2e3",
+                        "tertiary-container": "#00a572",
+                        "on-secondary-fixed": "#001a42",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#131314",
+                        "surface-container-high": "#2a2a2b",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "on-secondary-container": "#e6ecff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#d0bcff",
+                        "surface-bright": "#3a393a",
+                        "on-error-container": "#ffdad6",
+                        "on-error": "#690005",
+                        "on-primary-fixed-variant": "#5516be",
+                        "primary": "#d0bcff",
+                        "primary-fixed": "#e9ddff",
+                        "on-tertiary-container": "#00311f",
+                        "primary-container": "#a078ff",
+                        "surface-container-low": "#1c1b1c",
+                        "background": "#131314",
+                        "secondary-container": "#0566d9",
+                        "surface-container": "#201f20",
+                        "on-surface": "#e5e2e3",
+                        "on-surface-variant": "#cbc3d7",
+                        "tertiary-fixed": "#6ffbbe",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-tertiary": "#003824",
+                        "on-secondary": "#002e6a",
+                        "on-secondary-fixed-variant": "#004395",
+                        "inverse-primary": "#6d3bd7",
+                        "surface-container-highest": "#353436",
+                        "on-primary-fixed": "#23005c",
+                        "surface-variant": "#353436",
+                        "outline": "#958ea0",
+                        "secondary": "#adc6ff",
+                        "on-tertiary-fixed": "#002113",
+                        "inverse-surface": "#e5e2e3",
+                        "error-container": "#93000a"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-mobile": "16px",
+                        "container-max": "1440px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "unit": "4px"
+                    },
+                    fontFamily: {
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "data-value": ["JetBrains Mono"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "data-label": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-value": ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "data-label": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0B; /* Base solid layer per spec */
+        }
+        .luminous-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-style: solid;
+            border-width: 1px;
+            border-top-color: rgba(255, 255, 255, 0.15);
+            border-left-color: rgba(255, 255, 255, 0.15);
+            border-bottom-color: rgba(255, 255, 255, 0.05);
+            border-right-color: rgba(255, 255, 255, 0.05);
+        }
+        .ai-bubble-glow {
+            box-shadow: 0 4px 20px rgba(208, 188, 255, 0.2);
+            border: 1px solid rgba(208, 188, 255, 0.5);
+        }
+        .input-glow {
+            box-shadow: 0 8px 32px rgba(208, 188, 255, 0.15);
+        }
+        
+        /* Custom scrollbar for deep space feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
 </head>
-
-<body>
-    <div id="globe-container"></div>
-
-    <!-- Thought Panel (Floating Small Window) -->
-    <div id="thought-panel" class="thought-panel hidden">
-        <div class="thought-panel-header">
-            <span><i class="fas fa-brain"></i> Reasoning</span>
-            <span id="active-model-badge" class="model-badge">Selecting Brain...</span>
-            <button id="close-thought-panel" class="thought-panel-close">×</button>
-        </div>
-        <div id="thought-panel-content" class="thought-panel-content"></div>
-    </div>
-
-    <div class="live-chat-container">
-        <!-- Main Chat Area -->
-        <main class="chat-main">
-            <header class="chat-header">
-                <div class="header-actions">
-
-                    <!-- Modern Model Switcher -->
-                    <div class="model-switcher-container">
-                        <button id="model-switcher-btn" class="model-btn">
-                            <span id="current-model-label">Nova Core</span>
-                            <span class="dropdown-arrow">▼</span>
+<body class="text-on-surface font-body-md text-body-md overflow-hidden antialiased">
+<!-- Ambient Background Gradients -->
+<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen">
+<div class="absolute top-[-20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-primary-container/10 blur-[140px]"></div>
+<div class="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-secondary/10 blur-[120px]"></div>
+</div>
+<!-- SideNavBar (Left) -->
+<nav class="h-screen w-[280px] fixed left-0 top-0 bg-surface/30 backdrop-blur-3xl dark:bg-surface/30 border-r border-white/10 shadow-[0px_4px_20px_rgba(208,188,255,0.1)] flex flex-col h-full py-margin-desktop z-30">
+<!-- Header -->
+<div class="px-6 mb-8 flex items-center gap-4">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center border border-primary/30 shadow-[0_0_15px_rgba(208,188,255,0.2)]">
+<span class="material-symbols-outlined text-primary">psychology</span>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim tracking-tighter" style="font-size: 24px; line-height: 28px;">Aether AI</h1>
+<p class="font-data-label text-data-label text-tertiary">System Online</p>
+</div>
+</div>
+<!-- CTA -->
+<div class="px-6 mb-6">
+<button class="w-full relative overflow-hidden rounded-lg group">
+<div class="absolute inset-0 bg-gradient-to-r from-primary-container to-secondary-container opacity-80 group-hover:opacity-100 transition-opacity"></div>
+<div class="absolute inset-0 border border-white/20 rounded-lg"></div>
+<div class="relative py-3 px-4 flex items-center justify-center gap-2 text-white font-data-label text-data-label">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add</span>
+                    New Instance
+                </div>
+</button>
+</div>
+<!-- Main Nav -->
+<div class="flex-grow px-4 flex flex-col gap-2">
+<!-- Active Tab: Nova Core -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary dark:text-primary-fixed-dim border-l-2 border-primary dark:border-primary-fixed-dim bg-primary/5 scale-[0.98] active:scale-95 transition-transform font-data-label text-data-label" href="#">
+<span class="material-symbols-outlined" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+                Nova Core
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+                Swarm Intelligence
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
+<span class="material-symbols-outlined" data-icon="dns">dns</span>
+                Local Engine
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+                Terminal
+            </a>
+</div>
+<!-- Footer Nav -->
+<div class="px-4 mt-auto flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- TopAppBar (Top Right) -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 bg-surface/10 backdrop-blur-md dark:bg-surface/10 border-b border-white/10 flex justify-between items-center px-gutter ml-[280px] z-30">
+<div class="flex items-center">
+<h2 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim" style="font-size: 20px; line-height: 28px;">System Node 01</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 p-2 rounded-full hover:bg-white/5">
+<span class="material-symbols-outlined" data-icon="wifi_tethering">wifi_tethering</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 p-2 rounded-full hover:bg-white/5">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 p-2 rounded-full hover:bg-white/5 relative">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-white/20 ml-2">
+<img alt="Administrator" class="w-full h-full object-cover" data-alt="A striking portrait of a highly advanced, sleek synthetic humanoid avatar. The face is subtly geometric with subtle glowing primary purple accents along the cheekbones. High-key contrasting studio lighting creates a modern, cutting-edge aesthetic against a deep black background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnP9TvAFx9NiqpuleeJ9-lRGt8gbj3j0lZ0ZEHw2-FYtkL86DwiiO8vZ8bEFwbBmYJSsdPan_2bDUTYKfhp9A6CQluTfktOORgPlKgiKqd5GJqweR5sg7IGPM_aANNcyup686SjsCmogjVJeJOQAJJP5gcLoeLMQA_L3BjCQ4CK_nSQn_Z_b3986ELrhR79PtwzH59KS64wb0rCawm7AaD8_c6QnCFa5-S0oVybmoRiHkQi6BcmTUqBFXQrxji77tkDVlxX6OpQA"/>
+</div>
+</div>
+</header>
+<!-- Intelligence Panel (Right Sidebar) -->
+<aside class="fixed top-16 right-0 w-[320px] bottom-0 luminous-panel z-20 flex flex-col p-6 gap-6 overflow-y-auto">
+<div class="flex items-center justify-between mb-2">
+<h3 class="font-data-label text-data-label text-on-surface uppercase tracking-widest text-xs opacity-70">Live Telemetry</h3>
+<span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_10px_#4edea3]"></span>
+</div>
+<!-- CPU Chart Widget -->
+<div class="bg-surface-container-highest/20 rounded-xl p-4 border border-white/5">
+<div class="flex justify-between items-end mb-4">
+<span class="font-data-label text-data-label text-on-surface-variant">Core Load</span>
+<span class="font-data-value text-data-value text-primary">64%</span>
+</div>
+<div class="h-16 w-full relative flex items-end gap-1">
+<div class="w-full h-full absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none rounded-b"></div>
+<!-- Simulating a sparkline chart with vertical bars for the glassmorphic aesthetic -->
+<div class="flex-1 bg-primary/40 rounded-t-sm h-[30%]"></div>
+<div class="flex-1 bg-primary/50 rounded-t-sm h-[45%]"></div>
+<div class="flex-1 bg-primary/30 rounded-t-sm h-[20%]"></div>
+<div class="flex-1 bg-primary/60 rounded-t-sm h-[60%]"></div>
+<div class="flex-1 bg-primary/80 rounded-t-sm h-[85%] shadow-[0_0_8px_rgba(208,188,255,0.4)]"></div>
+<div class="flex-1 bg-primary/50 rounded-t-sm h-[50%]"></div>
+<div class="flex-1 bg-primary/70 rounded-t-sm h-[75%]"></div>
+<div class="flex-1 bg-primary/40 rounded-t-sm h-[35%]"></div>
+<div class="flex-1 bg-primary/60 rounded-t-sm h-[64%] shadow-[0_0_8px_rgba(208,188,255,0.4)]"></div>
+</div>
+</div>
+<!-- Memory Allocation Widget -->
+<div class="bg-surface-container-highest/20 rounded-xl p-4 border border-white/5">
+<div class="flex justify-between items-end mb-4">
+<span class="font-data-label text-data-label text-on-surface-variant">Memory</span>
+<span class="font-data-value text-data-value text-secondary">12.4 TB</span>
+</div>
+<div class="w-full bg-surface-container/50 rounded-full h-1.5 mb-2 overflow-hidden border border-white/5">
+<div class="bg-secondary h-1.5 rounded-full shadow-[0_0_10px_rgba(173,198,255,0.5)]" style="width: 78%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant opacity-60 font-data-label">
+<span>0</span>
+<span>16 TB MAX</span>
+</div>
+</div>
+<!-- Thought Reasoning Terminal -->
+<div class="mt-4 flex-grow flex flex-col">
+<h3 class="font-data-label text-data-label text-on-surface uppercase tracking-widest text-xs opacity-70 mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">terminal</span>
+                Reasoning Engine
+            </h3>
+<div class="flex-grow bg-[#00000080] rounded-xl border border-white/10 p-4 font-data-label text-[12px] leading-relaxed text-tertiary-fixed-dim overflow-hidden relative font-mono shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)]">
+<div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100%_4px] pointer-events-none opacity-20"></div>
+<p class="mb-2">&gt; Parsing contextual intent vector...</p>
+<p class="mb-2">&gt; [OK] Vector alignment 99.4%</p>
+<p class="mb-2">&gt; Initializing generative sub-routines</p>
+<p class="mb-2 text-on-surface-variant">&gt; Awaiting semantic node resolution</p>
+<p class="mb-2">&gt; Connecting to decentralized swarm...</p>
+<p class="animate-pulse">&gt; Processing<span class="tracking-widest">...</span></p>
+</div>
+</div>
+</aside>
+<!-- Center Interaction Area (Chat Canvas) -->
+<main class="fixed top-16 left-[280px] right-[320px] bottom-0 z-10 flex flex-col bg-transparent">
+<!-- Messages Scroll Area -->
+<div class="flex-grow overflow-y-auto px-10 py-8 flex flex-col gap-6">
+<!-- System Timestamp -->
+<div class="flex justify-center w-full">
+<span class="px-3 py-1 rounded-full bg-surface-container/40 border border-white/5 font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest backdrop-blur-sm">Session Initialized // 09:42 UTC</span>
+</div>
+<!-- User Message -->
+<div class="bg-surface-container-high/40 backdrop-blur-md rounded-2xl rounded-tr-sm p-5 self-end max-w-[75%] border border-white/5 text-on-surface font-body-md shadow-lg">
+<p>Compile a summary of the latest anomaly reports from the orbital sensor grid. Prioritize structural integrity warnings.</p>
+</div>
+<!-- AI Message -->
+<div class="luminous-panel rounded-2xl rounded-tl-sm p-6 self-start max-w-[85%] ai-bubble-glow font-body-md text-on-surface flex gap-4">
+<div class="mt-1">
+<span class="material-symbols-outlined text-primary">psychology</span>
+</div>
+<div>
+<p class="mb-4">I have aggregated the telemetry from the orbital grid spanning the last 72 hours. There are <strong class="text-primary font-bold">3 critical anomalies</strong> concerning structural integrity:</p>
+<ul class="space-y-3 font-data-label text-sm text-on-surface-variant">
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[18px] mt-0.5">warning</span>
+<span><strong>Node 42-Alpha:</strong> Micro-fracture detected in the primary tether casing. Stress variance exceeds safe operational limits by 14%.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-secondary text-[18px] mt-0.5">info</span>
+<span><strong>Sector 7 Array:</strong> Thermal shielding degradation. Minor impact, recalibrating heat dispersion algorithms automatically.</span>
+</li>
+<li class="flex items-start gap-2">
+<span class="material-symbols-outlined text-error text-[18px] mt-0.5">warning</span>
+<span><strong>Hub Relay Delta:</strong> Unexplained vibration resonance matching class-3 kinetic impacts. Suggest immediate drone inspection.</span>
+</li>
+</ul>
+<div class="mt-5 flex gap-3">
+<button class="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 transition-colors font-data-label text-xs flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">send</span>
+                            Deploy Drones
                         </button>
-                        <div id="model-dropdown-menu" class="model-menu hidden">
-                            <div class="model-option" data-value="custom">
-                                <div class="model-title">Nova Core (Self-Trained)</div>
-                                <div class="model-desc">Private, fast, custom brain.</div>
-                            </div>
-                            <div class="model-option" data-value="free">
-                                <div class="model-title">Free LLMs (Swarm)</div>
-                                <div class="model-desc">DeepSeek R1, Llama 3, Gemini Free.</div>
-                            </div>
-                            <div class="model-option" data-value="local">
-                                <div class="model-title">Phi-3 (Legacy)</div>
-                                <div class="model-desc">Standard offline backup.</div>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="settings-btn" class="mode-select">⚙️ Settings</button>
-                    <button id="header-mute-btn" class="mode-select" title="Toggle Mute"><i
-                            class="fas fa-volume-up"></i></button>
-                    <div class="status-toggle-container">
-                        <div id="status-card" class="status-card">
-                            <div class="header-logo">
-                                <div class="logo-container">
-                                    <div class="logo-glow"></div>
-                                    <img id="nova-logo" src="assets/logo.png" alt="Nova AI Logo">
-                                </div>
-                                <div class="header-titles">
-                                    <h1 class="gradient-text">Nova Core</h1>
-                                    <div style="display: flex; align-items: center; gap: 8px;">
-                                        <div class="status-badge">ONLINE</div>
-                                        <div id="browsing-status" class="status-badge browsing" style="display: none;">
-                                            <img src="" id="browsing-favicon" class="feb-ion-mini" alt="">
-                                            <span id="browsing-text">Browsing...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="status-card-front">ONLINE</div>
-                            <div class="status-card-back">OFFLINE</div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Logs Modal -->
-            <div id="logs-modal" class="logs-overlay" style="display: none;">
-                <div class="logs-content">
-                    <div class="logs-header">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <h2>🛠️ Debug & Glitch History</h2>
-                            <div id="logs-status" class="status-badge healthy">SYSTEM HEALTHY</div>
-                        </div>
-                        <button id="close-logs-btn" class="close-btn">✕</button>
-                    </div>
-                    <div id="logs-list" class="logs-list">
-                        <p style="text-align: center; opacity: 0.5;">Loading logs...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Schedule Modal -->
-            <div id="schedule-modal" class="logs-overlay" style="display: none;">
-                <div class="logs-content" style="max-width: 600px; height: 70vh;">
-                    <div class="logs-header">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <h2>📅 Upcoming Schedule</h2>
-                        </div>
-                        <button id="close-schedule-btn" class="close-btn">✕</button>
-                    </div>
-                    <div id="schedule-list" class="logs-list">
-                        <p style="text-align: center; opacity: 0.5;">Loading schedule...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Natural Events Dashboard (Page GUI) -->
-            <div id="events-dashboard" class="logs-overlay" style="display: none;">
-                <div class="logs-content events-dashboard-content">
-                    <div class="logs-header">
-                        <div style="display: flex; align-items: center; gap: 15px;">
-                            <h2 class="gradient-text"><i class="fas fa-microchip"></i> Earth Mission Control</h2>
-                            <div id="scan-status" class="status-badge scanning">SCANNING...</div>
-                        </div>
-                        <button id="close-events-btn" class="close-btn">✕</button>
-                    </div>
-                    <div class="events-main-layout">
-                        <div id="dashboard-globe-container" class="dashboard-globe"></div>
-                        <div class="events-side-panel">
-                            <h3><i class="fas fa-list-ul"></i> Active Events</h3>
-                            <div id="events-list" class="events-list-container">
-                                <div class="loading-scanners">Initializing Satellite Link...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Modal -->
-            <div id="settings-modal" class="logs-overlay" style="display: none;">
-                <div class="logs-content" style="max-width: 700px; height: 80vh; overflow-y: auto;">
-                    <div class="logs-header">
-                        <h2>⚙️ Nova Settings</h2>
-                        <button id="close-settings-btn" class="close-btn">✕</button>
-                    </div>
-
-                    <!-- Settings Tabs -->
-                    <div class="settings-tabs" style="display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <button class="settings-tab active" data-tab="voice"
-                            style="flex: 1; padding: 10px; background: rgba(138,43,226,0.3); border: none; border-radius: 8px; color: white; cursor: pointer;">🎤
-                            Voice</button>
-                        <button class="settings-tab" data-tab="profile"
-                            style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">👤
-                            Profile</button>
-                        <button class="settings-tab" data-tab="personality"
-                            style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">😊
-                            Personality</button>
-                        <button class="settings-tab" data-tab="model"
-                            style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">🧠
-                            Model</button>
-                        <button class="settings-tab" data-tab="memory"
-                            style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">💾
-                            Memory</button>
-                        <button class="settings-tab" data-tab="interface"
-                            style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">🎨
-                            Interface</button>
-                        <button class="settings-tab" data-tab="advanced"
-                            style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">⚡
-                            Advanced</button>
-                    </div>
-
-                    <!-- Settings Content -->
-                    <div class="settings-content">
-
-                        <!-- Voice Settings -->
-                        <div class="settings-panel active" id="voice-panel">
-                            <div class="setting-group" style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px; font-weight: bold;">Voice
-                                    Language</label>
-                                <select id="voice-language" class="setting-input"
-                                    style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                    <option value="en-US-AvaNeural">English (Ava - Modern)</option>
-                                    <option value="en-US-AnaNeural">English (Ana - Sweet & Cute 💕)</option>
-                                    <option value="en-US-EmmaNeural">English (Emma - Warm & Gentle 🌸)</option>
-                                    <option value="en-US-MichelleNeural">English (Michelle - Bubbly ✨)</option>
-                                    <option value="en-US-AriaNeural">English (Aria - Professional 💼)</option>
-                                    <option value="en-US-GuyNeural">English (Guy - Male 🎙️)</option>
-                                    <option value="ja-JP-NanamiNeural">Japanese (Nanami - Female 🇯🇵)</option>
-                                    <option value="en-GB-SoniaNeural">British (Sonia - Female 🇬🇧)</option>
-                                </select>
-                            </div>
-                            <div class="setting-group" style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px;">Voice Speed: <span
-                                        id="speed-value">1.0x</span></label>
-                                <input type="range" id="voice-speed" class="setting-slider" min="0.5" max="2.0"
-                                    step="0.1" value="1.0" style="width: 100%;">
-                            </div>
-                            <div class="setting-group" style="margin-bottom: 20px;">
-                                <label style="display: block; margin-bottom: 8px;">Voice Pitch: <span
-                                        id="pitch-value">+0Hz</span></label>
-                                <input type="range" id="voice-pitch" class="setting-slider" min="-10" max="10" step="1"
-                                    value="0" style="width: 100%;">
-                            </div>
-                            <div class="setting-group" style="margin-bottom: 20px;">
-                                <button id="test-voice-btn" class="test-btn"
-                                    style="padding: 12px 20px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; width: 100%;">
-                                    <i class="fas fa-volume-up" style="margin-right: 8px;"></i> Test Voice
-                                </button>
-                            </div>
-                            <div class="setting-group">
-                                <label class="toggle-label"
-                                    style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                    <input type="checkbox" id="auto-play-audio" checked>
-                                    <span>Auto-play Audio Responses</span>
-                                </label>
-                            </div>
-                            <div class="setting-group">
-                                <label class="toggle-label"
-                                    style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                    <input type="checkbox" id="mute-toggle">
-                                    <span>Mute Voice Output</span>
-                                </label>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- User Profile Settings -->
-                    <div class="settings-panel" id="profile-panel" style="display: none;">
-                        <div class="setting-group" style="text-align: center; margin-bottom: 20px;">
-                            <div class="profile-preview"
-                                style="position: relative; width: 100px; height: 100px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(0,0,0,0.3);">
-                                <img id="profile-image-preview" src="user_avatar.png"
-                                    onerror="this.src='user_avatar.png'" alt="User"
-                                    style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;">
-                            </div>
-                            <label for="profile-image-upload" class="upload-btn"
-                                style="display: inline-block; padding: 8px 16px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: white; cursor: pointer; font-size: 0.8em;">
-                                📷 Change Photo
-                            </label>
-                            <input type="file" id="profile-image-upload" accept="image/*" style="display: none;">
-                        </div>
-
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Your Name</label>
-                            <input type="text" id="user-name-input" placeholder="Enter your name..."
-                                style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                            <small style="display: block; margin-top: 5px; opacity: 0.6;">Used for addressing you. Set
-                                to 'RIVU' for Admin access.</small>
-                        </div>
-
-                        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
-                        <h3 style="margin-bottom: 15px; color: #a29bfe;">Personalization Questionnaire</h3>
-                        <p style="margin-bottom: 20px; opacity: 0.7; font-size: 0.9em;">Help Nova understand you better
-                            for deeper conversations.</p>
-
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Gender</label>
-                            <select id="user-gender" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="">Prefer not to say</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Non-binary">Non-binary</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Birthday</label>
-                            <input type="date" id="user-birthday" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                        </div>
-
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Occupation</label>
-                            <input type="text" id="user-occupation" placeholder="e.g. Student, Engineer, Artist..."
-                                style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                        </div>
-
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Interests /
-                                Hobbies</label>
-                            <textarea id="user-interests" placeholder="e.g. Coding, Anime, Music..." rows="3"
-                                style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; resize: vertical;"></textarea>
-                        </div>
-
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Relationship
-                                Status</label>
-                            <select id="user-relationship" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="">Prefer not to say</option>
-                                <option value="Single">Single</option>
-                                <option value="Taken">Taken</option>
-                                <option value="Married">Married</option>
-                                <option value="Complicated">It's Complicated</option>
-                            </select>
-                        </div>
-
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">About Me (Bio)</label>
-                            <textarea id="user-bio" placeholder="Tell Nova anything else about yourself..." rows="4"
-                                style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; resize: vertical;"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Personality Settings -->
-                    <div class="settings-panel" id="personality-panel" style="display: none;">
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Personality
-                                Mode</label>
-                            <select id="personality-mode-select" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="nova" selected>Nova (Standard)</option>
-                                <option value="professional">Professional</option>
-                                <option value="sweetheart">Sweetheart (Endearing)</option>
-                                <option value="bengali">Bengali Mode</option>
-                                <option value="savage">Savage Mode</option>
-                                <option value="cookie">Cookie (No Limits)</option>
-                            </select>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Response
-                                Length</label>
-                            <select id="response-length" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="short">Short & Concise</option>
-                                <option value="medium" selected>Medium (Balanced)</option>
-                                <option value="long">Long & Detailed</option>
-                            </select>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Emotion
-                                Expression</label>
-                            <select id="emotion-level" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="low">Low (Professional)</option>
-                                <option value="medium" selected>Medium (Balanced)</option>
-                                <option value="high">High (Very Expressive)</option>
-                            </select>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="use-emojis" checked>
-                                <span>Use Emojis in Responses</span>
-                            </label>
-                        </div>
-                        <div class="setting-group" style="display: none;">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="use-russian" disabled>
-                                <span>Use Russian Phrases (Alya Mode)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Model Settings -->
-                    <div class="settings-panel" id="model-panel" style="display: none;">
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px;">Response Temperature: <span
-                                    id="temp-value">0.7</span></label>
-                            <input type="range" id="temperature" class="setting-slider" min="0.1" max="1.0" step="0.1"
-                                value="0.7" style="width: 100%;">
-                            <small style="opacity: 0.7;">Lower = More focused, Higher = More creative</small>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px;">Max Response Tokens: <span
-                                    id="tokens-value">300</span></label>
-                            <input type="range" id="max-tokens" class="setting-slider" min="50" max="500" step="50"
-                                value="300" style="width: 100%;">
-                        </div>
-                        <div class="setting-group">
-                            <label style="display: block; margin-bottom: 8px;">Context Window (Messages): <span
-                                    id="context-value">10</span></label>
-                            <input type="range" id="context-window" class="setting-slider" min="5" max="20" step="1"
-                                value="10" style="width: 100%;">
-                        </div>
-                    </div>
-
-                    <!-- Memory Settings -->
-                    <div class="settings-panel" id="memory-panel" style="display: none;">
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="enable-ltm" checked>
-                                <span>Enable Long-Term Memory</span>
-                            </label>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Fact Learning
-                                Mode</label>
-                            <select id="fact-learning" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="auto" selected>Automatic</option>
-                                <option value="manual">Manual Only</option>
-                                <option value="off">Disabled</option>
-                            </select>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Memory
-                                Retention</label>
-                            <select id="memory-retention" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="7">7 Days</option>
-                                <option value="30" selected>30 Days</option>
-                                <option value="90">90 Days</option>
-                                <option value="forever">Forever</option>
-                            </select>
-                        </div>
-                        <div class="setting-group">
-                            <button id="clear-memory-btn" class="danger-btn"
-                                style="padding: 12px 20px; background: rgba(220,53,69,0.3); border: 1px solid rgba(220,53,69,0.5); border-radius: 8px; color: white; cursor: pointer; width: 100%;">⚠️
-                                Clear All Memories</button>
-                        </div>
-                    </div>
-
-                    <!-- Interface Settings -->
-                    <div class="settings-panel" id="interface-panel" style="display: none;">
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Theme</label>
-                            <select id="theme-select" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="dark" selected>Dark</option>
-                                <option value="glow">Soft Glow (Premium)</option>
-                                <option value="light">Light</option>
-                                <option value="auto">Auto (System)</option>
-                            </select>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: bold;">Font Size</label>
-                            <select id="font-size" class="setting-input"
-                                style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-                                <option value="small">Small</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="large">Large</option>
-                            </select>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="show-timestamps" checked>
-                                <span>Show Message Timestamps</span>
-                            </label>
-                        </div>
-                        <div class="setting-group">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="globe-animation" checked>
-                                <span>Enable Globe Animation</span>
-                            </label>
-                        </div>
-                        <div class="setting-group">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="enable-vtuber" checked>
-                                <span>Enable 3D V-Tuber Character</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Advanced Settings -->
-                    <div class="settings-panel" id="advanced-panel" style="display: none;">
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="developer-mode">
-                                <span>Developer Mode</span>
-                            </label>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="toggle-label"
-                                style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="debug-logs">
-                                <span>Show Debug Logs</span>
-                            </label>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 25px;">
-                            <label
-                                style="display: block; margin-bottom: 12px; font-weight: bold; color: #a29bfe;">Export
-                                Conversation History</label>
-                            <div style="display: flex; gap: 10px;">
-                                <button id="export-txt-btn" class="export-btn"
-                                    style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
-                                    <i class="fas fa-file-alt"></i> TXT
-                                </button>
-                                <button id="export-html-btn" class="export-btn"
-                                    style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
-                                    <i class="fas fa-file-code"></i> HTML
-                                </button>
-                                <button id="export-pdf-btn" class="export-btn"
-                                    style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
-                                    <i class="fas fa-file-pdf"></i> PDF
-                                </button>
-                            </div>
-                        </div>
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <button id="reset-settings-btn" class="danger-btn"
-                                style="padding: 12px 20px; background: rgba(220,53,69,0.3); border: 1px solid rgba(220,53,69,0.5); border-radius: 8px; color: white; cursor: pointer; width: 100%;">🔄
-                                Reset to Defaults</button>
-                        </div>
-                        <div class="setting-group"
-                            style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-                            <a href="stats.html" target="_blank"
-                                style="flex: 1; text-align: center; padding: 12px; background: rgba(100, 100, 255, 0.2); border-radius: 8px; color: white; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.1);">📊
-                                Stats</a>
-                            <button id="logs-btn"
-                                style="flex: 1; padding: 12px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer;">🛠️
-                                Logs</button>
-                            <button id="schedule-btn"
-                                style="flex: 1; padding: 12px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer;">📅
-                                Schedule</button>
-                        </div>
-                        <div class="setting-group"
-                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                            <h4>About Nova</h4>
-                            <p style="opacity: 0.7; font-size: 0.9em;">Version: 2.0 (Micro-LLM Core)</p>
-                            <p style="opacity: 0.7; font-size: 0.9em;">Model: OpenRouter API</p>
-                            <p style="opacity: 0.7; font-size: 0.9em;">Space: ~600MB (Optimized)</p>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Save Button -->
-                <div class="settings-footer"
-                    style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <button id="save-settings-btn" class="save-btn"
-                        style="padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; width: 100%;">
-                        <i class="fas fa-save" style="margin-right: 8px;"></i> Save Settings</button>
-                </div>
-            </div>
-
-            <!-- Chat Viewport -->
-            <div id="chat-viewport" class="chat-viewport">
-                <div class="welcome-screen">
-                    <h1>NOVA</h1>
-                    <p>Your AI Soulmate</p>
-                    <p class="welcome-subtitle">Nova Core • v2.0</p>
-                </div>
-                <!-- Chat Output Area -->
-                <div id="output-area" class="chat-output"></div>
-            </div>
-
-            <!-- Input Area -->
-            <div class="input-container">
-                <div class="input-wrapper" id="input-wrapper">
-                    <button id="live-mode-btn" class="gpt-action-btn live-trigger" title="Live Conversation">
-                        <div class="live-icon"><i class="fas fa-Infinity"></i></div>
-                        <div class="live-pulse"></div>
-                    </button>
-                    <!-- File Upload Input (Hidden) -->
-                    <input type="file" id="file-upload" style="display: none;" />
-                    <button id="upload-btn" class="gpt-action-btn" title="Upload File">
-                        <i class="fas fa-paperclip"></i>
-                    </button>
-                    <button id="mic-btn" class="gpt-action-btn" title="Voice Input"><i
-                            class="fas fa-microphone"></i></button>
-                    <input type="text" id="user-input" placeholder="Type a message or say 'Hey Nova'..."
-                        autocomplete="off">
-                    <button id="send-btn" class="gpt-send-btn" title="Send"><i class="fas fa-paper-plane"></i></button>
-                    <button id="stop-btn" class="gpt-action-btn" title="Stop Speaking"
-                        style="display: none; background: rgba(244, 67, 54, 0.2); color: #f44336;"><i
-                            class="fas fa-stop"></i></button>
-                </div>
-                <div class="legal-disclaimer">Nova AI v2.0 • Powered by OpenRouter • Fast & Cloud-Optimized</div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Live Mode Overlay (Redesigned) -->
-    <div id="live-overlay" class="live-overlay" style="display: none;">
-        <div class="live-identity">
-            <div class="identity-dot"></div>
-            <div class="identity-name">Nova Core • Live</div>
-        </div>
-
-        <div id="live-particle-container"></div>
-
-        <!-- VTuber 3D Container -->
-        <div id="vtuber-3d-container"></div>
-
-        <div class="live-status">🔴 Live Connection Active</div>
-
-        <div class="live-controls" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
-            <button id="live-manual-btn" class="live-control-btn active"
-                style="padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.8em;">Manual
-                (Alt)</button>
-            <button id="live-auto-btn" class="live-control-btn"
-                style="padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.8em;">Continuous</button>
-        </div>
-
-        <div class="transcript-focus-panel">
-            <div id="live-transcript" class="live-transcript">Listening for your voice...</div>
-        </div>
-
-        <button id="close-live-btn" class="close-live-btn">Exit Live Session</button>
-    </div>
-
-    <!-- Admin Diagnostic Dashboard -->
-    <div id="admin-dashboard" class="admin-dashboard hidden">
-        <!-- Auth Screen -->
-        <div id="admin-auth-screen" class="admin-auth-screen">
-            <div class="auth-box">
-                <i class="fas fa-lock auth-icon"></i>
-                <h2>SECURE ADMIN ACCESS</h2>
-                <div class="auth-identity">Identity: <strong>RIVU</strong></div>
-                <input type="password" id="admin-pass-input" placeholder="Admin Password..." class="admin-pass-input">
-                <div id="auth-error" class="auth-error hidden">Invalid Credentials. Access Denied.</div>
-                <button id="admin-login-btn" class="admin-login-btn">AUTHORIZE ACCESS</button>
-            </div>
-        </div>
-
-        <!-- Main Dashboard (Initially Hidden) -->
-        <div id="admin-main-content" class="admin-main-content hidden">
-            <div class="admin-header">
-                <div class="admin-title">
-                    <i class="fas fa-microchip"></i>
-                    <span>NOVA CORE DIAGNOSTICS</span>
-                </div>
-                <button id="close-admin-btn" class="admin-close-btn">&times;</button>
-            </div>
-
-            <div class="admin-scroll-container">
-                <div class="admin-stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">CPU USAGE</div>
-                        <div id="admin-cpu-val" class="stat-value">--</div>
-                        <div class="stat-bar">
-                            <div id="admin-cpu-bar" class="stat-progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">RAM USAGE</div>
-                        <div id="admin-mem-val" class="stat-value">--</div>
-                        <div class="stat-bar">
-                            <div id="admin-mem-bar" class="stat-progress" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">UPTIME</div>
-                        <div id="admin-uptime-val" class="stat-value">--</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">LTM FACTS</div>
-                        <div id="admin-facts-val" class="stat-value">--</div>
-                    </div>
-                </div>
-
-                <div class="admin-logs-area">
-                    <div class="logs-header">
-                        <i class="fas fa-terminal"></i> SYSTEM LOGS
-                    </div>
-                    <div id="admin-logs-list" class="admin-logs-list">
-                        <div class="log-item system">Safe environment established.</div>
-                    </div>
-                </div>
-
-                <!-- Command Emulator -->
-                <div class="admin-emulator-area">
-                    <div class="logs-header">
-                        <i class="fas fa-vial"></i> COMMAND EMULATOR
-                    </div>
-                    <div class="emulator-input-row">
-                        <input type="text" id="admin-emu-input" placeholder="Type command to test NLU..."
-                            class="admin-pass-input" style="margin-bottom: 0; text-align: left; padding: 10px;">
-                        <button id="admin-emu-btn" class="admin-btn primary"
-                            style="padding: 10px; width: 120px; font-size: 0.8em; margin-top: 0;">
-                            TEST
+<button class="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 transition-colors font-data-label text-xs flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">download</span>
+                            Raw Log
                         </button>
-                    </div>
-                    <div id="admin-emu-results" class="admin-logs-list"
-                        style="height: 100px; background: rgba(0, 255, 255, 0.05); margin-top: 10px; font-size: 0.75em; border: 1px solid rgba(0, 255, 255, 0.1);">
-                    </div>
-                </div>
-            </div>
-
-            <div class="admin-actions">
-                <button id="run-suite-btn" class="admin-btn primary">
-                    <i class="fas fa-shield-alt"></i> RUN AUTO-CHECK
-                </button>
-                <button id="clear-logs-btn" class="admin-btn">
-                    <i class="fas fa-eraser"></i> CLEAR
-                </button>
-            </div>
-        </div>
-
-        <script src="app.js"></script>
-</body>
-
-</html>
+</div>
+</div>
+</div>
+</div>
+<!-- Input Area Fixed at Bottom -->
+<div class="p-6 pt-2 w-full max-w-4xl mx-auto">
+<div class="bg-surface/30 backdrop-blur-2xl rounded-full border-t border-l border-white/10 border-b border-r border-white/5 flex items-center p-2 pl-6 pr-3 input-glow relative overflow-hidden group transition-all focus-within:bg-surface/50">
+<div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder-on-surface-variant/50 font-body-md py-3 outline-none z-10" placeholder="Command Nova Core..." type="text"/>
+<div class="flex items-center gap-2 z-10 ml-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-white/5">
+<span class="material-symbols-outlined text-[20px]">mic</span>
+</button>
+<button class="bg-primary/20 text-primary p-2.5 rounded-full hover:bg-primary/30 transition-colors border border-primary/30 flex items-center justify-center group-focus-within:bg-primary group-focus-within:text-on-primary">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+</button>
+</div>
+</div>
+<div class="text-center mt-3">
+<span class="font-data-label text-[10px] text-on-surface-variant/40 tracking-widest uppercase">Nova Core Engine v4.2.1 Operational</span>
+</div>
+</div>
+</main>
+<script src="app.js"></script>
+</body></html>

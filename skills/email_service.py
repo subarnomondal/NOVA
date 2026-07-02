@@ -33,6 +33,7 @@ class EmailDirectory:
 
     def save_emails(self):
         try:
+            os.makedirs("userdata", exist_ok=True)
             with open(self.email_file, 'w') as f:
                 json.dump(self.emails, f, indent=2)
         except Exception as e:

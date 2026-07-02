@@ -31,9 +31,13 @@ class TextCorrector:
         return False
 
     def _save_dictionary(self):
-        import json
-        with open(self.dictionary_file, 'w') as f:
-            json.dump(self.custom_words, f)
+        import json, os
+        try:
+            os.makedirs(os.path.dirname(self.dictionary_file), exist_ok=True)
+            with open(self.dictionary_file, 'w') as f:
+                json.dump(self.custom_words, f)
+        except Exception as e:
+            print(f"⚠️ Dictionary save error: {e}")
 
     def correct(self, text: str, mode: str = "balanced") -> Dict[str, Any]:
         """

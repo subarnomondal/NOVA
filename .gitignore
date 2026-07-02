@@ -31,15 +31,20 @@ venv.bak/
 # User Data, Secrets & Keys
 # CRITICAL: Never upload user interaction history or API keys
 userdata/
-!userdata/documents/
-userdata/documents/*.md
-keys.json
+*.json
 .env
 secret*/
+MY_CREDENTIALS_BACKUP.txt
 
-# User Content / Excluded Directories
-# Including 'documents' as requested
-# (Now handled by userdata/)
+# OS / Editor / Temp
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.vs/
+temp/
+graphify-out/
+graphify_out/
 dist_protected/
 protected/
 

@@ -1,24 +1,21 @@
-"""
-Browser Agent Skill for NOVA
-Autonomous web navigation, data extraction, and form filling using Playwright and DDGS.
-"""
+import sys
 
-import os
-import time
-import logging
-try:
-    from playwright.sync_api import sync_playwright # type: ignore
-    HAS_PLAYWRIGHT = True
-except ImportError:
-    HAS_PLAYWRIGHT = False
+with open('skills/browser_agent.py', 'r', encoding='utf-8') as f:
+    code = f.read()
 
-# Setup screenshot directory
-SCREENSHOT_DIR = os.path.join("userdata", "screenshots")
-if not os.path.exists(SCREENSHOT_DIR):
-    os.makedirs(SCREENSHOT_DIR, exist_ok=True)
+start_marker = '    def __init__(self):'
+end_marker = '            except Exception as e:\n                return f"Screenshot failed: {str(e)}"'
 
-class BrowserAgent:
-    def __init__(self):
+start_idx = code.find(start_marker)
+end_idx = code.find(end_marker)
+
+if start_idx == -1 or end_idx == -1:
+    print('Failed to find markers')
+    sys.exit(1)
+
+end_idx += len(end_marker)
+
+replacement = r'''    def __init__(self):
         import concurrent.futures
         self._executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         self._playwright = None
@@ -79,12 +76,10 @@ class BrowserAgent:
         def _do_open_url(u):
             try:
                 print(f"[Browser] Navigating to: {u}")
-                self._page.goto(u, wait_until="domcontentloaded", timeout=30000) # type: ignore
-                # Give it a tiny bit of extra time for network idle if possible
-                try: self._page.wait_for_load_state("networkidle", timeout=5000) # type: ignore
+                self._page.goto(u, wait_until="domcontentloaded", timeout=30000)
+                try: self._page.wait_for_load_state("networkidle", timeout=5000)
                 except: pass
-                
-                title = self._page.title() # type: ignore
+                title = self._page.title()
                 return f"*nods* I've arrived at the page: '{title}'. What should I look for here?"
             except Exception as e:
                 return f"Failed to open {u}: {str(e)}"
@@ -94,7 +89,6 @@ class BrowserAgent:
         """Uses DDGS to find the top result then visits it."""
         print(f"[Browser] Searching for: {query} using DDGS...")
         try:
-            from duckduckgo_search import DDGS
             with DDGS() as ddgs:
                 results = list(ddgs.text(query, max_results=1))
                 if not results:
@@ -120,18 +114,13 @@ class BrowserAgent:
                 
                 data = self._page.evaluate(r"""() => {
                     const getVisibleText = (el) => el.innerText.trim();
-                    
-                    // Try to find prices
                     const priceMatch = document.body.innerText.match(/(\$|£|€|₹)\s?(\d{1,3}(,\d{3})*(\.\d{2})?)/g);
-                    
-                    // Try to find tables
                     const tables = Array.from(document.querySelectorAll('table')).map(t => {
                         const rows = Array.from(t.rows).slice(0, 5).map(r => 
                             Array.from(r.cells).map(c => c.innerText.trim()).join(' | ')
                         ).join('\n');
                         return rows;
                     });
-
                     return {
                         title: document.title,
                         url: window.location.href,
@@ -190,10 +179,9 @@ class BrowserAgent:
                 return "Nothing to screenshot! Open a page first."
                 
             try:
+                import time, os
                 filename = f"capture_{int(time.time())}.png"
-                # Path relative to project root
                 relative_path = os.path.join("userdata", "screenshots", filename)
-                # URL relative to static web server
                 web_url = f"userdata/screenshots/{filename}"
                 
                 self._page.screenshot(path=relative_path)
@@ -207,62 +195,10 @@ class BrowserAgent:
                 }
             except Exception as e:
                 return f"Screenshot failed: {str(e)}"
-        return self._run_in_browser_thread(_do_screenshot)
+        return self._run_in_browser_thread(_do_screenshot)'''
 
-# Singleton instance
-agent = BrowserAgent()
+new_code = code[:start_idx] + replacement + code[end_idx:]
 
-# --- Dispatcher Commands ---
-
-def cmd_browser_navigate(args):
-    """Usage: browse to [url]"""
-    url = args.lower().replace("browse to", "").replace("visit", "").replace("open", "").strip()
-    if not url: return "Where should I go? Please provide a URL."
-    if not url.startswith("http"): url = "https://" + url
-    return agent.open_url(url)
-
-def cmd_browser_search(args):
-    """Usage: search and browse [query]"""
-    query = args.lower().replace("search and browse", "").replace("find on web", "").strip()
-    if not query: return "Search for what? Try 'search and browse latest bitcoin price'. 🔍"
-    return agent.search_and_browse(query)
-
-def cmd_browser_scrape(args):
-    """Usage: extract data or scrape page"""
-    return agent.extract_page_data()
-
-def cmd_browser_snap(args):
-    """Usage: take screenshot or snap page"""
-    return agent.screenshot()
-
-def cmd_browser_fill(args):
-    """Usage: browser type [selector] [value]"""
-    parts = args.replace("browser type", "").strip().split(" ", 1)
-    if len(parts) < 2: return "I need both a selector and the text to type!"
-    return agent.interact("type", parts[0], parts[1])
-
-def cmd_browser_click(args):
-    """Usage: browser click [selector]"""
-    selector = args.replace("browser click", "").strip()
-    if not selector: return "What should I click? (Need a CSS selector) 🖱️"
-    return agent.interact("click", selector)
-
-def cmd_browser_close(args):
-    """Usage: close browser or stop agent"""
-    agent.close()
-    return "The Browser Engine has been shut down to save resources."
-
-def register(dispatcher):
-    """Registers the browser agent commands."""
-    dispatcher.register("browse to", cmd_browser_navigate)
-    dispatcher.register("visit", cmd_browser_navigate)
-    dispatcher.register("search and browse", cmd_browser_search)
-    dispatcher.register("find on web", cmd_browser_search)
-    dispatcher.register("extract data", cmd_browser_scrape)
-    dispatcher.register("scrape page", cmd_browser_scrape)
-    dispatcher.register("take screenshot", cmd_browser_snap)
-    dispatcher.register("snap page", cmd_browser_snap)
-    dispatcher.register("browser click", cmd_browser_click)
-    dispatcher.register("browser type", cmd_browser_fill)
-    dispatcher.register("stop browser", cmd_browser_close)
-    dispatcher.register("close browser", cmd_browser_close)
+with open('skills/browser_agent.py', 'w', encoding='utf-8') as f:
+    f.write(new_code)
+print('Replaced successfully!')

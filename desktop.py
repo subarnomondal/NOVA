@@ -4,6 +4,12 @@ import time
 import sys
 import os
 
+# === CRITICAL: Create data directories before any module tries to write ===
+os.makedirs("userdata", exist_ok=True)
+os.makedirs("userdata/temp", exist_ok=True)
+os.makedirs("userdata/screenshots", exist_ok=True)
+os.makedirs("temp", exist_ok=True)
+
 # Set project root to sys.path
 root_dir = os.path.dirname(os.path.abspath(__file__))
 if root_dir not in sys.path:
@@ -412,7 +418,20 @@ def cleanup_temp_files():
                     except Exception:
                         pass # Silently skip locked files
         
-        # 2. Clean root directory for specific patterns
+        # 2. Clean 'temp/' directory (where voice recordings actually go)
+        voice_temp_dir = "temp"
+        if os.path.exists(voice_temp_dir):
+            for f in os.listdir(voice_temp_dir):
+                if any(f.endswith(ext) for ext in [".wav", ".mp3", ".webm"]):
+                    try:
+                        file_path = os.path.join(voice_temp_dir, f)
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+                            removed.append(f)
+                    except Exception:
+                        pass  # Silently skip locked files
+
+        # 3. Clean root directory for specific patterns
         import glob
         for pattern in ["temp_audio_*.webm", "temp_voice_*.webm", "temp_audio_*.wav", "temp_voice_*.wav"]:
             for f in glob.glob(pattern):
@@ -1692,6 +1711,18 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
     # === STEP 1: ALWAYS try Direct Skill Dispatch first ===
     try:
         skill_response = nova.dispatcher.dispatch(processed_input) if nova and hasattr(nova, 'dispatcher') else None
+        
+        # --- NEW: ADVANCED LLM INTENT ROUTING ---
+        if not skill_response and nova and hasattr(nova, 'dispatcher') and not chat_only:
+            try:
+                from core.llm_router import intent_router
+                mapped_cmd = intent_router.determine_skill(processed_input, nova.dispatcher)
+                if mapped_cmd and mapped_cmd.upper() != "NONE":
+                    safe_print(f"🧠 LLM Router mapped intent to: '{mapped_cmd}'")
+                    skill_response = nova.dispatcher.dispatch(mapped_cmd)
+            except Exception as e:
+                safe_print(f"⚠️ Intent Router Failed: {e}")
+
         if skill_response:
             response = skill_response.get("response", str(skill_response)) if isinstance(skill_response, dict) else str(skill_response)
             

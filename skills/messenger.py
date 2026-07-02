@@ -44,12 +44,7 @@ class ContactManager:
 # Initialize Contact Manager
 contact_manager = ContactManager()
 
-# Global state for multi-step messaging
-PENDING_MESSAGE = {
-    "phone": None,
-    "name": None,
-    "last_updated": None
-}
+
 
 def cmd_add_contact(args):
     """Usage: add contact <name> <number>"""
@@ -186,7 +181,6 @@ def cmd_send_message(args):
     Advanced WhatsApp Dispatcher with Automatic Professional Drafting.
     Usage: whatsapp John saying I will be late or send message to 1234567890 saying hello
     """
-    global PENDING_MESSAGE
     import re
     import random
     try:

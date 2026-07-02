@@ -91,8 +91,6 @@ def cmd_calculate(args):
         import math
         
         # Validation Regex (Allow digits, operators, parens, dots, spaces)
-        # fix: wrap function arguments in parens if missing (e.g. "math.sqrt 9" -> "math.sqrt(9)")
-        expression = re.sub(r'(math\.[a-z0-9]+)\s+(\d+(?:\.\d+)?)', r'\1(\2)', expression)
         
         # Updated to remove all math functions for validation
         check_expr = expression.replace("**", "")

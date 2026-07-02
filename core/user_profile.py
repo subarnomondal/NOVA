@@ -28,6 +28,7 @@ class UserProfile:
     def save_profile(self):
         """Save user profile to file"""
         try:
+            os.makedirs(os.path.dirname(self.profile_file), exist_ok=True)
             with open(self.profile_file, 'w', encoding='utf-8') as f:
                 json.dump(self.profile, f, indent=2, ensure_ascii=False)
         except Exception as e:

@@ -12,39 +12,39 @@ class EmotionDetector:
         # GoEmotions-inspired emotion categories with keyword patterns
         self.emotion_keywords = {
             # Positive emotions
-            "joy": ["happy", "joyful", "glad", "cheerful", "delighted", "pleased", "yay", "woohoo"],
-            "love": ["love", "adore", "cherish", "affection", "caring", "fond"],
-            "admiration": ["admire", "respect", "impressed", "amazing", "wonderful", "brilliant"],
-            "amusement": ["funny", "hilarious", "lol", "haha", "lmao", "rofl", "joke"],
-            "excitement": ["excited", "thrilled", "pumped", "hyped", "can't wait"],
-            "gratitude": ["thank", "thanks", "grateful", "appreciate", "thankful"],
-            "optimism": ["hope", "hopeful", "optimistic", "positive", "bright future"],
-            "pride": ["proud", "accomplished", "achievement", "success"],
-            "relief": ["relief", "relieved", "phew", "finally", "glad it's over"],
+            "joy": ["joy", "happy", "joyful", "glad", "cheerful", "delighted", "pleased", "yay", "woohoo", "awesome", "great", "smile", "smiling", "smiles", "grin", "grins", "ecstatic", "blissful", "radiant"],
+            "love": ["love", "loves", "adore", "adores", "cherish", "affection", "caring", "fond", "infatuated", "heart", "beloved"],
+            "admiration": ["admire", "respect", "impressed", "amazing", "wonderful", "brilliant", "fantastic", "incredible", "marvelous", "stellar"],
+            "amusement": ["funny", "hilarious", "lol", "haha", "lmao", "rofl", "joke", "laugh", "laughing", "laughs", "giggle", "giggles", "chuckle", "chuckles", "amused", "entertaining"],
+            "excitement": ["excited", "thrilled", "pumped", "hyped", "can't wait", "eager", "enthusiastic", "stoked"],
+            "gratitude": ["thank", "thanks", "grateful", "appreciate", "thankful", "blessed", "indebted"],
+            "optimism": ["hope", "hopeful", "optimistic", "positive", "bright future", "looking forward", "confident"],
+            "pride": ["proud", "accomplished", "achievement", "success", "triumph", "victory", "proud of"],
+            "relief": ["relief", "relieved", "phew", "finally", "glad it's over", "thank god", "sigh of relief", "sigh", "sighs"],
             
             # Negative emotions
-            "sadness": ["sad", "depressed", "down", "unhappy", "miserable", "crying", "tears"],
-            "anger": ["furious", "rage", "pissed", "irritated", "outraged"],
-            "fear": ["scared", "afraid", "terrified", "frightened", "worried", "anxious", "nervous"],
-            "disgust": ["disgusting", "gross", "eww", "yuck", "nasty", "revolting"],
-            "grief": ["grief", "mourning", "loss", "heartbroken", "devastated"],
-            "disappointment": ["disappointed", "let down", "failed", "didn't work out"],
-            "annoyance": ["annoying", "bothered", "irritating", "ugh", "frustrated"],
-            "embarrassment": ["embarrassed", "ashamed", "awkward", "humiliated"],
-            "nervousness": ["nervous", "jittery", "anxious", "uneasy", "tense"],
-            "remorse": ["sorry", "regret", "guilt", "my fault", "shouldn't have"],
+            "sadness": ["sadness", "sad", "depressed", "down", "unhappy", "miserable", "crying", "tears", "heartbreak", "cry", "cries", "weep", "weeps", "sob", "sobs", "sorrow", "gloomy", "melancholy", "blue", "bummed", "frown", "frowns"],
+            "anger": ["anger", "angry", "mad", "furious", "rage", "pissed", "irritated", "outraged", "upset", "livid", "fuming", "infuriated", "resentful"],
+            "fear": ["fear", "scared", "afraid", "terrified", "frightened", "worried", "anxious", "nervous", "panic", "dread", "terrifying", "creepy", "spooky"],
+            "disgust": ["disgusting", "gross", "eww", "yuck", "nasty", "revolting", "repulsive", "sickening", "vile", "awful"],
+            "grief": ["grief", "mourning", "loss", "heartbroken", "devastated", "bereaved", "agony", "anguish"],
+            "disappointment": ["disappointed", "let down", "failed", "didn't work out", "bummer", "what a shame", "regrettable"],
+            "annoyance": ["annoying", "bothered", "irritating", "ugh", "frustrated", "bothering", "nuisance", "bother", "bothersome", "irked"],
+            "embarrassment": ["embarrassed", "ashamed", "awkward", "humiliated", "cringe", "mortified", "blushing"],
+            "nervousness": ["nervous", "jittery", "anxious", "uneasy", "tense", "butterflies", "on edge"],
+            "remorse": ["sorry", "regret", "guilt", "my fault", "shouldn't have", "apologize", "guilty"],
             
             # Ambiguous emotions
-            "surprise": ["surprised", "shocked", "wow", "omg", "unexpected", "didn't expect"],
-            "confusion": ["confused", "don't understand", "what", "huh", "puzzled"],
-            "curiosity": ["curious", "wonder", "interested", "want to know"],
-            "realization": ["realize", "understand now", "oh", "aha", "i see"],
+            "surprise": ["surprised", "shocked", "wow", "omg", "unexpected", "didn't expect", "astonished", "startled", "whoa", "woah"],
+            "confusion": ["confused", "don't understand", "what", "huh", "puzzled", "baffled", "perplexed", "lost", "unclear"],
+            "curiosity": ["curious", "wonder", "interested", "want to know", "intrigued", "inquisitive"],
+            "realization": ["realize", "understand now", "oh", "aha", "i see", "makes sense", "got it", "eureka"],
             
             # Other
-            "caring": ["care about", "concerned", "worried about you", "are you okay"],
-            "desire": ["want", "wish", "desire", "crave", "need"],
-            "approval": ["agree", "yes", "correct", "right", "exactly"],
-            "disapproval": ["disagree", "no", "wrong", "incorrect", "don't think so"]
+            "caring": ["care about", "concerned", "worried about you", "are you okay", "take care", "sympathy", "empathy"],
+            "desire": ["want", "wish", "desire", "crave", "need", "longing", "yearning", "craving"],
+            "approval": ["agree", "yes", "correct", "right", "exactly", "absolutely", "definitely", "spot on", "true"],
+            "disapproval": ["disagree", "no", "wrong", "incorrect", "don't think so", "false", "nope", "nah"]
         }
         
         # Emotion intensity modifiers
@@ -68,13 +68,13 @@ class EmotionDetector:
             matched_keywords = []
             
             for keyword in keywords:
-                if keyword in text_lower:
+                if re.search(r'\b' + re.escape(keyword) + r'\b', text_lower):
                     score += 1
                     matched_keywords.append(keyword)
                     
                     # Boost score if intensifier nearby
                     for intensifier in self.intensifiers:
-                        if intensifier in text_lower and keyword in text_lower:
+                        if re.search(r'\b' + re.escape(intensifier) + r'\b', text_lower):
                             score += 0.5
             
             if score > 0:
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         "Thank you so much, I really appreciate it!"
     ]
     
-    print("🧪 Testing Emotion Detection:\n")
+    print("Testing Emotion Detection:\n")
     for text in test_cases:
         emotions = detector.detect_emotion(text, top_k=2)
         primary = emotions[0]

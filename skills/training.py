@@ -182,7 +182,8 @@ def cmd_analyze_quality(args):
         )
         
         metrics = analysis['metrics']
-        overall = analysis['overall_quality']
+        overall_data = analysis['overall_quality']
+        overall = overall_data['score'] if isinstance(overall_data, dict) else overall_data
         
         # Create visual quality indicator
         quality_emoji = "🌟" if overall >= 0.8 else "✨" if overall >= 0.6 else "💫" if overall >= 0.4 else "⚠️"
@@ -240,6 +241,7 @@ def cmd_export_training(args):
         import json, os
         export_text = json.dumps(summary, indent=2, ensure_ascii=False)
         
+        os.makedirs("userdata", exist_ok=True)
         # Save to file
         export_file = os.path.join("userdata", "training_export.json")
         with open(export_file, 'w', encoding='utf-8') as f:

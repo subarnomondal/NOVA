@@ -39,6 +39,9 @@ def cmd_citation_generator(args):
         
         prompt = f"Format this source in {style} style: {query}. Output ONLY the citation."
         citation = llm_manager.generate(prompt, raw_gen=True)
+        if not citation:
+            return "I'm sorry, I couldn't generate that citation right now. Please try again later."
+            
         return f"Here is your {style} citation:\n\n{citation.strip()}"
     except Exception as e:
         return f"Citation Error: {e}"

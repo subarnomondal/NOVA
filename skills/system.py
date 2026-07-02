@@ -59,7 +59,35 @@ def cmd_volume(args):
 def cmd_open_app(args):
     """Usage: open <app name>"""
     try:
-        app_name = args.lower().replace("open", "").replace("launch", "").replace("start", "").strip()
+        raw_args = args.lower()
+        app_name = raw_args.replace("open", "").replace("launch", "").replace("start", "").strip()
+        
+        # 1. Check if this is actually a website request
+        web_triggers = ["on browser", "in browser", "on brouser", "in brouser", "website", "online", "web", "site"]
+        is_web = any(trigger in app_name for trigger in web_triggers) or ".com" in app_name or ".org" in app_name or ".gov" in app_name
+        
+        if is_web:
+            # Extract the actual site name
+            target_site = app_name
+            for trigger in web_triggers:
+                target_site = target_site.replace(trigger, "").strip()
+            
+            # Clean up common joiners
+            target_site = target_site.replace(" on ", " ").replace(" in ", " ").strip()
+            
+            # Handle shorthand
+            if target_site == "nasa": target_site = "nasa.gov"
+            if target_site == "google": target_site = "google.com"
+            if target_site == "youtube": target_site = "youtube.com"
+            
+            if not target_site.startswith("http"):
+                url = f"https://{target_site}" if "." in target_site else f"https://www.google.com/search?q={target_site}"
+            else:
+                url = target_site
+                
+            from skills.browser_agent import agent
+            agent.open_url(url)
+            return f"Opening {target_site} in NOVA's browser for you! 🌐✨"
         
         # Common app mappings
         app_map = {
@@ -84,7 +112,7 @@ def cmd_open_app(args):
             "whatsapp": "whatsapp"
         }
         if app_name in app_map:
-            print(f"🚀 Opening {app_name}...")
+            print(f"[System] Opening {app_name}...")
             os.system(f"start {app_map[app_name]}")
             import random
             responses = [
@@ -108,7 +136,7 @@ def cmd_type_text(args):
         if not text:
             return "What would you like me to type? Just let me know! ⌨️"
         
-        print(f"⌨️ Typing: {text}")
+        print(f"[System] Typing: {text}")
         pyautogui.write(text, interval=0.1)
     
         return f"All done! I've typed: '{text}' for you. ✅"

@@ -22,6 +22,7 @@ def load_language_data():
 
 def save_language_data(data):
     try:
+        os.makedirs("userdata", exist_ok=True)
         with open(LANGUAGE_DATA_PATH, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
     except Exception as e:

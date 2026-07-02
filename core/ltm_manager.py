@@ -48,6 +48,7 @@ class LTMManager:
         return migrated
 
     def save_memory(self):
+        os.makedirs(os.path.dirname(self.memory_file), exist_ok=True)
         with open(self.memory_file, 'w', encoding='utf-8') as f:
             json.dump(self.facts, f, indent=2)
 

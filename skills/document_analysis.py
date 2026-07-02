@@ -91,6 +91,11 @@ class DocumentAnalysis:
             return f"I had trouble analyzing that file locally. Error: {str(e)}"
 
     def handle_intent(self, user_input):
+        import re
+        path_match = re.search(r'((?:[A-Za-z]:[/\\])?(?:[\w\-\.]+[/\\])+[\w\-\.]+|[\w\-\.]+\.[A-Za-z0-9]+)', user_input)
+        if path_match:
+            self.last_uploaded_file = path_match.group(1)
+            
         user_input = user_input.lower()
         
         # Check if it's a specific question about the file

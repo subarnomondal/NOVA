@@ -23,6 +23,7 @@ def load_finance_data():
 
 def save_finance_data(data):
     try:
+        os.makedirs("userdata", exist_ok=True)
         with open(FINANCE_DATA_PATH, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4)
     except Exception as e:

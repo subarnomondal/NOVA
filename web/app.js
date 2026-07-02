@@ -308,7 +308,7 @@ function renderSearchResults(container, results) {
             </div>
             <div class="search-card-snippet">${res.snippet.substring(0, 80)}...</div>
         `;
-        card.onclick = () => window.open(res.url, '_blank');
+        card.onclick = () => openInInternalBrowser(res.url);
         wrapper.appendChild(card);
     });
     
@@ -339,7 +339,7 @@ function renderNewsResults(container, results) {
             </div>
             <div class="news-card-title">${item.title}</div>
         `;
-        card.onclick = () => window.open(item.url, '_blank');
+        card.onclick = () => openInInternalBrowser(item.url);
         wrapper.appendChild(card);
     });
     
@@ -2307,6 +2307,30 @@ async function sendCommand(text, isSilent = false, lang = null) {
     }
 
 }
+
+/**
+ * --- INTERNAL BROWSER ROUTING ---
+ * Intercepts links and routes them through NOVA's internal BrowserAgent
+ */
+function openInInternalBrowser(url) {
+    if (!url) return;
+    console.log(`🌐 Routing to internal browser: ${url}`);
+    
+    // Show browsing status in UI
+    showBrowsingStatus(`Opening ${new URL(url).hostname}...`, 'assets/default_web.png');
+    
+    // Send command to backend to open in Playwright
+    sendCommand(`open ${url} in browser`, true);
+}
+
+// Global link interceptor for target="_blank" links
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (link && (link.target === '_blank' || link.href.includes('http'))) {
+        e.preventDefault();
+        openInInternalBrowser(link.href);
+    }
+});
 
 // Send Button Click
 if (sendBtn) {

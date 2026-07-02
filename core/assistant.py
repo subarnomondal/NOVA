@@ -41,7 +41,8 @@ class Nova:
             "skills.browser_agent": "Browser Agent",
             "skills.search": "Search",
             "skills.music": "Music",
-            "skills.vision": "Vision"
+            "skills.vision": "Vision",
+            "skills.science_skill": "Science"
         }
 
         import importlib
@@ -122,7 +123,7 @@ class Nova:
         
         # Initial status
         if getattr(llm_manager, 'show_thoughts', False):
-            print(f"🧠 {self.name} is thinking...")
+            print(f"[Thinking] {self.name} is thinking...")
         
         # Get list of loaded skill names for the system prompt
         available_skills = ", ".join(self.dispatcher.commands.keys())
@@ -154,19 +155,19 @@ class Nova:
         
         # 3. SELECTIVE THINKING: Determine if we should show thoughts
         # We hide thoughts for simple social chat or basic commands
-        heavy_intents = ['math_query', 'search', 'automation', 'text_correction', 'vision', 'document_analysis', 'code_architect', 'codebase_reader', 'problem_solving']
-        heavy_keywords = ['explain', 'how to', 'why', 'compare', 'analyze', 'summarize', 'write a', 'script', 'code', 'calculate']
+        heavy_keywords = ['explain', 'how to', 'why', 'compare', 'analyze', 'summarize', 
+                         'write a', 'script', 'code', 'calculate', 'search', 'find',
+                         'browse', 'news', 'weather', 'download', 'automate']
         
-        is_heavy = has_task and (
+        is_heavy = has_task or (
             len(user_input.split()) > 12 or 
-            first_intent in heavy_intents or 
             any(word in user_lower for word in heavy_keywords)
         )
 
         if is_pure_social or chat_only:
             # FAST PATH: Single generation with persona-first prompt
             if chat_only:
-                print(f"💬 Chat-Only Mode Active: Bypassing agent loop.")
+                print(f"Social Mode: Bypassing agent loop.")
                 system_prompt = (
                     "You are Nova. You're in a voice call right now, so keep it extremely natural and short. "
                     "Focus on conversation only — don't mention skills or technical features. "
@@ -180,7 +181,7 @@ class Nova:
                     "Keep it short (1-2 sentences). No robotic disclaimers or canned intros."
                 )
             if getattr(llm_manager, 'show_thoughts', False):
-                print(f"⚡ Fast Chat Path (Intent: {first_intent})")
+                print(f"Fast Chat Path (Intent: {first_intent})")
             thought_log = [f"Intent detected: {first_intent}", "Fast social path selected", "Generating persona-driven response..."]
             llm_output = llm_manager.generate(user_input, intent=first_intent, system_prompt=system_prompt, history=history, max_tokens=100, force_advanced=voice_mode, provider=provider)
             if not llm_output: return {
@@ -196,6 +197,7 @@ class Nova:
                 "thoughts": [] # Hide thoughts for pure social
             }
 
+        fallback_tried = False
         while loop_count < max_loops:
             loop_count += 1
 
@@ -228,7 +230,7 @@ class Nova:
             
             # Prepare Prompt with Observation and History
             prompt = f"USER_INPUT: {user_input}"
-            if 'current_observation' in locals() and current_observation is not None:
+            if current_observation and current_observation.strip():
                 prompt += f"\n\nCURRENT_OBSERVATION: {current_observation}\n\nContinue with your next step."
 
             # Generate Response
@@ -238,7 +240,7 @@ class Nova:
             # TERMINAL LOGGING: Show the raw LLM output for debugging
             if getattr(llm_manager, 'show_thoughts', False):
                 print(f"\n{'='*60}")
-                print(f"🤖 LLM OUTPUT (Loop {loop_count}):")
+                print(f"Robot LLM OUTPUT (Loop {loop_count}):")
                 print(llm_output)
                 print(f"{'='*60}\n")
 
@@ -255,13 +257,14 @@ class Nova:
             if skill_match:
                 has_action = True
                 cmd = skill_match.group(1).strip()
-                print(f"🛠️ OPENCLAW ACTION (Skill): {cmd}")
+                print(f"Action OPENCLAW ACTION (Skill): {cmd}")
                 obs = self.dispatcher.dispatch(cmd)
                 current_observation = f"Result: {obs}"
             elif script_match or cmd_match:
                 has_action = True
-                print(f"⚙️ OPENCLAW ACTION (Automation)...")
-                obs = self.dispatcher.dispatch(f"automate {llm_output}")
+                matched_cmd = script_match.group(1).strip() if script_match else cmd_match.group(1).strip()
+                print(f"Action OPENCLAW ACTION (Automation): {matched_cmd}")
+                obs = self.dispatcher.dispatch(f"automate {matched_cmd}")
                 import skills.automation
                 if skills.automation.pending_execution:
                     print("⚠️ Automation requires user confirmation. Halting LLM loop to ask user.")
@@ -271,28 +274,30 @@ class Nova:
             elif arch_match:
                 has_action = True
                 cmd = arch_match.group(1).strip()
-                print(f"📐 OPENCLAW ACTION (Architect): {cmd}")
+                print(f"Action OPENCLAW ACTION (Architect): {cmd}")
                 obs = self.dispatcher.dispatch(f"architect {cmd}")
                 current_observation = f"Result: {obs}"
             elif read_match:
                 has_action = True
                 cmd = read_match.group(1).strip()
-                print(f"🔍 OPENCLAW ACTION (Reader): {cmd}")
+                print(f"Action OPENCLAW ACTION (Reader): {cmd}")
                 obs = self.dispatcher.dispatch(f"reader {cmd}")
                 current_observation = f"Result: {obs}"
             
             # FALLBACK: If no action tags but user clearly wants a skill (news, weather, time)
-            if not has_action:
+            if not has_action and not fallback_tried:
                 # Check if user is asking for common skills
                 user_lower = user_input.lower()
                 if any(word in user_lower for word in ['news', 'headlines', 'latest']):
                     has_action = True
-                    print("🔧 FALLBACK: Detected news request, triggering skill...")
+                    fallback_tried = True
+                    print("Fallback: Detected news request, triggering skill...")
                     obs = self.dispatcher.dispatch("news")
                     current_observation = f"Result: {obs}"
                 elif any(word in user_lower for word in ['weather', 'temperature', 'forecast']):
                     has_action = True
-                    print("🔧 FALLBACK: Detected weather request, triggering skill...")
+                    fallback_tried = True
+                    print("Fallback: Detected weather request, triggering skill...")
                     obs = self.dispatcher.dispatch(f"weather {user_input}")
                     current_observation = f"Result: {obs}"
 
@@ -311,7 +316,7 @@ class Nova:
                 break
             
             # If we had an action, we loop again to let the LLM see the observation
-            print(f"🔄 Loop {loop_count}: Processed action. Re-evaluating...")
+            print(f"Loop {loop_count}: Processed action. Re-evaluating...")
 
         # Final Cleanup of response
         # Remove thought and action blocks for cleaner user experience

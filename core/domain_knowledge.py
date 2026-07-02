@@ -28,6 +28,7 @@ class DomainKnowledge:
     def save_knowledge(self):
         """Save domain knowledge to file"""
         try:
+            os.makedirs(os.path.dirname(self.knowledge_file), exist_ok=True)
             with open(self.knowledge_file, 'w', encoding='utf-8') as f:
                 json.dump(self.domains, f, indent=2, ensure_ascii=False)
         except Exception as e:

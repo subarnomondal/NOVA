@@ -19,6 +19,7 @@ class ProactiveEngine:
         }
     
     def save_patterns(self):
+        os.makedirs(os.path.dirname(self.patterns_file), exist_ok=True)
         with open(self.patterns_file, 'w') as f:
             json.dump(self.patterns, f, indent=2)
     

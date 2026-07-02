@@ -39,6 +39,7 @@ def fetch_nasa_events():
             events = data.get('events', [])
             results = []
             for e in events[:10]:
+                if not e.get('geometries'): continue
                 geom = e['geometries'][0]['coordinates']
                 results.append({
                     "title": e['title'],

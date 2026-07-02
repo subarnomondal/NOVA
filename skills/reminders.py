@@ -3,6 +3,7 @@ import time
 import threading
 import re
 import datetime
+import uuid
 from skills.messenger import cmd_send_message, contact_manager
 
 # Background thread for schedule
@@ -159,14 +160,14 @@ def get_all_jobs():
             "next_run": next_run,
             # We will use the job object's memory address as a temporary ID for deletion 
             # (risky but works for runtime) or tag.
-            "id": str(id(j)) 
+            "id": uuid.uuid4().hex 
         })
     return job_list
 
 def cancel_job_by_id(job_id):
     jobs = schedule.get_jobs("reminder")
     for j in jobs:
-        if str(id(j)) == job_id:
+        if uuid.uuid4().hex == job_id:
             schedule.cancel_job(j)
             return True
     return False

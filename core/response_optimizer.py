@@ -30,6 +30,7 @@ class ResponseOptimizer:
     def save_cache(self):
         """Save response cache to file"""
         try:
+            os.makedirs(os.path.dirname(self.cache_file), exist_ok=True)
             with open(self.cache_file, 'w', encoding='utf-8') as f:
                 json.dump(self.cache, f, indent=2, ensure_ascii=False)
         except Exception as e:

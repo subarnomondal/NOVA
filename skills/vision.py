@@ -18,7 +18,7 @@ class VisionSkill:
         
         return count >= 1 or '?' in text or keyword_match
 
-    def solve_mcq(self, text):
+    def solve_mcq(self, text, image_path=None):
         prompt = f"""
         You are Nova, an intelligent and highly capable digital companion.
         You are looking at a question extracted from an image.
@@ -38,12 +38,13 @@ class VisionSkill:
         
         print("🧠 Nova Brain: Analyzing MCQ...")
         try:
+            actual_image_path = image_path if image_path else (text if os.path.exists(text) else None)
             response = llm_manager.generate(
                 prompt, 
                 max_tokens=300,
                 temperature=0.7,
                 system_prompt="You are a helpful tutor solving questions from images.",
-                image_path=text if os.path.exists(text) else None # solve_mcq is sometimes called with just text
+                image_path=actual_image_path
             )
             if response:
                 return response.get('text', response) if isinstance(response, dict) else response
@@ -79,7 +80,7 @@ class VisionSkill:
             raw_text = analysis.get("text", "")
             if raw_text and self._is_question(raw_text):
                 print("🧠 Detecting question... Engaging Reasoning Core.")
-                answer = self.solve_mcq(raw_text)
+                answer = self.solve_mcq(raw_text, image_path=path)
                 formatted += f"\n\n🧠 **Nova Analysis**:\n{answer}"
             else:
                 # If no question, use LLM to comment on visual content

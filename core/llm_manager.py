@@ -320,7 +320,7 @@ class LLMManager:
                                     }
                                 }
                             ]
-                            messages_payload.append({"role": "user", "content": content_parts})
+                            messages_payload.append({"role": "user", "content": content_parts}) # type: ignore
                         else:
                             messages_payload.append({"role": "user", "content": user_input.get("text", "")})
                     else:

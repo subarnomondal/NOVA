@@ -7,6 +7,8 @@ from duckduckgo_search import DDGS
 import random
 import re
 import warnings
+import subprocess
+import os
 
 # Suppress the ddgs rename warning specifically
 warnings.filterwarnings("ignore", message=".*duckduckgo_search.*renamed to ddgs.*")
@@ -243,8 +245,6 @@ def cmd_global_charts(args):
         print(f"Global Charts Error: {e}")
         return "I couldn't synch with the global charts right now. I'll try again later! 📡"
 
-import subprocess
-import os
 
 def cmd_download_song(args):
     """Usage: download song <name>"""
@@ -263,9 +263,6 @@ def cmd_download_song(args):
             
         def download_thread():
             try:
-                # Ensure yt-dlp is installed
-                subprocess.run(["python", "-m", "pip", "install", "--upgrade", "yt-dlp"], capture_output=True)
-                
                 print(f"📥 Starting download: {query}")
                 out_template = os.path.join(music_dir, "%(title)s.%(ext)s")
                 

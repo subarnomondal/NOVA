@@ -57,7 +57,7 @@ def cmd_download(args):
         # Create downloads folder
         download_dir = "downloads"
         if not os.path.exists(download_dir):
-            os.makedirs(download_dir)
+            os.makedirs(download_dir, exist_ok=True)
             
         filepath = os.path.join(download_dir, filename)
         

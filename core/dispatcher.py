@@ -1,6 +1,7 @@
 
 import time
 import importlib
+import re
 
 class CommandDispatcher:
     def __init__(self):
@@ -131,13 +132,17 @@ class CommandDispatcher:
         sorted_keys = sorted(all_keys, key=len, reverse=True)
         
         for key in sorted_keys:
-            if key in user_input_lower:
+            # Match whole words only to avoid substring collisions (e.g. 'open' in 'opening')
+            # Explicitly cast key to string to satisfy type checker
+            if re.search(rf"\b{re.escape(str(key))}\b", user_input_lower):
                 # Load if lazy
                 if key in self.lazy_skills:
                     self._load_lazy_skill(key)
                 
                 # Double check after potential load
                 if key in self.commands:
+                    print(f"🎯 Dispatcher: Legacy match for '{key}'")
                     return self.commands[key](user_input)
         
         return None
+

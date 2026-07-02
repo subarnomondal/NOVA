@@ -280,7 +280,9 @@ class ConversationTrainer:
             metrics['personality_consistency'] * 0.3 +
             metrics['natural_flow'] * 0.2
         )
-        analysis['overall_quality'] = overall
+        analysis['overall_quality'] = {
+            'score': overall
+        }
         
         return analysis
     
@@ -308,7 +310,8 @@ class ConversationTrainer:
             if 'user' in conv and 'nova' in conv:
                 quality = self.analyze_conversation_quality(conv['user'], conv['nova'])
                 
-                if quality['overall_quality'] < 0.6:
+                overall_score = quality['overall_quality']['score'] if isinstance(quality['overall_quality'], dict) else quality['overall_quality']
+                if overall_score < 0.6:
                     low_quality_count += 1
                 
                 if quality['metrics']['emotional_engagement'] < 0.5:

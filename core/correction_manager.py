@@ -36,6 +36,7 @@ class CorrectionManager:
     
     def save_corrections(self):
         """Save corrections to file"""
+        os.makedirs(os.path.dirname(self.corrections_file), exist_ok=True)
         with open(self.corrections_file, 'w', encoding='utf-8') as f:
             json.dump(self.corrections, f, indent=2, ensure_ascii=False)
     

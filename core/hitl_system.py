@@ -30,6 +30,7 @@ class HITLSystem:
     def save_feedback(self):
         """Save feedback and corrections"""
         try:
+            os.makedirs(os.path.dirname(self.feedback_file), exist_ok=True)
             with open(self.feedback_file, 'w', encoding='utf-8') as f:
                 json.dump({
                     'feedback': self.feedback_data,

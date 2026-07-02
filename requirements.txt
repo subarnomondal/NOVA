@@ -39,3 +39,5 @@ pywhatkit>=5.4
 duckduckgo-search>=4.0.0
 wikipedia>=1.4.0
 pywin32>=306
+# MCP Support
+fastmcp>=0.1.0

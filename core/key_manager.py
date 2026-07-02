@@ -58,6 +58,7 @@ class KeyManager:
         import base64
         with self._lock:
             try:
+                os.makedirs(os.path.dirname(self.key_file), exist_ok=True)
                 # Keep keys in plaintext as requested by user
                 encoded_data = {}
                 for k, v in self.keys.items():

@@ -33,6 +33,7 @@ class ConversationMemory:
         """Save conversation history to file"""
         def _save():
             try:
+                os.makedirs(os.path.dirname(self.memory_file), exist_ok=True)
                 with open(self.memory_file, 'w', encoding='utf-8') as f:
                     json.dump({'conversations': self.conversations}, f, indent=2, ensure_ascii=False)
             except Exception as e:
@@ -53,52 +54,15 @@ class ConversationMemory:
                 'nova': nova_response,
                 'language': language
             }
-        
             
-        # Smart Filtering: Only save substantive interactions to disk
-        # Ignore short greetings or acknowledgements
-        trivial_inputs = [
-            "hi", "hello", "hey", "ok", "okay", "thanks", "thank you", 
-            "bye", "goodbye", "cool", "wow", "yes", "no", "play", "stop"
-        ]
-        
-        # Check if substantive:
-        # 1. Not in trivial list
-        # 2. Longer than 3 chars (unless it's a specific short command not in trivial)
-        # 3. Contains actual user intent (e.g. "learn that...", "what is...")
-        
-        is_substantive = True
-        cleaned_input = user_input.lower().strip()
-        
-        if cleaned_input in trivial_inputs:
-            is_substantive = False
-        elif len(cleaned_input) < 4 and cleaned_input not in trivial_inputs:
-            is_substantive = False # Very short noise
-            
-            
-        # De-duplication: Check if the last user input is identical
-        if self.conversations and self.conversations[-1]['user'] == user_input:
-             print("⏳ Ignoring duplicate user input")
-             return
-
-        if is_substantive:
-            # We add to the main list. For immediate context we usually take the last N.
-            # But the archive file should have EVERYTHING substantive.
             self.conversations.append(conversation)
             
-            # We don't cap self.conversations to 10 anymore in RAM, 
-            # but we will only return 10 for immediate context.
-            # However, to avoid RAM bloat over months, let's cap the archive at 1000 items.
+            # Cap archive at 1000 items to prevent RAM bloat
             if len(self.conversations) > 1000:
                 self.conversations = self.conversations[-1000:]
             
             self.save_memory()
-            print(f"💾 Saved substantive conversation. Archive size: {len(self.conversations)}")
-        else:
-            # For trivial inputs, we only keep them in the current session list 
-            # and they'll eventually be pushed out if we reload.
-            self.conversations.append(conversation)
-            print("⏳ Added trivial conversation to short-term context")
+            print(f"💾 Conversation saved. History size: {len(self.conversations)}")
 
     def find_relevant_memories(self, query: str, limit: int = 3) -> str:
         """Simple keyword-based retrieval of older relevant conversations"""

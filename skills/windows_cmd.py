@@ -107,7 +107,7 @@ def cmd_kill_process(args):
 def cmd_flush_dns(args):
     """Usage: flush dns, fix network"""
     try:
-        print("🔧 Flushing DNS...")
+        print("[System] Flushing DNS...")
         subprocess.run(["ipconfig", "/flushdns"], capture_output=True)
         return "*smiles* DNS cache has been flushed! This might help with your connection issues. 🌐✨"
     except Exception as e:

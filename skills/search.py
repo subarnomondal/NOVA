@@ -164,12 +164,8 @@ def cmd_news(args):
         }
         
     except Exception as e:
-        return f"I encountered a glitch while fetching the news. 🗞️"
-
-        
-    except Exception as e:
         print(f"News Skill Error: {e}")
-        return "I encountered a glitch while fetching the news. Let me know if you want me to try again! 🔍"
+        return f"I encountered a glitch while fetching the news. 🗞️ Let me know if you want me to try again!"
 
 def register(dispatcher):
     dispatcher.register("search", cmd_search)

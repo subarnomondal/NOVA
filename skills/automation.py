@@ -6,6 +6,7 @@ import traceback
 import threading
 from rich.console import Console
 import platform
+import re
 
 # Pre-check for Windows
 IS_WINDOWS = platform.system() == "Windows"
@@ -14,6 +15,17 @@ console = Console()
 
 # State for requiring confirmation before execution
 pending_execution = None
+
+def _strip_bot_prefixes(text):
+    """Strips natural language prefixes to isolate the actual command."""
+    prefixes = [
+        r"hey\s+nova,?", r"nova,?", r"please,?", r"can\s+you,?", r"could\s+you,?",
+        r"i\s+need\s+you\s+to,?", r"automate,?", r"run,?", r"execute,?"
+    ]
+    pattern = r"^\s*(" + "|".join(prefixes) + r")\s+"
+    # Strip prefixes case-insensitively
+    cleaned = re.sub(pattern, "", text, flags=re.IGNORECASE).strip()
+    return cleaned
 
 def _execute_script(code):
     print(f"🛠️ Executing Python Automation...")
@@ -105,7 +117,12 @@ def cmd_run_system_command(args):
     """
     global pending_execution
     try:
-        command = args.replace("automate cmd", "").replace("execute command", "").replace("run command", "").strip()
+        # Clean the input to remove NL prefixes
+        command = _strip_bot_prefixes(args)
+        
+        # Remove direct skill keywords if they remain
+        command = command.replace("automate cmd", "").replace("execute command", "").replace("run command", "").strip()
+        
         if not command:
             return "What system command should I run? 🖥️"
             
@@ -197,7 +214,11 @@ def cmd_open_app(args):
     Opens applications.
     Usage: open [app name], launch [app name]
     """
-    app_name = args.replace("open", "").replace("launch", "").replace("start", "").strip()
+    # Clean prefix (Hey Nova, Nova, etc.)
+    app_name = _strip_bot_prefixes(args)
+    
+    # Remove direct verbs
+    app_name = app_name.replace("open", "").replace("launch", "").replace("start", "").strip()
     
     if not app_name:
         return "Which app would you like me to open? 📂"

@@ -65,7 +65,7 @@ def find_local_music(query):
         if not os.path.exists(d): continue
         for root, dirs, files in os.walk(d):
             # Limit depth for performance
-            if root.count(os.sep) - d.count(os.sep) > 2: continue
+            if root.count(os.sep) - d.count(os.sep) > 2: dirs[:] = []
             
             for file in files:
                 if file.lower().endswith(extensions):
@@ -130,7 +130,6 @@ def cmd_play(args):
             if not query:
                 # Media toggle fallback
                 print("⏯️ Toggling media playback...")
-                pyautogui.press("playpause")
                 return "Toggled media playback. ⏯️"
             
         # --- NEW: LOCAL FILE SEARCH ---
@@ -189,12 +188,12 @@ def cmd_play(args):
                     
                     # Stop currently playing media before opening a new song
                     try:
-                        pyautogui.press("playpause")
                         time.sleep(0.3)  # Brief pause to let the old track stop
                     except Exception:
                         pass
                     
-                    webbrowser.open(best_url)
+                    from skills.browser_agent import agent
+                    agent.open_url(best_url)
                     
                     # Return rich data for the UI to render cards if it supports it
                     return {
@@ -219,22 +218,22 @@ def cmd_play(args):
                     if best_url:
                         # Stop current media before playing new
                         try:
-                            pyautogui.press("playpause")
                             time.sleep(0.3)
                         except Exception:
                             pass
-                        webbrowser.open(best_url)
+                        from skills.browser_agent import agent
+                        agent.open_url(best_url)
                         return f"{action} {intro}\nFinding '{clean_query}' for you on YouTube! 🎧"
         except Exception as search_err:
             print(f"⚠️ Search fallback snag: {search_err}")
 
         # Final Fallback — stop current media first
         try:
-            pyautogui.press("playpause")
             time.sleep(0.3)
         except Exception:
             pass
-        webbrowser.open(f"https://music.youtube.com/search?q={clean_query}")
+        from skills.browser_agent import agent
+        agent.open_url(f"https://music.youtube.com/search?q={clean_query}")
         return f"{action} {intro}\nOpening search results for '{clean_query}'! 📻"
 
     except Exception as e:
@@ -258,7 +257,8 @@ def cmd_my_music(args):
             target = results[0]
             playlist_id = target['browseId']
             title = target['title']
-            webbrowser.open(f"https://music.youtube.com/playlist?list={playlist_id}")
+            from skills.browser_agent import agent
+            agent.open_url(f"https://music.youtube.com/playlist?list={playlist_id}")
         
             return f"Found '{title}' in your library! Playing it now. 🎧"
         else:
