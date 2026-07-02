@@ -2815,3 +2815,37 @@ input::placeholder {
 .status-badge.browsing { background: rgba(0, 242, 254, 0.1) !important; border: 1px solid rgba(0, 242, 254, 0.4) !important; color: #00f2fe !important; padding: 4px 10px !important; gap: 8px !important; display: flex !important; align-items: center !important; animation: slideInRight 0.5s ease-out; }
 .feb-ion-mini { width: 16px; height: 16px; border-radius: 2px; background: white; padding: 1px; }
 @keyframes slideInRight { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+
+/* Settings Modal Pro UI Styles */
+.cyber-glass {
+            background: rgba(10, 10, 10, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-accent-purple {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+        .glow-accent-cyan {
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.4);
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }

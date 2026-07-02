@@ -3,569 +3,991 @@
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Aether AI Dashboard</title>
+<title>NOVA | Live Assistant</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Added Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "surface-container-lowest": "#0e0e0f",
-                        "primary-fixed-dim": "#d0bcff",
-                        "inverse-on-surface": "#313031",
-                        "on-tertiary-fixed-variant": "#005236",
-                        "tertiary": "#4edea3",
-                        "surface": "#131314",
-                        "outline-variant": "#494454",
-                        "on-primary": "#3c0091",
-                        "on-primary-container": "#340080",
-                        "on-background": "#e5e2e3",
-                        "tertiary-container": "#00a572",
-                        "on-secondary-fixed": "#001a42",
-                        "error": "#ffb4ab",
-                        "surface-dim": "#131314",
-                        "surface-container-high": "#2a2a2b",
-                        "tertiary-fixed-dim": "#4edea3",
-                        "on-secondary-container": "#e6ecff",
-                        "secondary-fixed-dim": "#adc6ff",
-                        "surface-tint": "#d0bcff",
-                        "surface-bright": "#3a393a",
-                        "on-error-container": "#ffdad6",
-                        "on-error": "#690005",
-                        "on-primary-fixed-variant": "#5516be",
-                        "primary": "#d0bcff",
-                        "primary-fixed": "#e9ddff",
-                        "on-tertiary-container": "#00311f",
-                        "primary-container": "#a078ff",
-                        "surface-container-low": "#1c1b1c",
-                        "background": "#131314",
-                        "secondary-container": "#0566d9",
-                        "surface-container": "#201f20",
-                        "on-surface": "#e5e2e3",
-                        "on-surface-variant": "#cbc3d7",
-                        "tertiary-fixed": "#6ffbbe",
-                        "secondary-fixed": "#d8e2ff",
-                        "on-tertiary": "#003824",
-                        "on-secondary": "#002e6a",
-                        "on-secondary-fixed-variant": "#004395",
-                        "inverse-primary": "#6d3bd7",
-                        "surface-container-highest": "#353436",
-                        "on-primary-fixed": "#23005c",
-                        "surface-variant": "#353436",
-                        "outline": "#958ea0",
-                        "secondary": "#adc6ff",
-                        "on-tertiary-fixed": "#002113",
-                        "inverse-surface": "#e5e2e3",
-                        "error-container": "#93000a"
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
-                    },
-                    spacing: {
-                        "margin-mobile": "16px",
-                        "container-max": "1440px",
-                        "gutter": "24px",
-                        "margin-desktop": "40px",
-                        "unit": "4px"
-                    },
-                    fontFamily: {
-                        "headline-lg-mobile": ["Inter"],
-                        "display-lg": ["Inter"],
-                        "data-value": ["JetBrains Mono"],
-                        "headline-lg": ["Inter"],
-                        "body-md": ["Inter"],
-                        "data-label": ["JetBrains Mono"]
-                    },
-                    fontSize: {
-                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
-                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
-                        "data-value": ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
-                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
-                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
-                        "data-label": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }]
-                    }
-                }
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#4a4949",
+                    "on-tertiary-container": "#636565",
+                    "on-primary-fixed-variant": "#454747",
+                    "outline": "#8e9192",
+                    "on-surface": "#e5e2e1",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "inverse-on-surface": "#313030",
+                    "inverse-primary": "#5d5f5f",
+                    "surface": "#141313",
+                    "error-container": "#93000a",
+                    "surface-dim": "#141313",
+                    "primary": "#ffffff",
+                    "inverse-surface": "#e5e2e1",
+                    "secondary-fixed": "#e5e2e1",
+                    "secondary": "#c8c6c5",
+                    "surface-variant": "#353434",
+                    "error": "#ffb4ab",
+                    "surface-container-low": "#1c1b1b",
+                    "tertiary-fixed-dim": "#c6c6c7",
+                    "primary-fixed-dim": "#c6c6c7",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-bright": "#3a3939",
+                    "surface-container": "#201f1f",
+                    "on-tertiary": "#2f3131",
+                    "on-secondary-fixed-variant": "#474646",
+                    "on-background": "#e5e2e1",
+                    "on-secondary-container": "#bab8b7",
+                    "on-primary-container": "#636565",
+                    "on-surface-variant": "#c4c7c8",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "surface-tint": "#c6c6c7",
+                    "on-error-container": "#ffdad6",
+                    "tertiary": "#ffffff",
+                    "primary-fixed": "#e2e2e2",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "surface-container-highest": "#353434",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "background": "#141313",
+                    "on-primary-fixed": "#1a1c1c",
+                    "on-primary": "#2f3131",
+                    "surface-container-high": "#2a2a2a",
+                    "outline-variant": "#444748",
+                    "primary-container": "#e2e2e2",
+                    "on-error": "#690005",
+                    "on-secondary": "#313030",
+                    "tertiary-fixed": "#e2e2e2",
+                    "tertiary-container": "#e2e2e2"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sm": "8px",
+                    "base": "4px",
+                    "gutter": "16px",
+                    "2xl": "64px",
+                    "xl": "40px",
+                    "margin-desktop": "32px",
+                    "xs": "4px",
+                    "margin-mobile": "16px",
+                    "lg": "24px",
+                    "md": "16px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Inter"],
+                    "label-mono": ["JetBrains Mono"],
+                    "label-caps": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-mono": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
             }
-        }
+          },
+        },
+      }
     </script>
 <style>
         body {
-            background-color: #0A0A0B; /* Base solid layer per spec */
+            background-color: #000000;
+            color: #e5e2e1;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
         }
-        .luminous-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-style: solid;
-            border-width: 1px;
-            border-top-color: rgba(255, 255, 255, 0.15);
-            border-left-color: rgba(255, 255, 255, 0.15);
-            border-bottom-color: rgba(255, 255, 255, 0.05);
-            border-right-color: rgba(255, 255, 255, 0.05);
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .ai-bubble-glow {
-            box-shadow: 0 4px 20px rgba(208, 188, 255, 0.2);
-            border: 1px solid rgba(208, 188, 255, 0.5);
+        .glass-stroke {
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .input-glow {
-            box-shadow: 0 8px 32px rgba(208, 188, 255, 0.15);
+        .fade-in-up {
+            animation: fadeInUp 0.4s ease-out forwards;
         }
-        
-        /* Custom scrollbar for deep space feel */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .4; transform: scale(0.9); }
+        }
+        .sparkline {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: dash 3s linear forwards;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: 0; }
+        }
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         ::-webkit-scrollbar-track {
             background: transparent;
         }
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            border-radius: 2px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+        
+        #character-scene {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.8;
+            mix-blend-mode: screen;
         }
+        
+        .content-overlay {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Neural Thought Stream Styles */
+        @keyframes thoughtPulse {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px #8B5CF6, 0 0 16px rgba(139,92,246,0.4); }
+            50% { opacity: 0.6; transform: scale(0.85); box-shadow: 0 0 4px #8B5CF6, 0 0 8px rgba(139,92,246,0.2); }
+        }
+        @keyframes thoughtSlideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes waveAnim {
+            0% { d: path("M0,18 Q30,8 60,18 T120,18 T180,18 T240,18 T300,18"); }
+            25% { d: path("M0,18 Q30,25 60,12 T120,22 T180,10 T240,24 T300,18"); }
+            50% { d: path("M0,18 Q30,5 60,26 T120,10 T180,26 T240,12 T300,18"); }
+            75% { d: path("M0,18 Q30,22 60,10 T120,24 T180,8 T240,22 T300,18"); }
+            100% { d: path("M0,18 Q30,8 60,18 T120,18 T180,18 T240,18 T300,18"); }
+        }
+        .thought-card { transition: all 0.2s ease; }
+        .thought-card:hover { background: rgba(139,92,246,0.08) !important; }
+        #thought-feed::-webkit-scrollbar { width: 3px; }
+        #thought-feed::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 3px; }
+        #thought-feed::-webkit-scrollbar-track { background: transparent; }
+
+        /* Thought type label colors */
+        .thought-reasoning { color: rgba(139,92,246,0.8) !important; }
+        .thought-analyzing { color: rgba(96,165,250,0.8) !important; border-left-color: rgba(96,165,250,0.6) !important; }
+        .thought-planning { color: rgba(52,211,153,0.8) !important; border-left-color: rgba(52,211,153,0.6) !important; }
+        .thought-error { color: rgba(248,113,113,0.8) !important; border-left-color: rgba(248,113,113,0.6) !important; }
     </style>
+<link href="style.css?v=4" rel="stylesheet"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><script id="tailwind-config-settings">
+tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-fixed-variant": "#474646",
+                      "surface-container-lowest": "#0e0e0e",
+                      "surface-container-highest": "#353434",
+                      "outline-variant": "#444748",
+                      "on-tertiary": "#2f3131",
+                      "tertiary": "#ffffff",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-error": "#690005",
+                      "primary-container": "#e2e2e2",
+                      "on-surface-variant": "#c4c7c8",
+                      "secondary-container": "#4a4949",
+                      "error-container": "#93000a",
+                      "surface-dim": "#141313",
+                      "on-tertiary-container": "#636565",
+                      "primary": "#ffffff",
+                      "surface-tint": "#c6c6c7",
+                      "on-primary": "#2f3131",
+                      "on-tertiary-fixed": "#1a1c1c",
+                      "inverse-surface": "#e5e2e1",
+                      "tertiary-fixed": "#e2e2e2",
+                      "on-surface": "#e5e2e1",
+                      "error": "#ffb4ab",
+                      "on-primary-fixed-variant": "#454747",
+                      "secondary": "#c8c6c5",
+                      "tertiary-container": "#e2e2e2",
+                      "surface-container-high": "#2a2a2a",
+                      "on-secondary": "#313030",
+                      "on-tertiary-fixed-variant": "#454747",
+                      "on-error-container": "#ffdad6",
+                      "surface-variant": "#353434",
+                      "tertiary-fixed-dim": "#c6c6c7",
+                      "secondary-fixed": "#e5e2e1",
+                      "surface": "#141313",
+                      "on-background": "#e5e2e1",
+                      "primary-fixed-dim": "#c6c6c7",
+                      "inverse-primary": "#5d5f5f",
+                      "on-primary-fixed": "#1a1c1c",
+                      "surface-container": "#201f1f",
+                      "primary-fixed": "#e2e2e2",
+                      "surface-container-low": "#1c1b1b",
+                      "outline": "#8e9192",
+                      "surface-bright": "#3a3939",
+                      "on-secondary-container": "#bab8b7",
+                      "inverse-on-surface": "#313030",
+                      "on-primary-container": "#636565",
+                      "background": "#141313",
+                      "on-secondary-fixed": "#1c1b1b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "gutter": "16px",
+                      "base": "4px",
+                      "2xl": "64px",
+                      "margin-desktop": "32px",
+                      "sm": "8px",
+                      "lg": "24px",
+                      "xs": "4px",
+                      "margin-mobile": "16px",
+                      "xl": "40px"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "label-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "1.1",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-mono": [
+                              "12px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "letterSpacing": "0em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "1",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+</script>
 </head>
-<body class="text-on-surface font-body-md text-body-md overflow-hidden antialiased">
-<!-- Ambient Background Gradients -->
-<div class="fixed inset-0 z-0 pointer-events-none overflow-hidden mix-blend-screen">
-<div class="absolute top-[-20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-primary-container/10 blur-[140px]"></div>
-<div class="absolute bottom-[-20%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-secondary/10 blur-[120px]"></div>
+<body class="h-screen w-screen relative overflow-hidden bg-background text-on-surface">
+<!-- Three.js Background Scene -->
+<div id="character-scene"></div>
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-20 flex flex-col items-center py-lg z-50 border-r border-white/10 bg-surface/80 backdrop-blur-xl">
+<div class="mb-xl w-full flex justify-center">
+<span class="font-headline-lg text-[24px] tracking-tighter text-primary">NOVA</span>
 </div>
-<!-- SideNavBar (Left) -->
-<nav class="h-screen w-[280px] fixed left-0 top-0 bg-surface/30 backdrop-blur-3xl dark:bg-surface/30 border-r border-white/10 shadow-[0px_4px_20px_rgba(208,188,255,0.1)] flex flex-col h-full py-margin-desktop z-30">
-<!-- Header -->
-<div class="px-6 mb-8 flex items-center gap-4">
-<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center border border-primary/30 shadow-[0_0_15px_rgba(208,188,255,0.2)]">
-<span class="material-symbols-outlined text-primary">psychology</span>
-</div>
-<div>
-<h1 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim tracking-tighter" style="font-size: 24px; line-height: 28px;">Aether AI</h1>
-<p class="font-data-label text-data-label text-tertiary">System Online</p>
-</div>
-</div>
-<!-- CTA -->
-<div class="px-6 mb-6">
-<button class="w-full relative overflow-hidden rounded-lg group">
-<div class="absolute inset-0 bg-gradient-to-r from-primary-container to-secondary-container opacity-80 group-hover:opacity-100 transition-opacity"></div>
-<div class="absolute inset-0 border border-white/20 rounded-lg"></div>
-<div class="relative py-3 px-4 flex items-center justify-center gap-2 text-white font-data-label text-data-label">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add</span>
-                    New Instance
-                </div>
+<div class="flex flex-col gap-6 flex-grow w-full">
+<!-- Active: Assistant -->
+<button class="flex flex-col items-center gap-1.5 transition-all scale-95 active:scale-90 text-primary border-r-2 border-primary w-full relative -mr-0.5 group" id="assistant-btn">
+<span class="material-symbols-outlined text-[24px]">smart_toy</span>
+<span class="font-label-caps text-[9px] tracking-widest group-hover:opacity-100">ASSISTANT</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 transition-all hover:opacity-100 hover:bg-white/5 text-on-surface-variant opacity-50 w-full py-2 group" id="logs-btn">
+<span class="material-symbols-outlined text-[24px]">database</span>
+<span class="font-label-caps text-[9px] tracking-widest">MEMORY</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 transition-all hover:opacity-100 hover:bg-white/5 text-on-surface-variant opacity-50 w-full py-2 group">
+<span class="material-symbols-outlined text-[24px]">monitoring</span>
+<span class="font-label-caps text-[9px] tracking-widest">TELEMETRY</span>
+</button>
+<button class="flex flex-col items-center gap-1.5 transition-all hover:opacity-100 hover:bg-white/5 text-on-surface-variant opacity-50 w-full py-2 group" id="settings-btn">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+<span class="font-label-caps text-[9px] tracking-widest">SETTINGS</span>
 </button>
 </div>
-<!-- Main Nav -->
-<div class="flex-grow px-4 flex flex-col gap-2">
-<!-- Active Tab: Nova Core -->
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary dark:text-primary-fixed-dim border-l-2 border-primary dark:border-primary-fixed-dim bg-primary/5 scale-[0.98] active:scale-95 transition-transform font-data-label text-data-label" href="#">
-<span class="material-symbols-outlined" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
-                Nova Core
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
-<span class="material-symbols-outlined" data-icon="hub">hub</span>
-                Swarm Intelligence
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
-<span class="material-symbols-outlined" data-icon="dns">dns</span>
-                Local Engine
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
-<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
-                Terminal
-            </a>
+<div class="mt-auto mb-4">
+<div class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center overflow-hidden grayscale opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A high-contrast monochromatic close-up portrait of a digital humanoid entity with glowing geometric light patterns on its face. The aesthetic is clean, futuristic, and premium, utilizing deep obsidian blacks and sharp white highlights. The image is rendered in a minimalist, high-detail style typical of high-performance AI interfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8UOBB1TC7acFwIJIgFsVMARPw421A-WVfek7e66lwRw6rziQD4BDKpHI1ZTNVb1d3no_9Ngy-OvGFlPQzG4IWqTrq-e1zmfL8n5D1tzYOTwingGho9ZmuHap3RSEOjibZw0cM-rVRbbwjDyh7pIBuDhD4CLnxgBbKLSwgb5hCn9KX_x5LGK8ZcXVENEFKWkgT1f9RYKoTMMASodd8YQRC4wjf5qgNGDYTwNWGHjcuvVx_cvI7IxJhwwJP8HVZmJmCha_Mekn2Z-dQ"/>
 </div>
-<!-- Footer Nav -->
-<div class="px-4 mt-auto flex flex-col gap-2">
-<a id="settings-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
-<span class="material-symbols-outlined" data-icon="settings">settings</span>
-                Settings
-            </a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
-<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
-                Support
-            </a>
 </div>
 </nav>
-<!-- TopAppBar (Top Right) -->
-<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 bg-surface/10 backdrop-blur-md dark:bg-surface/10 border-b border-white/10 flex justify-between items-center px-gutter ml-[280px] z-30">
-<div class="flex items-center">
-<h2 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim" style="font-size: 20px; line-height: 28px;">System Node 01</h2>
+<!-- TopAppBar -->
+<header class="fixed top-0 left-20 right-0 h-16 z-40 flex justify-between items-center px-margin-desktop bg-surface/50 backdrop-blur-md border-b border-white/5">
+<div class="flex items-center gap-6">
+<span class="font-label-caps text-label-caps tracking-[0.2em] text-primary">NOVA</span>
+<div class="h-4 w-[1px] bg-white/20"></div>
+<span class="font-label-mono text-label-mono text-on-surface-variant opacity-80">V.4.02.LIVE</span>
 </div>
-<div class="flex items-center gap-4">
-<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 p-2 rounded-full hover:bg-white/5">
-<span class="material-symbols-outlined" data-icon="wifi_tethering">wifi_tethering</span>
-</button>
-<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 p-2 rounded-full hover:bg-white/5">
-<span class="material-symbols-outlined" data-icon="memory">memory</span>
-</button>
-<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 p-2 rounded-full hover:bg-white/5 relative">
-<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-</button>
-<div class="w-8 h-8 rounded-full overflow-hidden border border-white/20 ml-2">
-<img alt="Administrator" class="w-full h-full object-cover" data-alt="A striking portrait of a highly advanced, sleek synthetic humanoid avatar. The face is subtly geometric with subtle glowing primary purple accents along the cheekbones. High-key contrasting studio lighting creates a modern, cutting-edge aesthetic against a deep black background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnP9TvAFx9NiqpuleeJ9-lRGt8gbj3j0lZ0ZEHw2-FYtkL86DwiiO8vZ8bEFwbBmYJSsdPan_2bDUTYKfhp9A6CQluTfktOORgPlKgiKqd5GJqweR5sg7IGPM_aANNcyup686SjsCmogjVJeJOQAJJP5gcLoeLMQA_L3BjCQ4CK_nSQn_Z_b3986ELrhR79PtwzH59KS64wb0rCawm7AaD8_c6QnCFa5-S0oVybmoRiHkQi6BcmTUqBFXQrxji77tkDVlxX6OpQA"/>
+<div class="flex items-center gap-gutter">
+<div class="relative hidden md:block">
+<input class="bg-surface-container border border-white/10 font-label-mono text-[10px] w-64 h-8 px-4 focus:ring-1 focus:ring-primary/30 transition-all rounded" placeholder="GLOBAL_SEARCH" type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined text-on-surface-variant opacity-70 cursor-pointer hover:text-primary hover:opacity-100 transition-colors text-[20px]">notifications_active</span>
+<span class="material-symbols-outlined text-on-surface-variant opacity-70 cursor-pointer hover:text-primary hover:opacity-100 transition-colors text-[20px]">account_circle</span>
 </div>
 </div>
 </header>
-<!-- Intelligence Panel (Right Sidebar) -->
-<aside class="fixed top-16 right-0 w-[320px] bottom-0 luminous-panel z-20 flex flex-col p-6 gap-6 overflow-y-auto">
-<div class="flex items-center justify-between mb-2">
-<h3 class="font-data-label text-data-label text-on-surface uppercase tracking-widest text-xs opacity-70">Live Telemetry</h3>
-<span class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_10px_#4edea3]"></span>
-</div>
-<!-- CPU Chart Widget -->
-<div class="bg-surface-container-highest/20 rounded-xl p-4 border border-white/5">
-<div class="flex justify-between items-end mb-4">
-<span class="font-data-label text-data-label text-on-surface-variant">Core Load</span>
-<span class="font-data-value text-data-value text-primary">64%</span>
-</div>
-<div class="h-16 w-full relative flex items-end gap-1">
-<div class="w-full h-full absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent pointer-events-none rounded-b"></div>
-<!-- Simulating a sparkline chart with vertical bars for the glassmorphic aesthetic -->
-<div class="flex-1 bg-primary/40 rounded-t-sm h-[30%]"></div>
-<div class="flex-1 bg-primary/50 rounded-t-sm h-[45%]"></div>
-<div class="flex-1 bg-primary/30 rounded-t-sm h-[20%]"></div>
-<div class="flex-1 bg-primary/60 rounded-t-sm h-[60%]"></div>
-<div class="flex-1 bg-primary/80 rounded-t-sm h-[85%] shadow-[0_0_8px_rgba(208,188,255,0.4)]"></div>
-<div class="flex-1 bg-primary/50 rounded-t-sm h-[50%]"></div>
-<div class="flex-1 bg-primary/70 rounded-t-sm h-[75%]"></div>
-<div class="flex-1 bg-primary/40 rounded-t-sm h-[35%]"></div>
-<div class="flex-1 bg-primary/60 rounded-t-sm h-[64%] shadow-[0_0_8px_rgba(208,188,255,0.4)]"></div>
+<!-- Main Content Area -->
+<main class="ml-20 pt-16 h-full flex flex-row content-overlay">
+<!-- Central Conversational Interface -->
+<section class="flex-grow flex flex-col relative px-margin-desktop pb-2xl overflow-hidden h-[calc(100vh-64px)]">
+<div class="flex-grow overflow-y-auto space-y-8 pt-lg pr-4 custom-scrollbar pb-32" id="chat-feed">
+<!-- User Message -->
+<div class="fade-in-up flex flex-col gap-3 items-end ml-auto max-w-[85%]" style="animation-delay: 0.2s;">
+<span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest">OPERATOR_01</span>
+<div class="glass-panel p-md rounded-lg rounded-tr-none border border-white/10">
+<p class="font-body-md text-primary/90 text-[15px]">
+                            Analyze current system latency. Is the core stabilized for the upcoming high-density task?
+                        </p>
 </div>
 </div>
-<!-- Memory Allocation Widget -->
-<div class="bg-surface-container-highest/20 rounded-xl p-4 border border-white/5">
-<div class="flex justify-between items-end mb-4">
-<span class="font-data-label text-data-label text-on-surface-variant">Memory</span>
-<span class="font-data-value text-data-value text-secondary">12.4 TB</span>
+<!-- AI Response -->
+<div class="fade-in-up flex flex-col gap-3 max-w-[85%]" style="animation-delay: 0.4s;">
+<span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-primary/80 rounded-full pulse-dot"></span>
+                        NOVA_AI // TELEMETRY_FEED
+                    </span>
+<div class="glass-panel p-lg rounded-lg rounded-tl-none border border-white/5 shadow-xl bg-surface-container-lowest/40">
+<p class="font-body-md text-on-surface/90 leading-relaxed mb-6 text-[15px]">
+                            Core latency is currently maintaining a baseline of 24ms. Thermal dissipation is optimal. Synaptic load remains under the 45% threshold.
+                        </p>
+<div class="flex gap-4">
+<div class="flex-1 p-4 bg-surface-container-low/50 rounded-lg border border-white/5">
+<span class="font-label-caps text-[9px] text-on-surface-variant opacity-50 tracking-wider mb-2 block">STABILITY_RATING</span>
+<div class="text-2xl font-label-mono text-primary">99.8%</div>
 </div>
-<div class="w-full bg-surface-container/50 rounded-full h-1.5 mb-2 overflow-hidden border border-white/5">
-<div class="bg-secondary h-1.5 rounded-full shadow-[0_0_10px_rgba(173,198,255,0.5)]" style="width: 78%"></div>
-</div>
-<div class="flex justify-between text-[10px] text-on-surface-variant opacity-60 font-data-label">
-<span>0</span>
-<span>16 TB MAX</span>
-</div>
-</div>
-<!-- Thought Reasoning Terminal -->
-<div class="mt-4 flex-grow flex flex-col">
-<h3 class="font-data-label text-data-label text-on-surface uppercase tracking-widest text-xs opacity-70 mb-3 flex items-center gap-2">
-<span class="material-symbols-outlined text-[16px]">terminal</span>
-                Reasoning Engine
-            </h3>
-<div class="flex-grow bg-[#00000080] rounded-xl border border-white/10 p-4 font-data-label text-[12px] leading-relaxed text-tertiary-fixed-dim overflow-hidden relative font-mono shadow-[inset_0_2px_20px_rgba(0,0,0,0.5)]">
-<div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:100%_4px] pointer-events-none opacity-20"></div>
-<p class="mb-2">&gt; Parsing contextual intent vector...</p>
-<p class="mb-2">&gt; [OK] Vector alignment 99.4%</p>
-<p class="mb-2">&gt; Initializing generative sub-routines</p>
-<p class="mb-2 text-on-surface-variant">&gt; Awaiting semantic node resolution</p>
-<p class="mb-2">&gt; Connecting to decentralized swarm...</p>
-<p class="animate-pulse">&gt; Processing<span class="tracking-widest">...</span></p>
-</div>
-</div>
-</aside>
-<!-- Center Interaction Area (Chat Canvas) -->
-<main class="fixed top-16 left-[280px] right-[320px] bottom-0 z-10 flex flex-col bg-transparent">
-<!-- Messages Scroll Area -->
-<div id="output-area" class="flex-grow overflow-y-auto px-10 py-8 flex flex-col gap-6">
-<!-- System Timestamp -->
-<div class="flex justify-center w-full">
-<span class="px-3 py-1 rounded-full bg-surface-container/40 border border-white/5 font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest backdrop-blur-sm">Session Initialized</span>
+<div class="flex-1 p-4 bg-surface-container-low/50 rounded-lg border border-white/5">
+<span class="font-label-caps text-[9px] text-on-surface-variant opacity-50 tracking-wider mb-2 block">THREAT_VECTOR</span>
+<div class="text-2xl font-label-mono text-primary">NULL</div>
 </div>
 </div>
 </div>
 </div>
 </div>
-</div>
-<!-- Input Area Fixed at Bottom -->
-<div class="p-6 pt-2 w-full max-w-4xl mx-auto">
-<div class="bg-surface/30 backdrop-blur-2xl rounded-full border-t border-l border-white/10 border-b border-r border-white/5 flex items-center p-2 pl-6 pr-3 input-glow relative overflow-hidden group transition-all focus-within:bg-surface/50">
-<div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-<input id="user-input" class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder-on-surface-variant/50 font-body-md py-3 outline-none z-10" placeholder="Command Nova Core..." type="text"/>
-<div class="flex items-center gap-2 z-10 ml-2">
-<button id="upload-btn" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-white/5" onclick="document.getElementById('file-upload').click()">
-<span class="material-symbols-outlined text-[20px]">attach_file</span>
-</button>
-<input type="file" id="file-upload" style="display: none;">
-<button id="stop-btn" class="p-2 text-error hover:text-error transition-colors rounded-full hover:bg-white/5" style="display: none;">
-<span class="material-symbols-outlined text-[20px]">stop</span>
-</button>
-<button id="mic-btn" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-white/5">
-<span class="material-symbols-outlined text-[20px]">mic</span>
-</button>
-<button id="send-btn" class="bg-primary/20 text-primary p-2.5 rounded-full hover:bg-primary/30 transition-colors border border-primary/30 flex items-center justify-center group-focus-within:bg-primary group-focus-within:text-on-primary">
-<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
+<!-- Input Bar -->
+<div class="absolute bottom-8 left-margin-desktop right-margin-desktop z-20 flex flex-col items-center">
+<div class="w-full max-w-4xl glass-panel glass-stroke p-1.5 rounded-full flex items-center shadow-2xl group bg-surface-container-lowest/80 backdrop-blur-xl border border-white/10">
+<input class="flex-grow bg-transparent border-none font-body-md text-primary px-6 h-12 focus:ring-0 placeholder:text-on-surface-variant/40 placeholder:text-[15px]" id="user-input" placeholder="Type command or query..." type="text"/>
+<button class="bg-primary hover:bg-primary/90 text-background w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-95 mr-1 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]" id="send-btn">
+<span class="material-symbols-outlined text-[20px]">north_east</span>
 </button>
 </div>
 </div>
-<div class="text-center mt-3">
-<span class="font-data-label text-[10px] text-on-surface-variant/40 tracking-widest uppercase">Nova Core Engine v4.2.1 Operational</span>
-</div>
-</div>
-</main>
-<!-- Settings Modal -->
-<div id="settings-modal" class="logs-overlay" style="display: none;">
-    <div class="logs-content settings-modal-content">
-        <div class="logs-header">
-            <h2><i class="fas fa-sliders-h"></i> Nova Settings</h2>
-            <button id="close-settings-btn" class="close-btn"><i class="fas fa-times"></i></button>
+</section>
+<!-- Right Neural Thought Stream Sidebar -->
+<aside id="thought-sidebar" class="w-[340px] shrink-0 h-full border-l border-white/5 backdrop-blur-md flex flex-col overflow-hidden" style="background: linear-gradient(180deg, rgba(10,8,20,0.95) 0%, rgba(5,4,12,0.98) 100%);">
+
+  <!-- Header -->
+  <div class="px-5 pt-5 pb-4 border-b flex-shrink-0" style="border-color: rgba(139,92,246,0.15);">
+    <div class="flex items-center justify-between mb-1">
+      <div class="flex items-center gap-2.5">
+        <div class="relative">
+          <div class="w-2 h-2 rounded-full" style="background:#8B5CF6; box-shadow: 0 0 8px #8B5CF6, 0 0 16px rgba(139,92,246,0.4); animation: thoughtPulse 2s ease-in-out infinite;"></div>
         </div>
-
-        <div class="settings-body-layout">
-            <!-- Settings Sidebar -->
-            <div class="settings-nav">
-                <button class="settings-tab active" data-tab="voice">
-                    <i class="fas fa-microphone-alt"></i> Voice
-                </button>
-                <button class="settings-tab" data-tab="personality">
-                    <i class="fas fa-user-circle"></i> Personality
-                </button>
-                <button class="settings-tab" data-tab="model">
-                    <i class="fas fa-brain"></i> Model
-                </button>
-                <button class="settings-tab" data-tab="memory">
-                    <i class="fas fa-hdd"></i> Memory
-                </button>
-                <button class="settings-tab" data-tab="interface">
-                    <i class="fas fa-paint-brush"></i> Interface
-                </button>
-                <button class="settings-tab" data-tab="advanced">
-                    <i class="fas fa-bolt"></i> Advanced
-                </button>
-                <button class="settings-tab" data-tab="skills">
-                    <i class="fas fa-puzzle-piece"></i> Skills
-                </button>
-            </div>
-
-            <!-- Settings Content -->
-            <div class="settings-content-wrapper">
-                
-                <!-- Voice Settings -->
-                <div class="settings-panel active" id="voice-panel">
-                    <div class="setting-card">
-                        <h3><i class="fas fa-headphones"></i> Audio Preferences</h3>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Voice Language</label>
-                            <select id="voice-language" class="setting-input">
-                                <option value="en-US-AvaNeural">English (Ava - Female)</option>
-                                <option value="en-US-GuyNeural">English (Guy - Male)</option>
-                                <option value="ja-JP-NanamiNeural">Japanese (Nanami - Female)</option>
-                                <option value="en-GB-SoniaNeural">British (Sonia - Female)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Voice Speed: <span id="speed-value">1.0x</span></label>
-                            <input type="range" id="voice-speed" class="setting-slider" min="0.5" max="2.0" step="0.1" value="1.0">
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Voice Pitch: <span id="pitch-value">+0Hz</span></label>
-                            <input type="range" id="voice-pitch" class="setting-slider" min="-10" max="10" step="1" value="0">
-                        </div>
-                        
-                        <div class="setting-group">
-                            <label class="toggle-label">
-                                <span>Auto-play Audio Responses</span>
-                                <input type="checkbox" id="auto-play-audio" checked>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Personality Settings -->
-                <div class="settings-panel" id="personality-panel">
-                    <div class="setting-card">
-                        <h3><i class="fas fa-comment-dots"></i> Behavior</h3>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Response Length</label>
-                            <select id="response-length" class="setting-input">
-                                <option value="short">Short & Concise</option>
-                                <option value="medium" selected>Medium (Balanced)</option>
-                                <option value="long">Long & Detailed</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Emotion Expression</label>
-                            <select id="emotion-level" class="setting-input">
-                                <option value="low">Low (Professional)</option>
-                                <option value="medium" selected>Medium (Balanced)</option>
-                                <option value="high">High (Very Expressive)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label">
-                                <span>Use Emojis in Responses</span>
-                                <input type="checkbox" id="use-emojis" checked>
-                            </label>
-                        </div>
-                        
-                        <div class="setting-group" style="display: none;">
-                            <label class="toggle-label">
-                                <span>Use Russian Phrases (Alya Mode)</span>
-                                <input type="checkbox" id="use-russian" disabled>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Model Settings -->
-                <div class="settings-panel" id="model-panel">
-                    <div class="setting-card">
-                        <h3><i class="fas fa-microchip"></i> Generation Parameters</h3>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Detailed System Prompt</label>
-                            <textarea id="system-prompt" class="setting-input" style="height: 120px; resize: vertical;" placeholder="You are Nova, a highly advanced AI..."></textarea>
-                            <span class="setting-hint">Customize the core personality and instructions provided to the AI.</span>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Response Temperature: <span id="temp-value">0.7</span></label>
-                            <input type="range" id="temperature" class="setting-slider" min="0.1" max="1.0" step="0.1" value="0.7">
-                            <span class="setting-hint">Lower = More focused, Higher = More creative</span>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Max Response Tokens: <span id="tokens-value">300</span></label>
-                            <input type="range" id="max-tokens" class="setting-slider" min="50" max="500" step="50" value="300">
-                        </div>
-                        
-                        <div class="setting-group">
-                            <label class="setting-label-bold">Context Window (Messages): <span id="context-value">10</span></label>
-                            <input type="range" id="context-window" class="setting-slider" min="5" max="20" step="1" value="10">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Memory Settings -->
-                <div class="settings-panel" id="memory-panel">
-                    <div class="setting-card">
-                        <h3><i class="fas fa-database"></i> Long-Term Storage</h3>
-                        
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label">
-                                <span>Enable Long-Term Memory</span>
-                                <input type="checkbox" id="enable-ltm" checked>
-                            </label>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Fact Learning Mode</label>
-                            <select id="fact-learning" class="setting-input">
-                                <option value="auto" selected>Automatic</option>
-                                <option value="manual">Manual Only</option>
-                                <option value="off">Disabled</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Memory Retention</label>
-                            <select id="memory-retention" class="setting-input">
-                                <option value="7">7 Days</option>
-                                <option value="30" selected>30 Days</option>
-                                <option value="90">90 Days</option>
-                                <option value="forever">Forever</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-top: 30px;">
-                            <button id="clear-memory-btn" class="btn-danger-glow">
-                                <i class="fas fa-exclamation-triangle"></i> Clear All Memories
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Interface Settings -->
-                <div class="settings-panel" id="interface-panel">
-                    <div class="setting-card">
-                        <h3><i class="fas fa-desktop"></i> Appearance</h3>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Theme</label>
-                            <select id="theme-select" class="setting-input">
-                                <option value="dark" selected>Dark</option>
-                                <option value="light">Light</option>
-                                <option value="auto">Auto (System)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 20px;">
-                            <label class="setting-label-bold">Font Size</label>
-                            <select id="font-size" class="setting-input">
-                                <option value="small">Small</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="large">Large</option>
-                            </select>
-                        </div>
-                        
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label">
-                                <span>Show Message Timestamps</span>
-                                <input type="checkbox" id="show-timestamps" checked>
-                            </label>
-                        </div>
-                        
-                        <div class="setting-group">
-                            <label class="toggle-label">
-                                <span>Enable Globe Animation</span>
-                                <input type="checkbox" id="globe-animation" checked>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Advanced Settings -->
-                <div class="settings-panel" id="advanced-panel">
-                    <div class="setting-card">
-                        <h3><i class="fas fa-cogs"></i> System & Developer</h3>
-                        <div class="setting-group" style="margin-bottom: 15px;">
-                            <label class="toggle-label">
-                                <span>Developer Mode Logging</span>
-                                <input type="checkbox" id="dev-mode">
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Skill Management (Dynamic) -->
-                <div class="settings-panel" id="skills-panel">
-                    <div class="setting-card">
-                        <h3><i class="fas fa-project-diagram"></i> Smart Skill Discovery</h3>
-                        <span class="setting-hint" style="margin-bottom: 20px;">Nova has automatically scanned her 'skills/' directory and identified her capabilities. Most modules are "Sleeping" to save RAM and will "Wake Up" when first used.</span>
-                        
-                        <div id="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
-                            <!-- Skill Cards will be injected by app.js -->
-                            <div style="grid-column: span 2; text-align: center; padding: 40px; opacity: 0.5;">
-                                <i class="fas fa-search"></i> Scanning for skills...
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Save Button -->
-        <div class="settings-footer" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <button id="save-settings-btn" class="btn-primary-glow">
-                <i class="fas fa-save"></i> Save Settings
-            </button>
-        </div>
+        <span style="font-family: monospace; font-size:10px; letter-spacing:0.22em; color: rgba(139,92,246,0.9); font-weight:600;">NEURAL THOUGHT STREAM</span>
+      </div>
+      <span id="thought-status-badge" style="font-family:monospace; font-size:9px; letter-spacing:0.1em; color:rgba(139,92,246,0.5); padding:2px 7px; border:1px solid rgba(139,92,246,0.2); border-radius:20px;">IDLE</span>
     </div>
+    <div style="height:1px; background: linear-gradient(90deg, rgba(139,92,246,0.4), transparent); margin-top:8px;"></div>
+  </div>
+
+  <!-- Thought Feed -->
+  <div id="thought-feed" class="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 custom-scrollbar" style="scroll-behavior: smooth;">
+    <!-- Default welcome thought -->
+    <div class="thought-card" style="border-left:2px solid rgba(139,92,246,0.6); background:rgba(139,92,246,0.04); border-radius:0 8px 8px 0; padding:10px 12px; animation: thoughtSlideIn 0.4s ease-out;">
+      <span style="font-family:monospace; font-size:9px; letter-spacing:0.18em; color:rgba(139,92,246,0.6); font-weight:600;">STANDBY</span>
+      <p style="font-family:monospace; font-size:12px; color:rgba(255,255,255,0.55); margin:5px 0 0; line-height:1.6;">Neural pathways initialized. Awaiting operator input...</p>
+    </div>
+  </div>
+
+  <!-- Neural Activity Footer -->
+  <div class="flex-shrink-0 px-5 py-4 border-t" style="border-color: rgba(139,92,246,0.12);">
+    <div class="flex items-center justify-between mb-2">
+      <span style="font-family:monospace; font-size:9px; letter-spacing:0.2em; color:rgba(139,92,246,0.5);">NEURAL ACTIVITY</span>
+      <span id="thought-count" style="font-family:monospace; font-size:9px; color:rgba(139,92,246,0.4);">0 THOUGHTS</span>
+    </div>
+    <div style="position:relative; height:36px; overflow:hidden;">
+      <svg id="thought-waveform" viewBox="0 0 300 36" style="width:100%; height:100%;" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:rgba(139,92,246,0);"/>
+            <stop offset="30%" style="stop-color:rgba(139,92,246,0.7);"/>
+            <stop offset="70%" style="stop-color:rgba(139,92,246,0.7);"/>
+            <stop offset="100%" style="stop-color:rgba(139,92,246,0);"/>
+          </linearGradient>
+        </defs>
+        <path id="wave-path" d="M0,18 Q30,8 60,18 T120,18 T180,18 T240,18 T300,18" fill="none" stroke="url(#waveGrad)" stroke-width="1.5" opacity="0.5"/>
+        <path id="wave-glow" d="M0,18 Q30,8 60,18 T120,18 T180,18 T240,18 T300,18" fill="none" stroke="url(#waveGrad)" stroke-width="3" opacity="0.15" filter="blur(3px)"/>
+      </svg>
+    </div>
+  </div>
+</aside>
+</main>
+<script>
+        // Three.js Character Scene Setup
+        
+        function initThreeJS() {
+            const container = document.getElementById('character-scene');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Generate a procedural cybernetic grid/pulse effect
+            const geometry = new THREE.PlaneGeometry(20, 10, 32, 32);
+            
+            // Custom Shader Material for breathing, speaking pulse, and circuitry
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    speakIntensity: { value: 0 },
+                    mouse: { value: new THREE.Vector2(0, 0) }
+                },
+                vertexShader: `
+                    uniform float time;
+                    uniform float speakIntensity;
+                    uniform vec2 mouse;
+                    varying vec2 vUv;
+                    void main() {
+                        vUv = uv;
+                        vec3 pos = position;
+                        // Mouse tracking look-at subtle effect
+                        pos.x += mouse.x * 0.5 * (uv.y - 0.5);
+                        pos.y += mouse.y * 0.5 * (uv.x - 0.5);
+                        
+                        // Breathing animation synchronized with speaking
+                        float breath = sin(time * (1.0 + speakIntensity * 2.0)) * 0.1 * (1.0 + speakIntensity * 0.5);
+                        pos.z += breath * (1.0 - uv.y);
+                        
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float time;
+                    uniform float speakIntensity;
+                    varying vec2 vUv;
+                    
+                    void main() {
+                        // Base circuitry effect
+                        float grid = sin(vUv.x * 50.0) * sin(vUv.y * 50.0);
+                        vec3 color = vec3(0.0, 0.1, 0.2) * grid;
+                        
+                        // Mouth pulse simulation (center bottom glow)
+                        float distToMouth = distance(vUv, vec2(0.5, 0.3));
+                        float mouthGlow = exp(-distToMouth * 10.0) * speakIntensity;
+                        
+                        // Reactive circuitry cyan accents
+                        float circuitPulse = sin(time * 5.0 + vUv.y * 10.0) * 0.5 + 0.5;
+                        vec3 cyanAccent = vec3(0.0, 0.8, 1.0) * circuitPulse * (0.2 + speakIntensity * 0.8);
+                        
+                        // Combine
+                        vec3 finalColor = color + vec3(mouthGlow * 0.5) + cyanAccent * 0.3;
+                        float alpha = max(mouthGlow, 0.1 + grid * 0.1) * (1.0 - distance(vUv, vec2(0.5, 0.5)));
+                        
+                        gl_FragColor = vec4(finalColor, alpha);
+                    }
+                `,
+                transparent: true,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+            
+            camera.position.z = 5;
+            
+            // Mouse Tracking
+            let mouseX = 0;
+            let mouseY = 0;
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+            
+            // Animation Loop
+            let targetSpeakIntensity = 0;
+            let currentSpeakIntensity = 0;
+            
+            function animate(time) {
+                requestAnimationFrame(animate);
+                
+                material.uniforms.time.value = time * 0.001;
+                
+                // Smoothly interpolate mouse movement
+                material.uniforms.mouse.value.x += (mouseX - material.uniforms.mouse.value.x) * 0.05;
+                material.uniforms.mouse.value.y += (mouseY - material.uniforms.mouse.value.y) * 0.05;
+                
+                // Handle speech pulse
+                targetSpeakIntensity = isSpeaking ? Math.random() * 0.8 + 0.2 : 0;
+                currentSpeakIntensity += (targetSpeakIntensity - currentSpeakIntensity) * 0.1;
+                material.uniforms.speakIntensity.value = currentSpeakIntensity;
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate(0);
+            
+            // Resize handler
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        
+</script>
+<script src="app.js?v=4"></script>
+<div class="logs-overlay" id="settings-modal" style="display: none;">
+<div class="logs-content" style="max-width: 700px; height: 80vh; overflow-y: auto;">
+<div class="logs-header">
+<h2>⚙️ Nova Settings</h2>
+<button class="close-btn" id="close-settings-btn">✕</button>
 </div>
-<script src="app.js"></script>
-</body></html>
+<!-- Settings Tabs -->
+<div class="settings-tabs" style="display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap;">
+<button class="settings-tab active" data-tab="voice" style="flex: 1; padding: 10px; background: rgba(138,43,226,0.3); border: none; border-radius: 8px; color: white; cursor: pointer;">🎤
+                            Voice</button>
+<button class="settings-tab" data-tab="profile" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">👤
+                            Profile</button>
+<button class="settings-tab" data-tab="personality" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">😊
+                            Personality</button>
+<button class="settings-tab" data-tab="model" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">🧠
+                            Model</button>
+<button class="settings-tab" data-tab="memory" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">💾
+                            Memory</button>
+<button class="settings-tab" data-tab="interface" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">🎨
+                            Interface</button>
+<button class="settings-tab" data-tab="advanced" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">⚡
+                            Advanced</button>
+</div>
+<!-- Settings Content -->
+<div class="settings-content">
+<!-- Voice Settings -->
+<div class="settings-panel active" id="voice-panel">
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Voice
+                                    Language</label>
+<select class="setting-input" id="voice-language" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option value="en-US-AvaNeural">English (Ava - Modern)</option>
+<option value="en-US-AnaNeural">English (Ana - Sweet &amp; Cute 💕)</option>
+<option value="en-US-EmmaNeural">English (Emma - Warm &amp; Gentle 🌸)</option>
+<option value="en-US-MichelleNeural">English (Michelle - Bubbly ✨)</option>
+<option value="en-US-AriaNeural">English (Aria - Professional 💼)</option>
+<option value="en-US-GuyNeural">English (Guy - Male 🎙️)</option>
+<option value="ja-JP-NanamiNeural">Japanese (Nanami - Female 🇯🇵)</option>
+<option value="en-GB-SoniaNeural">British (Sonia - Female 🇬🇧)</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px;">Voice Speed: <span id="speed-value">1.0x</span></label>
+<input class="setting-slider" id="voice-speed" max="2.0" min="0.5" step="0.1" style="width: 100%;" type="range" value="1.0"/>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px;">Voice Pitch: <span id="pitch-value">+0Hz</span></label>
+<input class="setting-slider" id="voice-pitch" max="10" min="-10" step="1" style="width: 100%;" type="range" value="0"/>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<button class="test-btn" id="test-voice-btn" style="padding: 12px 20px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; width: 100%;">
+<i class="fas fa-volume-up" style="margin-right: 8px;"></i> Test Voice
+                                </button>
+</div>
+<div class="setting-group">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input checked="" id="auto-play-audio" type="checkbox"/>
+<span>Auto-play Audio Responses</span>
+</label>
+</div>
+<div class="setting-group">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input id="mute-toggle" type="checkbox"/>
+<span>Mute Voice Output</span>
+</label>
+</div>
+</div>
+</div>
+<!-- User Profile Settings -->
+<div class="settings-panel" id="profile-panel" style="display: none;">
+<div class="setting-group" style="text-align: center; margin-bottom: 20px;">
+<div class="profile-preview" style="position: relative; width: 100px; height: 100px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(0,0,0,0.3);">
+<img alt="User" id="profile-image-preview" onerror="this.src='user_avatar.png'" src="user_avatar.png" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;"/>
+</div>
+<label class="upload-btn" for="profile-image-upload" style="display: inline-block; padding: 8px 16px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: white; cursor: pointer; font-size: 0.8em;">
+                                📷 Change Photo
+                            </label>
+<input accept="image/*" id="profile-image-upload" style="display: none;" type="file"/>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Your Name</label>
+<input id="user-name-input" placeholder="Enter your name..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;" type="text"/>
+<small style="display: block; margin-top: 5px; opacity: 0.6;">Used for addressing you. Set
+                                to 'RIVU' for Admin access.</small>
+</div>
+<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;"/>
+<h3 style="margin-bottom: 15px; color: #a29bfe;">Personalization Questionnaire</h3>
+<p style="margin-bottom: 20px; opacity: 0.7; font-size: 0.9em;">Help Nova understand you better
+                            for deeper conversations.</p>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Gender</label>
+<select class="setting-input" id="user-gender" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option value="">Prefer not to say</option>
+<option value="Male">Male</option>
+<option value="Female">Female</option>
+<option value="Non-binary">Non-binary</option>
+<option value="Other">Other</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Birthday</label>
+<input class="setting-input" id="user-birthday" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;" type="date"/>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Occupation</label>
+<input id="user-occupation" placeholder="e.g. Student, Engineer, Artist..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;" type="text"/>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Interests /
+                                Hobbies</label>
+<textarea id="user-interests" placeholder="e.g. Coding, Anime, Music..." rows="3" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; resize: vertical;"></textarea>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Relationship
+                                Status</label>
+<select class="setting-input" id="user-relationship" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option value="">Prefer not to say</option>
+<option value="Single">Single</option>
+<option value="Taken">Taken</option>
+<option value="Married">Married</option>
+<option value="Complicated">It's Complicated</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">About Me (Bio)</label>
+<textarea id="user-bio" placeholder="Tell Nova anything else about yourself..." rows="4" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; resize: vertical;"></textarea>
+</div>
+</div>
+<!-- Personality Settings -->
+<div class="settings-panel" id="personality-panel" style="display: none;">
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Personality
+                                Mode</label>
+<select class="setting-input" id="personality-mode-select" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option selected="" value="nova">Nova (Standard)</option>
+<option value="professional">Professional</option>
+<option value="sweetheart">Sweetheart (Endearing)</option>
+<option value="bengali">Bengali Mode</option>
+<option value="savage">Savage Mode</option>
+<option value="cookie">Cookie (No Limits)</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Response
+                                Length</label>
+<select class="setting-input" id="response-length" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option value="short">Short &amp; Concise</option>
+<option selected="" value="medium">Medium (Balanced)</option>
+<option value="long">Long &amp; Detailed</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Emotion
+                                Expression</label>
+<select class="setting-input" id="emotion-level" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option value="low">Low (Professional)</option>
+<option selected="" value="medium">Medium (Balanced)</option>
+<option value="high">High (Very Expressive)</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 15px;">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input checked="" id="use-emojis" type="checkbox"/>
+<span>Use Emojis in Responses</span>
+</label>
+</div>
+<div class="setting-group" style="display: none;">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input disabled="" id="use-russian" type="checkbox"/>
+<span>Use Russian Phrases (Alya Mode)</span>
+</label>
+</div>
+</div>
+<!-- Model Settings -->
+<div class="settings-panel" id="model-panel" style="display: none;">
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px;">Response Temperature: <span id="temp-value">0.7</span></label>
+<input class="setting-slider" id="temperature" max="1.0" min="0.1" step="0.1" style="width: 100%;" type="range" value="0.7"/>
+<small style="opacity: 0.7;">Lower = More focused, Higher = More creative</small>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px;">Max Response Tokens: <span id="tokens-value">300</span></label>
+<input class="setting-slider" id="max-tokens" max="500" min="50" step="50" style="width: 100%;" type="range" value="300"/>
+</div>
+<div class="setting-group">
+<label style="display: block; margin-bottom: 8px;">Context Window (Messages): <span id="context-value">10</span></label>
+<input class="setting-slider" id="context-window" max="20" min="5" step="1" style="width: 100%;" type="range" value="10"/>
+</div>
+</div>
+<!-- Memory Settings -->
+<div class="settings-panel" id="memory-panel" style="display: none;">
+<div class="setting-group" style="margin-bottom: 15px;">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input checked="" id="enable-ltm" type="checkbox"/>
+<span>Enable Long-Term Memory</span>
+</label>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Fact Learning
+                                Mode</label>
+<select class="setting-input" id="fact-learning" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option selected="" value="auto">Automatic</option>
+<option value="manual">Manual Only</option>
+<option value="off">Disabled</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Memory
+                                Retention</label>
+<select class="setting-input" id="memory-retention" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option value="7">7 Days</option>
+<option selected="" value="30">30 Days</option>
+<option value="90">90 Days</option>
+<option value="forever">Forever</option>
+</select>
+</div>
+<div class="setting-group">
+<button class="danger-btn" id="clear-memory-btn" style="padding: 12px 20px; background: rgba(220,53,69,0.3); border: 1px solid rgba(220,53,69,0.5); border-radius: 8px; color: white; cursor: pointer; width: 100%;">⚠️
+                                Clear All Memories</button>
+</div>
+</div>
+<!-- Interface Settings -->
+<div class="settings-panel" id="interface-panel" style="display: none;">
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Theme</label>
+<select class="setting-input" id="theme-select" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option selected="" value="dark">Dark</option>
+<option value="glow">Soft Glow (Premium)</option>
+<option value="light">Light</option>
+<option value="auto">Auto (System)</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label style="display: block; margin-bottom: 8px; font-weight: bold;">Font Size</label>
+<select class="setting-input" id="font-size" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
+<option value="small">Small</option>
+<option selected="" value="medium">Medium</option>
+<option value="large">Large</option>
+</select>
+</div>
+<div class="setting-group" style="margin-bottom: 15px;">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input checked="" id="show-timestamps" type="checkbox"/>
+<span>Show Message Timestamps</span>
+</label>
+</div>
+<div class="setting-group">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input checked="" id="globe-animation" type="checkbox"/>
+<span>Enable Globe Animation</span>
+</label>
+</div>
+<div class="setting-group">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input checked="" id="enable-vtuber" type="checkbox"/>
+<span>Enable 3D V-Tuber Character</span>
+</label>
+</div>
+</div>
+<!-- Advanced Settings -->
+<div class="settings-panel" id="advanced-panel" style="display: none;">
+<div class="setting-group" style="margin-bottom: 15px;">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input id="developer-mode" type="checkbox"/>
+<span>Developer Mode</span>
+</label>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+<input id="debug-logs" type="checkbox"/>
+<span>Show Debug Logs</span>
+</label>
+</div>
+<div class="setting-group" style="margin-bottom: 25px;">
+<label style="display: block; margin-bottom: 12px; font-weight: bold; color: #a29bfe;">Export
+                                Conversation History</label>
+<div style="display: flex; gap: 10px;">
+<button class="export-btn" id="export-txt-btn" style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
+<i class="fas fa-file-alt"></i> TXT
+                                </button>
+<button class="export-btn" id="export-html-btn" style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
+<i class="fas fa-file-code"></i> HTML
+                                </button>
+<button class="export-btn" id="export-pdf-btn" style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
+<i class="fas fa-file-pdf"></i> PDF
+                                </button>
+</div>
+</div>
+<div class="setting-group" style="margin-bottom: 20px;">
+<button class="danger-btn" id="reset-settings-btn" style="padding: 12px 20px; background: rgba(220,53,69,0.3); border: 1px solid rgba(220,53,69,0.5); border-radius: 8px; color: white; cursor: pointer; width: 100%;">🔄
+                                Reset to Defaults</button>
+</div>
+<div class="setting-group" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+<a href="stats.html" style="flex: 1; text-align: center; padding: 12px; background: rgba(100, 100, 255, 0.2); border-radius: 8px; color: white; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.1);" target="_blank">📊
+                                Stats</a>
+<button id="logs-btn" style="flex: 1; padding: 12px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer;">🛠️
+                                Logs</button>
+<button id="schedule-btn" style="flex: 1; padding: 12px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer;">📅
+                                Schedule</button>
+</div>
+<div class="setting-group" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+<h4>About Nova</h4>
+<p style="opacity: 0.7; font-size: 0.9em;">Version: 2.0 (Micro-LLM Core)</p>
+<p style="opacity: 0.7; font-size: 0.9em;">Model: OpenRouter API</p>
+<p style="opacity: 0.7; font-size: 0.9em;">Space: ~600MB (Optimized)</p>
+</div>
+</div>
+</div>
+<!-- Save Button -->
+<div class="settings-footer" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+<button class="save-btn" id="save-settings-btn" style="padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; width: 100%;">
+<i class="fas fa-save" style="margin-right: 8px;"></i> Save Settings</button>
+</div>
+</div><div class="logs-overlay" id="logs-modal" style="display: none;">
+<div class="logs-content">
+<div class="logs-header">
+<div style="display: flex; align-items: center; gap: 15px;">
+<h2>🛠️ Debug &amp; Glitch History</h2>
+<div class="status-badge healthy" id="logs-status">SYSTEM HEALTHY</div>
+</div>
+<button class="close-btn" id="close-logs-btn">✕</button>
+</div>
+<div class="logs-list" id="logs-list">
+<p style="text-align: center; opacity: 0.5;">Loading logs...</p>
+</div>
+</div>
+</div><div class="logs-overlay" id="schedule-modal" style="display: none;">
+<div class="logs-content" style="max-width: 600px; height: 70vh;">
+<div class="logs-header">
+<div style="display: flex; align-items: center; gap: 15px;">
+<h2>📅 Upcoming Schedule</h2>
+</div>
+<button class="close-btn" id="close-schedule-btn">✕</button>
+</div>
+<div class="logs-list" id="schedule-list">
+<p style="text-align: center; opacity: 0.5;">Loading schedule...</p>
+</div>
+</div>
+</div><div class="logs-overlay" id="events-dashboard" style="display: none;">
+<div class="logs-content events-dashboard-content">
+<div class="logs-header">
+<div style="display: flex; align-items: center; gap: 15px;">
+<h2 class="gradient-text"><i class="fas fa-microchip"></i> Earth Mission Control</h2>
+<div class="status-badge scanning" id="scan-status">SCANNING...</div>
+</div>
+<button class="close-btn" id="close-events-btn">✕</button>
+</div>
+<div class="events-main-layout">
+<div class="dashboard-globe" id="dashboard-globe-container"></div>
+<div class="events-side-panel">
+<h3><i class="fas fa-list-ul"></i> Active Events</h3>
+<div class="events-list-container" id="events-list">
+<div class="loading-scanners">Initializing Satellite Link...</div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="live-overlay" id="live-overlay" style="display: none;">
+<div class="live-identity">
+<div class="identity-dot"></div>
+<div class="identity-name">Nova Core • Live</div>
+</div>
+<div id="live-particle-container"></div>
+<!-- VTuber 3D Container -->
+<div id="vtuber-3d-container"></div>
+<div class="live-status">🔴 Live Connection Active</div>
+<div class="live-controls" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+<button class="live-control-btn active" id="live-manual-btn" style="padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.8em;">Manual
+                (Alt)</button>
+<button class="live-control-btn" id="live-auto-btn" style="padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.8em;">Continuous</button>
+</div>
+<div class="transcript-focus-panel">
+<div class="live-transcript" id="live-transcript">Listening for your voice...</div>
+</div>
+<button class="close-live-btn" id="close-live-btn">Exit Live Session</button>
+</div></body></html>

@@ -1,5 +1,5 @@
 const API_URL = 'http://localhost:5000/api';
-const outputArea = document.getElementById('output-area');
+const outputArea = document.getElementById('chat-feed');
 const commandInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 const uploadBtn = document.getElementById('upload-btn');
@@ -14,6 +14,17 @@ const liveBtn = document.getElementById('live-mode-btn');
 const liveOverlay = document.getElementById('live-overlay');
 const closeLiveBtn = document.getElementById('close-live-btn');
 const liveTranscript = document.getElementById('live-transcript');
+
+if (liveBtn) {
+    liveBtn.addEventListener('click', () => {
+        if (liveOverlay) liveOverlay.classList.remove('hidden');
+    });
+}
+if (closeLiveBtn) {
+    closeLiveBtn.addEventListener('click', () => {
+        if (liveOverlay) liveOverlay.classList.add('hidden');
+    });
+}
 
 // State Variables
 let isSpeaking = false;
@@ -82,98 +93,82 @@ function hideBrowsingStatus() {
 }
 
 function addLine(text, type = 'system-msg', tokens = 0, extraData = null) {
-    // Hide browsing status when a message is added (unless we explicitly keep it)
     hideBrowsingStatus();
     
     const welcome = document.querySelector('.welcome-screen');
     if (welcome) welcome.style.display = 'none';
 
-    // TRIGGER UI STATE: If backend sends "Listening..." (italicized or plain)
     if (text && (text.toLowerCase().includes('listening...'))) {
         isRecording = true;
         if (micBtn) micBtn.classList.add('listening');
-        if (liveOverlay) liveOverlay.classList.add('listening');
+        if (typeof liveOverlay !== 'undefined' && liveOverlay) liveOverlay.classList.add('listening');
         animateVoiceVisualizer();
-        
-        // Inject Premium Animation HTML
-        text = `
-            <div class="listening-indicator-container">
-                <span>Listening...</span>
-                <div class="listening-dots">
-                    <div class="listening-dot"></div>
-                    <div class="listening-dot"></div>
-                    <div class="listening-dot"></div>
-                </div>
-            </div>
-        `;
+        text = `<i>Listening...</i>`;
     } else if (text && (text.includes('Processing...') || text.includes('Thinking...'))) {
         isRecording = false;
         if (micBtn) micBtn.classList.remove('listening');
-        if (liveOverlay) liveOverlay.classList.remove('listening');
+        if (typeof liveOverlay !== 'undefined' && liveOverlay) liveOverlay.classList.remove('listening');
+        // Trigger ThreeJS speaking animation
+        if (typeof isSpeaking !== 'undefined') {
+            isSpeaking = true;
+            setTimeout(() => { isSpeaking = false; }, 3000);
+        }
     }
 
     const div = document.createElement('div');
-    div.classList.add('chat-msg', type, 'fade-in');
-
-    // Add Avatar for User/Nova
-    if (type !== 'system-msg') {
-        const avatarDiv = document.createElement('div');
-        avatarDiv.classList.add('msg-avatar');
-        const img = document.createElement('img');
-
-        if (type === 'nova-msg') {
-            img.src = 'assets/logo.png';
-        } else {
-            // User avatar - try to get current profile preview
-            const preview = document.getElementById('profile-image-preview');
-            img.src = preview ? preview.src : 'user_avatar.png';
-        }
-
-        avatarDiv.appendChild(img);
-        div.appendChild(avatarDiv);
-    }
-
-    const bubble = document.createElement('div');
-    bubble.classList.add('msg-bubble');
 
     if (type === 'nova-msg' || type === 'system-msg') {
-        bubble.innerHTML = text; // Use innerHTML to allow tags like <i>
-        if (tokens > 0) {
-            const badge = document.createElement('div');
-            badge.classList.add('token-badge');
-            badge.textContent = `${tokens} tokens`;
-            div.appendChild(badge);
-        }
-
-        // Handle specialized data rendering
+        div.className = 'fade-in-up flex flex-col gap-3 max-w-[85%]';
+        div.innerHTML = `
+            <span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest flex items-center gap-2">
+                <span class="w-1.5 h-1.5 bg-primary/80 rounded-full pulse-dot"></span>
+                NOVA_AI // ${type === 'system-msg' ? 'SYSTEM' : 'RESPONSE'}
+            </span>
+            <div class="glass-panel p-lg rounded-lg rounded-tl-none border border-white/5 shadow-xl bg-surface-container-lowest/40">
+                <div class="font-body-md text-on-surface/90 leading-relaxed text-[15px]">${text}</div>
+            </div>
+        `;
+        
+        // Handle specialized data rendering inside the bubble
+        const bubble = div.querySelector('.glass-panel');
         if (extraData && extraData.type === 'music_results') {
-            renderMusicResults(div, extraData.results);
+            renderMusicResults(bubble, extraData.results);
         } else if (extraData && extraData.type === 'natural_events') {
             renderNaturalEvents(extraData.events);
         } else if (extraData && extraData.type === 'search_results') {
-            renderSearchResults(div, extraData.results);
+            renderSearchResults(bubble, extraData.results);
         } else if (extraData && extraData.type === 'news_results') {
-            renderNewsResults(div, extraData.results);
+            renderNewsResults(bubble, extraData.results);
+        }
+        
+        // If it's a real response, trigger the avatar mouth animation
+        if (type === 'nova-msg' && typeof isSpeaking !== 'undefined') {
+            isSpeaking = true;
+            // Rough estimation of speak duration based on text length
+            const duration = Math.min(Math.max(text.length * 50, 1000), 10000);
+            setTimeout(() => { isSpeaking = false; }, duration);
         }
     } else {
-        bubble.textContent = text;
-        if (tokens > 0) {
-            const badge = document.createElement('div');
-            badge.classList.add('token-badge');
-            badge.textContent = `${tokens} tokens`;
-            div.appendChild(badge);
-        }
+        div.className = 'fade-in-up flex flex-col gap-3 items-end ml-auto max-w-[85%]';
+        // Sanitize text if needed, but innerHTML is fine for now if text is safe
+        // we'll just use textContent by creating a P element
+        div.innerHTML = `
+            <span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest">OPERATOR_01</span>
+            <div class="glass-panel p-md rounded-lg rounded-tr-none border border-white/10">
+                <p class="font-body-md text-primary/90 text-[15px] msg-content"></p>
+            </div>
+        `;
+        div.querySelector('.msg-content').textContent = text;
     }
 
-    div.appendChild(bubble);
     outputArea.appendChild(div);
     outputArea.scrollTop = outputArea.scrollHeight;
 
-    // Update live transcript if in live mode
-    if (isLiveInteraction && typeof liveTranscript !== 'undefined' && liveTranscript) {
+    if (typeof isLiveInteraction !== 'undefined' && isLiveInteraction && typeof liveTranscript !== 'undefined' && liveTranscript) {
         liveTranscript.textContent = text;
     }
 }
+
 
 /**
  * Renders a list of music results as interactive cards
@@ -349,35 +344,103 @@ function renderNewsResults(container, results) {
 function renderThoughts(thoughts, modelName = null) {
     if (!thoughts || thoughts.length === 0) return;
 
-    const panel = document.getElementById('thought-panel');
-    const content = document.getElementById('thought-panel-content');
-    const modelBadge = document.getElementById('active-model-badge');
+    const feed = document.getElementById('thought-feed');
+    const badge = document.getElementById('thought-status-badge');
+    const countEl = document.getElementById('thought-count');
 
-    if (!panel || !content) {
+    if (!feed) {
         console.warn("Thought panel elements not found.");
         return;
     }
 
-    // Update model name if provided
-    if (modelBadge && modelName) {
-        modelBadge.textContent = modelName.split('/').pop().replace(':free', '').toUpperCase();
-        modelBadge.title = modelName; // Show full ID on hover
+    // Set status badge to ACTIVE
+    if (badge) {
+        badge.textContent = 'ACTIVE';
+        badge.style.color = 'rgba(139,92,246,0.9)';
+        badge.style.borderColor = 'rgba(139,92,246,0.5)';
+        badge.style.boxShadow = '0 0 8px rgba(139,92,246,0.3)';
     }
 
-    // Show panel
-    panel.classList.remove('hidden');
-    content.innerHTML = ''; // Clear old thoughts
+    // Clear old thoughts
+    feed.innerHTML = '';
+
+    const typeLabels = ['REASONING', 'ANALYZING', 'PLANNING', 'COMPUTING', 'EVALUATING'];
+    const typeColors = {
+        'REASONING': 'rgba(139,92,246,0.6)',
+        'ANALYZING': 'rgba(96,165,250,0.6)',
+        'PLANNING':  'rgba(52,211,153,0.6)',
+        'COMPUTING': 'rgba(251,191,36,0.6)',
+        'EVALUATING':'rgba(248,113,113,0.6)',
+    };
 
     thoughts.forEach((step, index) => {
-        const stepDiv = document.createElement('div');
-        stepDiv.className = 'thought-panel-step';
-        stepDiv.textContent = step;
-        stepDiv.style.animationDelay = `${index * 0.05}s`;
-        content.appendChild(stepDiv);
+        const label = typeLabels[index % typeLabels.length];
+        const color = typeColors[label];
+        const card = document.createElement('div');
+        card.className = 'thought-card';
+        card.style.cssText = `
+            border-left: 2px solid ${color};
+            background: rgba(139,92,246,0.04);
+            border-radius: 0 8px 8px 0;
+            padding: 10px 12px;
+            animation: thoughtSlideIn 0.4s ease-out ${index * 0.07}s both;
+        `;
+        card.innerHTML = `
+            <span style="font-family:monospace; font-size:9px; letter-spacing:0.18em; color:${color}; font-weight:600;">${label}</span>
+            <p style="font-family:monospace; font-size:12px; color:rgba(255,255,255,0.65); margin:5px 0 0; line-height:1.6;">${step}</p>
+        `;
+        feed.appendChild(card);
     });
 
-    // Auto-scroll to bottom of thoughts
-    content.scrollTop = content.scrollHeight;
+    // Update count
+    if (countEl) {
+        countEl.textContent = `${thoughts.length} THOUGHT${thoughts.length !== 1 ? 'S' : ''}`;
+    }
+
+    // Scroll to bottom
+    feed.scrollTop = feed.scrollHeight;
+
+    // Animate waveform (spike on new thoughts)
+    animateThoughtWave(true);
+
+    // Reset badge after 5s of inactivity
+    setTimeout(() => {
+        if (badge) {
+            badge.textContent = 'IDLE';
+            badge.style.color = 'rgba(139,92,246,0.5)';
+            badge.style.borderColor = 'rgba(139,92,246,0.2)';
+            badge.style.boxShadow = 'none';
+        }
+        animateThoughtWave(false);
+    }, 5000);
+}
+
+// Animates the neural waveform in the thought sidebar footer
+let thoughtWaveActive = false;
+let thoughtWaveInterval = null;
+function animateThoughtWave(active) {
+    const path = document.getElementById('wave-path');
+    const glow = document.getElementById('wave-glow');
+    if (!path) return;
+
+    thoughtWaveActive = active;
+    if (thoughtWaveInterval) clearInterval(thoughtWaveInterval);
+
+    if (!active) {
+        path.setAttribute('d', 'M0,18 Q30,8 60,18 T120,18 T180,18 T240,18 T300,18');
+        path.setAttribute('opacity', '0.3');
+        return;
+    }
+
+    path.setAttribute('opacity', '0.8');
+    let t = 0;
+    thoughtWaveInterval = setInterval(() => {
+        t += 0.15;
+        const amp = 10;
+        const d = `M0,18 Q${30+Math.sin(t)*5},${18-amp*Math.sin(t)} ${60+Math.cos(t)*5},${18+amp*Math.cos(t*0.8)} T${120},${18+amp*Math.sin(t*1.3)} T${180},${18-amp*Math.cos(t*0.7)} T${240},${18+amp*Math.sin(t*0.9)} T300,18`;
+        path.setAttribute('d', d);
+        if (glow) glow.setAttribute('d', d);
+    }, 50);
 }
 
 
@@ -415,6 +478,35 @@ if (statusToggle) {
 
 // --- SETTINGS MODAL LOGIC ---
 function initSettings() {
+
+    // New Sidebar Navigation Logic
+    const assistantBtn = document.getElementById('assistant-btn');
+    const memoryBtn = document.getElementById('logs-btn'); // Mapped to memory
+    const telemetryBtn = document.getElementById('telemetry-btn'); // Add if needed
+    const sidebarSettingsBtn = document.getElementById('settings-btn');
+    const adminDashboard = document.getElementById('admin-dashboard');
+
+    if (assistantBtn) {
+        assistantBtn.addEventListener('click', () => {
+            if (adminDashboard) adminDashboard.classList.add('hidden');
+            if (settingsModal) {
+                settingsModal.classList.remove('active');
+                setTimeout(() => settingsModal.style.display = 'none', 300);
+            }
+        });
+    }
+
+    if (memoryBtn) {
+        memoryBtn.addEventListener('click', () => {
+            // Can open admin dashboard or a specific tab
+            if (adminDashboard) {
+                adminDashboard.classList.remove('hidden');
+                document.getElementById('admin-auth-screen').style.display = 'flex';
+                document.getElementById('admin-main-content').classList.add('hidden');
+            }
+        });
+    }
+
     const settingsBtn = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
     const closeSettingsBtn = document.getElementById('close-settings-btn');
@@ -1386,6 +1478,7 @@ let globeRadius = 150;
 
 function initGlobe() {
     const container = document.getElementById('globe-container');
+    if (!container) return; // Prevent crash if container doesn't exist
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.z = 400;
@@ -2202,7 +2295,7 @@ isProcessing = false; // Prevent duplicate sends
 lastRequestId = null; // Prevent duplicate response bubbles
 
 async function sendCommand(text, isSilent = false, lang = null) {
-    if (!lang) lang = document.getElementById('voice-language').value || 'en';
+    if (!lang) { const vl = document.getElementById('voice-language'); lang = vl ? vl.value : 'en'; }
     if (!text || !text.trim() || isProcessing) return;
 
     isProcessing = true;
@@ -2242,7 +2335,7 @@ async function sendCommand(text, isSilent = false, lang = null) {
                 <span style="animation:thinkDot 1.2s infinite 0.8s">.</span>
             </span>
         </div>`;
-    const outputArea = document.getElementById('output-area');
+    const outputArea = document.getElementById('chat-feed');
     if (outputArea) {
         outputArea.appendChild(thinkingBubble);
         outputArea.scrollTop = outputArea.scrollHeight;
@@ -2335,7 +2428,8 @@ document.addEventListener('click', (e) => {
 // Send Button Click
 if (sendBtn) {
     sendBtn.addEventListener('click', () => {
-        const currentLang = document.getElementById('voice-language').value || 'en';
+        const vl = document.getElementById('voice-language');
+        const currentLang = vl ? vl.value : 'en';
         sendCommand(commandInput.value, false, currentLang);
     });
 }
@@ -2345,7 +2439,8 @@ if (commandInput) {
     commandInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            const currentLang = document.getElementById('voice-language').value || 'en';
+            const vl = document.getElementById('voice-language');
+        const currentLang = vl ? vl.value : 'en';
             sendCommand(commandInput.value, false, currentLang);
         }
     });
@@ -2724,7 +2819,7 @@ function showSuggestionNotification(suggestion) {
         notif.remove();
     };
 
-    const outputArea = document.getElementById('output-area');
+    const outputArea = document.getElementById('chat-feed');
     outputArea.appendChild(notif);
     outputArea.scrollTop = outputArea.scrollHeight;
 }
@@ -2974,3 +3069,73 @@ function updateEventsList(events) {
         list.appendChild(card);
     });
 }
+
+// --- UI Telemetry and Sidebar Wiring ---
+
+function updateTelemetry() {
+    fetch('http://localhost:5000/api/telemetry')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) return;
+            
+            // Update CPU
+            const cpuEl = document.getElementById('telemetry-cpu');
+            if (cpuEl) cpuEl.textContent = Math.round(data.cpu) + '%';
+            
+            // Update CPU Bars randomly based on load
+            const cpuBars = document.querySelectorAll('.cpu-bar');
+            cpuBars.forEach(bar => {
+                const baseHeight = Math.max(10, data.cpu - 20 + Math.random() * 40);
+                bar.style.height = Math.min(100, baseHeight) + '%';
+            });
+
+            // Update Memory
+            const memEl = document.getElementById('telemetry-memory');
+            if (memEl) memEl.textContent = data.total_mem_gb.toFixed(1) + ' GB';
+        })
+        .catch(err => console.error('Telemetry fetch error:', err));
+}
+
+// Poll telemetry every 2 seconds
+setInterval(updateTelemetry, 2000);
+updateTelemetry();
+
+// Wire up sidebar buttons
+document.addEventListener('DOMContentLoaded', () => {
+    // New Instance
+    const btnNew = document.getElementById('btn-new-instance');
+    if (btnNew) {
+        btnNew.addEventListener('click', () => {
+            const outputArea = document.getElementById('chat-feed');
+            if (outputArea) {
+                outputArea.innerHTML = '<div style="text-align:center; padding: 20px; opacity: 0.5;">System Reinitialized. Ready for new input.</div>';
+            }
+        });
+    }
+
+    // Settings Button
+    const btnSettings = document.getElementById('settings-btn');
+    if (btnSettings) {
+        btnSettings.addEventListener('click', (e) => {
+            e.preventDefault();
+            const settingsModal = document.getElementById('settings-modal');
+            if (settingsModal) {
+                settingsModal.classList.add('active');
+            }
+        });
+    }
+
+    // Interactive placeholder for other nav buttons
+    const navIds = ['btn-nova-core', 'btn-swarm', 'btn-local', 'btn-terminal'];
+    navIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Visual click effect
+                btn.style.opacity = '0.5';
+                setTimeout(() => btn.style.opacity = '1', 200);
+            });
+        }
+    });
+});

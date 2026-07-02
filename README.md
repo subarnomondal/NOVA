@@ -7,6 +7,7 @@
   [![License: MIT](https://img.shields.io/badge/License-MIT-7149f4.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
   [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
   [![Status](https://img.shields.io/badge/Status-Production--Ready-success.svg?style=for-the-badge)](https://github.com/subarnomondal/NOVA)
+  [![UI](https://img.shields.io/badge/UI-Cyberpunk_Glassmorphism-00f2fe.svg?style=for-the-badge)](https://github.com/subarnomondal/NOVA)
   
 </div>
 
@@ -23,6 +24,15 @@ Nova is designed with a warm, affectionately teasing, and highly responsive pers
 Nova is intensely protective of your data. Because many users lack the heavy CPU/GPU required for local models, she processes memory mapping via an ultra-lightweight, offline Regex/Keyword parsing engine. There are **NO heavy local LLMs** required to install. 
 
 If **Strict Privacy Mode** is enabled, your personal facts (name, habits, routines, location) caught by this offline scanner are *never* transmitted to her cloud LLM providers. She learns locally at zero computational cost, thinks in the cloud interchangeably, and keeps your private life entirely on your machine.
+
+---
+
+## 🎨 Immersive Cyberpunk Interface
+
+NOVA features a state-of-the-art **Glassmorphic** dark-mode UI designed for high-performance and zero distraction.
+*   **Neural Thought Stream:** Watch Nova's internal reasoning process live in a dedicated right-hand terminal panel.
+*   **Pro Settings Modal:** A sleek, fully animated settings dashboard to configure Voice Architecture, Personality metrics, and LLM parameters.
+*   **Obsidian Aesthetic:** Built on Tailwind CSS with a strict monochromatic palette, electric cyan/purple accents, and deep backdrop blurs.
 
 ---
 
@@ -47,7 +57,7 @@ NOVA’s true power lies in her massive, modular skill library. She can natively
 
 ### 🌐 Autonomous Web & Development Skills
 
-* **Browser Agent (`browser_agent.py`):** Drives a headless browser to read web pages, bypass popups, and summarize long articles autonomously.
+* **Browser Agent (`browser_agent.py`):** Drives a thread-safe headless browser via Playwright to read web pages, bypass popups, and summarize long articles autonomously.
 * **Code Architect (`code_architect.py`):** Reviews your local repositories to suggest optimizations.
 * **Dataset Importer (`dataset_importer.py`):** Cleans and analyzes complex CSV/JSON datasets.
 

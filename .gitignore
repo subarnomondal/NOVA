@@ -36,6 +36,16 @@ userdata/
 secret*/
 MY_CREDENTIALS_BACKUP.txt
 
+# Auth / Cookie Files — NEVER commit these
+cookies.txt
+cookies*.txt
+headers_auth.json
+oauth.json
+*.auth
+*.token
+*_credentials*
+api_keys*
+
 # OS / Editor / Temp
 .DS_Store
 Thumbs.db
@@ -63,3 +73,12 @@ temp/
 MY_CREDENTIALS_BACKUP.txt
 graphify-out/
 graphify_out/
+
+# Screenshots / Test captures (auto-generated)
+screenshot.png
+after_send_screenshot*.png
+playwright_screenshot.png
+
+# Stitch / temp UI prototypes (not production)
+web/stitch_*.html
+web/new_index.html

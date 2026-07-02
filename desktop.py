@@ -664,6 +664,24 @@ def status():
             res["version"] = nova.config.get("assistant", {}).get("version", "1.0.0")
     return jsonify(res)
 
+@app.route('/api/telemetry', methods=['GET'])
+def telemetry():
+    """Returns real-time system stats for the dashboard widgets"""
+    try:
+        import psutil # type: ignore
+        cpu = psutil.cpu_percent()
+        mem_info = psutil.virtual_memory()
+        mem = mem_info.percent
+        # Convert total memory to TB for display, or GB
+        total_mem_gb = mem_info.total / (1024 ** 3)
+        return jsonify({
+            "cpu": cpu,
+            "memory": mem,
+            "total_mem_gb": total_mem_gb
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # --- SETTINGS ROUTES ---
 
 @app.route('/api/settings/online', methods=['POST'])
