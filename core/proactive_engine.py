@@ -59,7 +59,7 @@ class ProactiveEngine:
             if (now - last_check).days >= 2:
                 suggestions.append({
                     "type": "news",
-                    "message": "It's been a while since you checked the news. Catch up? 📰",
+                    "message": "It's been a while since you checked the news. Catch up? ",
                     "action": "news"
                 })
         

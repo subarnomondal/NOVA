@@ -25,22 +25,22 @@ def cmd_learn(args):
                 break
         
         if " is " not in text:
-            return "I need to know *what* to learn! Try saying 'Learn that the WiFi password is 1234'. 🧠"
+            return "I need to know *what* to learn! Try saying 'Learn that the WiFi password is 1234'. "
             
         parts = text.split(" is ", 1)
         topic = parts[0].strip()
         info = parts[1].strip()
         
         if not topic or not info:
-             return "I didn't catch that. Try 'Learn that [Topic] is [Value]'. 🧠"
+             return "I didn't catch that. Try 'Learn that [Topic] is [Value]'. "
              
         # Save to knowledge base
         knowledge.add_knowledge("user_taught", topic, info)
         
         import random
         responses = [
-            f"Got it! I've learned that {topic} is {info}. 🧠",
-            f"Noted! {topic} = {info}. Saved to memory! 💾",
+            f"Got it! I've learned that {topic} is {info}. ",
+            f"Noted! {topic} = {info}. Saved to memory! ",
             f"Okay, I'll remember that {topic} is {info}. ✨"
         ]
         return random.choice(responses)
@@ -56,7 +56,7 @@ def cmd_advanced_search(args):
     query = args.replace("advanced search", "").replace("search", "").strip()
     if not query: return "ERROR: No search query provided."
     
-    print(f"🌐 Performing Advanced Web Search: {query}")
+    print(f" Performing Advanced Web Search: {query}")
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(query, region='us-en', max_results=8))
@@ -79,7 +79,7 @@ def get_favicon(url):
     try:
         domain = urlparse(url).netloc
         return f"https://www.google.com/s2/favicons?domain={domain}&sz=64"
-    except:
+    except Exception:
         return None
 
 def cmd_search(args):
@@ -88,7 +88,7 @@ def cmd_search(args):
         query = args.lower().replace("search", "").replace("google", "").replace("find", "").strip()
         
         if not query:
-            return "What would you like me to look up for you? I'm ready to search! 🔍"
+            return "What would you like me to look up for you? I'm ready to search! "
             
         kb_result = knowledge.search_knowledge(query)
         if kb_result and kb_result['confidence'] > 0.7:
@@ -138,7 +138,7 @@ def cmd_news(args):
             results = list(ddgs.news(query, region='wt-wt', max_results=6))
                 
         if not results:
-            return f"I couldn't find any recent news headlines about '{query}'. 📰"
+            return f"I couldn't find any recent news headlines about '{query}'. "
         
         news_data = []
         for item in results:
@@ -150,7 +150,7 @@ def cmd_news(args):
                 "favicon": get_favicon(url)
             })
             
-        response = f"📰 **Latest News Report: {query.title()}**\n\n"
+        response = f" **Latest News Report: {query.title()}**\n\n"
         for i, r in enumerate(news_data[:3], 1):
             response += f"{i}. **{r['title']}**\n   ◈ {r['source']}\n\n"
 
@@ -165,7 +165,7 @@ def cmd_news(args):
         
     except Exception as e:
         print(f"News Skill Error: {e}")
-        return f"I encountered a glitch while fetching the news. 🗞️ Let me know if you want me to try again!"
+        return f"I encountered a glitch while fetching the news. ️ Let me know if you want me to try again!"
 
 def register(dispatcher):
     dispatcher.register("search", cmd_search)

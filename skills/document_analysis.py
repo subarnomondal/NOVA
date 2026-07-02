@@ -21,7 +21,7 @@ class DocumentAnalysis:
         target_file = file_path or self.last_uploaded_file
         
         if not target_file or not os.path.exists(target_file):
-            return "No file has been uploaded yet to analyze! Please upload one first. 📂"
+            return "No file has been uploaded yet to analyze! Please upload one first. "
 
         # 1. Read Content
         doc_result = document_reader.read_file(target_file)

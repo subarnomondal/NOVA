@@ -131,7 +131,7 @@ def get_stt_model():
             # Using 'base' (multilingual) for better global/Indian accent parsing
             model_size = "base" 
             try:
-                print(f"🎧 Loading Faster-Whisper ({model_size} Model)...")
+                print(f" Loading Faster-Whisper ({model_size} Model)...")
                 from faster_whisper import WhisperModel  # type: ignore
                 stt_model = WhisperModel(model_size, device="cpu", compute_type="int8")
                 print("✅ Speech Recognition System Ready")
@@ -179,34 +179,34 @@ ONLINE_MODE = True
 
 # Initialize Conversation Memory
 memory = ConversationMemory(memory_file=os.path.join("userdata", "conversation_history.json"), max_context=10)
-print(f"🧠 Memory System: {memory.get_stats()['total_conversations']} conversations loaded")
+print(f" Memory System: {memory.get_stats()['total_conversations']} conversations loaded")
 
 # Initialize NLU Processor
 nlp = NLUProcessor()
-print(f"🤖 NLU System: Ready for natural language understanding with semantic analysis")
+print(f" NLU System: Ready for natural language understanding with semantic analysis")
 
 # Initialize HITL System
 hitl = HITLSystem(feedback_file=os.path.join("userdata", "hitl_feedback.json"))
 hitl_stats = hitl.get_feedback_stats()
-print(f"🔄 HITL System: {hitl_stats['total_interactions']} interactions, {hitl_stats['learned_patterns']} learned patterns")
+print(f" HITL System: {hitl_stats['total_interactions']} interactions, {hitl_stats['learned_patterns']} learned patterns")
 
 # Initialize Domain Knowledge
 knowledge = DomainKnowledge(knowledge_file=os.path.join("userdata", "domain_knowledge.json"))
 kb_stats = knowledge.get_stats()
-print(f"📚 Knowledge Base: {kb_stats['total_domains']} domains, {kb_stats['total_facts']} facts")
+print(f" Knowledge Base: {kb_stats['total_domains']} domains, {kb_stats['total_facts']} facts")
 
 # Initialize User Profile
 user_profile = UserProfile(profile_file=os.path.join("userdata", "user_profile.json"))
-print(f"👤 User Profile: {user_profile.get_profile_summary()}")
+print(f" User Profile: {user_profile.get_profile_summary()}")
 
 # Initialize DRL System
 drl = DRLSystem(drl_file=os.path.join("userdata", "drl_model.json"))
 drl_stats = drl.get_performance_stats()
-print(f"🤖 DRL System: {drl_stats['learned_states']} states, Avg Reward: {drl_stats['average_reward']:.2f}")
+print(f" DRL System: {drl_stats['learned_states']} states, Avg Reward: {drl_stats['average_reward']:.2f}")
 
 # Initialize Key Manager
 from core.key_manager import key_manager  # type: ignore
-print(f"🔑 Key Manager: Initialized")
+print(f" Key Manager: Initialized")
 
 # Initialize Response Optimizer
 optimizer = ResponseOptimizer(cache_file=os.path.join("userdata", "response_cache.json"))
@@ -215,7 +215,7 @@ print(f"⚡ Response Optimizer: {opt_stats['cached_responses']} cached, Mode: {o
 
 # Initialize Personality Manager
 personality_manager = PersonalityManager(default_mode="sweetheart")
-print(f"🎭 Personality System: Active Mode = {personality_manager.current_mode}")
+print(f" Personality System: Active Mode = {personality_manager.current_mode}")
 
 # Initialize Instant Reply Generator
 from core.instant_reply import InstantReplyGenerator  # type: ignore
@@ -225,38 +225,38 @@ print(f"⚡ Instant Reply: {ir_stats['total_intents']} instant intents ready")
 
 # Initialize Analytics Engine
 analytics = AnalyticsEngine()
-print(f"📊 Analytics Engine: Ready to visualize data")
+print(f" Analytics Engine: Ready to visualize data")
 
 # Initialize ML Predictor
 ml_predictor = MLPredictor()
-print(f"🧠 ML Predictor: Active (Context-aware suggestions)")
+print(f" ML Predictor: Active (Context-aware suggestions)")
 
 # Initialize Conversation Trainer
 conversation_trainer = ConversationTrainer()
 trainer_stats = conversation_trainer.export_training_summary()
-print(f"🎓 Conversation Trainer: {trainer_stats['total_patterns']} patterns, {trainer_stats['total_examples']} examples")
+print(f" Conversation Trainer: {trainer_stats['total_patterns']} patterns, {trainer_stats['total_examples']} examples")
 
 # Initialize Time Context Manager
 time_context = TimeContextManager()
-print(f"🕒 Time Context: {time_context.get_day_context()['time']} ({time_context.get_day_context()['time_period']})")
+print(f" Time Context: {time_context.get_day_context()['time']} ({time_context.get_day_context()['time_period']})")
 
 # Initialize Correction Manager
 from core.correction_manager import CorrectionManager  # type: ignore
 correction_manager = CorrectionManager(corrections_file=os.path.join("userdata", "corrections.json"))
 corr_stats = correction_manager.get_stats()
-print(f"🔧 Correction Manager: {corr_stats['total_corrections']} corrections learned")
+print(f" Correction Manager: {corr_stats['total_corrections']} corrections learned")
 
 # Initialize NeuralChat (Nova Core)
 try:
     from core.neural_chat import NeuralChat  # type: ignore
     custom_llm = NeuralChat()
-    print("🧠 Nova Core (Custom LLM) Initialized")
+    print(" Nova Core (Custom LLM) Initialized")
 except ImportError:
     custom_llm = None
     NeuralChat = None
     print("⚠️ Warning: core.neural_chat not found. Custom LLM disabled.")
 
-print("🧠 Local Brain: Ready (Deferred Load Enabled)")
+print(" Local Brain: Ready (Deferred Load Enabled)")
 
 # Initialize LLM Manager (single import point)
 from core.llm_manager import llm_manager  # type: ignore
@@ -325,15 +325,15 @@ def safe_print(msg):
 
 # Initialize Long-Term Memory (LTM)
 ltm = LTMManager(memory_file=os.path.join("userdata", "user_facts.json"))
-print(f"🧠 Long-Term Memory: {len(ltm.facts)} facts stored")
+print(f" Long-Term Memory: {len(ltm.facts)} facts stored")
 
 # Initialize Offline Manager and Proactive Engine
 from core.offline_manager import OfflineManager  # type: ignore
 from core.proactive_engine import ProactiveEngine  # type: ignore
 offline_manager = OfflineManager()
 proactive_engine = ProactiveEngine()
-print("🔌 Offline Manager: Ready")
-print("🔔 Proactive Engine: Initialized")
+print(" Offline Manager: Ready")
+print(" Proactive Engine: Initialized")
 
 
 # Initialize Wake Word Listener
@@ -443,7 +443,7 @@ def cleanup_temp_files():
                     pass
 
         if removed:
-            safe_print(f"🧹 Cleanup: Removed {len(removed)} orphaned temp files.")
+            safe_print(f" Cleanup: Removed {len(removed)} orphaned temp files.")
     except Exception as e:
         safe_print(f"⚠️ Cleanup Error: {e}")
 
@@ -471,12 +471,12 @@ def select_best_microphone():
             candidates.sort() # Lowest keyword index first
             best_idx = candidates[0][1]
             best_name = candidates[0][2]
-            print(f"🎙️ [HearingConfig] Scavenged real mic: {best_name} (Index {best_idx})")
+            print(f"️ [HearingConfig] Scavenged real mic: {best_name} (Index {best_idx})")
             return sr.Microphone(device_index=best_idx)
     except Exception as e:
         print(f"⚠️ [HearingConfig] Mic scavenging error: {e}")
     
-    print("🎙️ [HearingConfig] Using system default microphone.")
+    print("️ [HearingConfig] Using system default microphone.")
     # Use the global sr import
     try:
         import speech_recognition as sr_func # type: ignore
@@ -502,7 +502,7 @@ class NovaHearingEngine:
         cleanup_temp_files() # Clean on start
 
     def start(self):
-        print(f"👂 Nova Hearing Engine: Seamless Monitoring ('{self.keyword}')")
+        print(f" Nova Hearing Engine: Seamless Monitoring ('{self.keyword}')")
         if not self.mic:
             print("❌ No microphone detected. Hearing engine disabled.")
             return
@@ -567,12 +567,12 @@ class NovaHearingEngine:
                 if not text: return
 
                 # Terminal visibility for transcription
-                print(f"👂 [Transcribed] '{text}'")
+                print(f" [Transcribed] '{text}'")
 
                 # 3. State-Based Logic
                 if self.is_active:
                     # COMMAND STATE
-                    print(f"📝 [Command] User: '{text}'")
+                    print(f" [Command] User: '{text}'")
                     update_ui(text, "user-msg")
                     self.is_active = False # Reset to IDLE
                     
@@ -586,7 +586,7 @@ class NovaHearingEngine:
                 else:
                     # IDLE/WAKE-WORD STATE
                     if self.keyword in text.lower():
-                        print("🚀 Wake Word Detected!")
+                        print(" Wake Word Detected!")
                         update_ui("<i>Listening...</i>", "system-msg")
                         self.is_active = True 
                         # The very next phrase heard will hit the branch above
@@ -673,7 +673,7 @@ def set_online():
     try:
         data = request.json
         ONLINE_MODE = data.get('online', True)
-        print(f"🌐 Online Mode: {'ACTIVE' if ONLINE_MODE else 'OFFLINE'}")
+        print(f" Online Mode: {'ACTIVE' if ONLINE_MODE else 'OFFLINE'}")
         return jsonify({"status": "success", "online": ONLINE_MODE})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -685,7 +685,7 @@ def set_live_mode():
     try:
         data = request.json
         IS_LIVE_MODE = data.get('active', False)
-        print(f"🔄 Live Mode Sync: {'ACTIVE' if IS_LIVE_MODE else 'OFF'}")
+        print(f" Live Mode Sync: {'ACTIVE' if IS_LIVE_MODE else 'OFF'}")
         return jsonify({"status": "success", "live": IS_LIVE_MODE})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -963,7 +963,7 @@ def export_conversation():
                 </style>
             </head>
             <body>
-                <h1>🌹 NOVA Conversation History</h1>
+                <h1> NOVA Conversation History</h1>
             """
             conversations = history if isinstance(history, list) else history.get('conversations', [])
             output += f'<div class="stats">Total Conversations: {len(conversations)}</div>'
@@ -1030,7 +1030,7 @@ def clear_memory():
         if os.path.exists(chat_history.history_file):
             os.remove(chat_history.history_file)
             
-        print("🗑️ All memory, facts, and chat history have been cleared by user request.")
+        print("️ All memory, facts, and chat history have been cleared by user request.")
         return jsonify({"status": "success", "message": "All memories and chat history cleared."})
     except Exception as e:
         logging.error(f"History clear error: {e}")
@@ -1134,7 +1134,7 @@ def upload_file():
         if llm_executor or (llm_manager and getattr(llm_manager, 'model', None)):
             # Pre-warm LLM Status
             if getattr(llm_manager, 'last_model', None):
-                print(f"🧠 Nova Intelligence: {llm_manager.last_model} API mode active.")
+                print(f" Nova Intelligence: {llm_manager.last_model} API mode active.")
             active_persona = personality_manager.get_active_personality()
             system_prompt = f"{active_persona['system_prompt']}\nCONTEXT: User uploaded an image.\nIMAGE CONTENTS: {objects}\nTASK: Comment briefly on what you see.\nNova:"
             response_text = llm_manager.generate(system_prompt, max_tokens=80, temperature=0.7)
@@ -1214,7 +1214,7 @@ def transcribe():
                     print(f"⚠️ Detected Hallucination: '{text}' -> Discarding.")
                     text = "" # Force fallback
                     
-                print(f"🎤 Neural Transcribed ({detected_language}): {text}")
+                print(f" Neural Transcribed ({detected_language}): {text}")
             except Exception as e:
                 print(f"Neural Transcription Error: {e}")
 
@@ -1229,13 +1229,13 @@ def transcribe():
                     if recognizer_func:
                         text = recognizer_func(audio_data, language="en-IN")
                         detected_language = "en"
-                        print(f"🎤 Fallback Transcribed (Google): {text}")
+                        print(f" Fallback Transcribed (Google): {text}")
                 except: pass
             except Exception as e:
                 print(f"Fallback Transcription Error: {e}")
                 if not text: return jsonify({"error": "Failed"}), 500
 
-        print(f"🎙️ RAW ASR Output: '{text}' ({detected_language})")
+        print(f"️ RAW ASR Output: '{text}' ({detected_language})")
         gc.collect()
         normalized_text = nlp.normalize_text(text, language=detected_language)
         return jsonify({"transcript": normalized_text, "language": detected_language})
@@ -1276,13 +1276,13 @@ def voice_command():
                 del segments
                 detected_lang = str(getattr(info, 'language', 'en'))
                 if detected_lang != "en":
-                    print(f"🌍 Detected language: {detected_lang} — will reply in English")
+                    print(f" Detected language: {detected_lang} — will reply in English")
             except: pass
         
         if not text:
             return jsonify({"response": "Hmm? I didn't catch that.", "audio": False}), 200
             
-        print(f"🎙️ Voice Command Detected: '{text}'")
+        print(f"️ Voice Command Detected: '{text}'")
         # Process command — always respond in English regardless of input language
         return process_command_text(text, "en", voice_mode=True)
         
@@ -1361,7 +1361,7 @@ def clean_text_for_tts(text):
     text = re.sub(r'<.*?>', '', text)
     
     # 5. Remove ALL emojis and special symbols (keep only letters, numbers, basic punctuation)
-    # This removes: 😊 🎵 ✨ 💖 etc.
+    # This removes:   ✨  etc.
     text = re.sub(r'[^\w\s,.?!:\'-]', '', text, flags=re.UNICODE)
     
     # 6. Remove extra whitespace
@@ -1447,7 +1447,7 @@ def quick_tts(text: str, lang: str = "en") -> t.Optional[str]:
         # 2. Get Prosody Settings
         e_pitch, e_rate = EMOTION_PROSODY_MAP.get(emotion, ("+0Hz", "+0%"))
         
-        print(f"🎤 TTS Emotion: {emotion} | Pitch: {e_pitch} | Rate: {e_rate}")
+        print(f" TTS Emotion: {emotion} | Pitch: {e_pitch} | Rate: {e_rate}")
             
         clean_text = clean_text_for_tts(text)
         
@@ -1478,7 +1478,7 @@ def cmd_admin_test(mode="single"):
     if not user_profile.is_admin():
         return "⛔ Access Denied: Administrator testing mode is restricted."
 
-    safe_print("🧪 Running Admin Diagnostic Test...")
+    safe_print(" Running Admin Diagnostic Test...")
     
     # Test Sequence
     responses = [
@@ -1518,7 +1518,7 @@ def get_skills_status():
                 "path": path,
                 "status": "Sleeping",
                 "triggers": triggers,
-                "icon": "💤"
+                "icon": ""
             })
             
         # 2. Active Skills (Loaded)
@@ -1589,13 +1589,13 @@ def save_settings():
             p = data['personality']
             if 'mode' in p:
                 personality_manager.set_mode(p['mode'])
-                print(f"🎭 Personality Mode Applied: {p['mode']}")
+                print(f" Personality Mode Applied: {p['mode']}")
         
         if 'memory' in data:
             m = data['memory']
             if 'enabled' in m:
                 ltm.enabled = m['enabled']
-                print(f"🧠 Memory System: {'Enabled' if ltm.enabled else 'Disabled'}")
+                print(f" Memory System: {'Enabled' if ltm.enabled else 'Disabled'}")
 
         if 'model' in data:
             mo = data['model']
@@ -1672,7 +1672,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
     # --- PENDING AUTOMATION INTERCEPTOR ---
     import skills.automation  # type: ignore
     if skills.automation.pending_execution:
-        print(f"🔒 Checking Pending Automation against input: '{low_input}'")
+        print(f" Checking Pending Automation against input: '{low_input}'")
         affirmative = ["yes", "yep", "yeah", "sure", "do it", "go ahead", "okay", "ok", "confirm", "of course"]
         negative = ["no", "nope", "nay", "cancel", "stop", "abort", "don't"]
         
@@ -1683,7 +1683,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
             return {"response": obs, "skill_direct": True, "emotion": "happy"}
             
         elif any(word in low_input for word in negative):
-            print("🛑 Intercepted negative response for pending automation.")
+            print(" Intercepted negative response for pending automation.")
             obs = nova.dispatcher.dispatch("cancel run") if nova else "System offline"
             return {"response": obs, "skill_direct": True, "emotion": "neutral"}
         
@@ -1706,7 +1706,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
     )
     
     action = drl.select_action(state)
-    safe_print(f"🧠 DRL Action Selected: {action} (State: {state})")
+    safe_print(f" DRL Action Selected: {action} (State: {state})")
 
     # === STEP 1: ALWAYS try Direct Skill Dispatch first ===
     try:
@@ -1718,7 +1718,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
                 from core.llm_router import intent_router
                 mapped_cmd = intent_router.determine_skill(processed_input, nova.dispatcher)
                 if mapped_cmd and mapped_cmd.upper() != "NONE":
-                    safe_print(f"🧠 LLM Router mapped intent to: '{mapped_cmd}'")
+                    safe_print(f" LLM Router mapped intent to: '{mapped_cmd}'")
                     skill_response = nova.dispatcher.dispatch(mapped_cmd)
             except Exception as e:
                 safe_print(f"⚠️ Intent Router Failed: {e}")
@@ -1728,7 +1728,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
             
             # DRL says enhance with LLM? Only if skill gave a short/simple response
             if action in ["use_llm", "multi_step_reasoning"] and len(response) < 50:
-                safe_print(f"🧠 DRL: Skill responded, but enhancing with LLM...")
+                safe_print(f" DRL: Skill responded, but enhancing with LLM...")
                 # Fall through to agent loop below
             else:
                 # Skill handled it fully — record reward and return
@@ -1828,7 +1828,7 @@ def proactive_vision_callback(text):
 # ==================================================================================
 
 def start_flask():
-    print("🚀 Starting Nova Backend...")
+    print(" Starting Nova Backend...")
     app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)
 
 
@@ -1851,7 +1851,7 @@ def cleanup_uploads():
                         os.unlink(file_path)
                 except Exception as e:
                     print(f"⚠️ Failed to delete {file_path}. Reason: {e}")
-            print("🧹 Cleanup: Temp files deleted.")
+            print(" Cleanup: Temp files deleted.")
         except Exception as e:
             print(f"⚠️ Cleanup failed: {e}")
 
@@ -1859,11 +1859,11 @@ def cleanup_uploads():
 atexit.register(cleanup_uploads)  # type: ignore[arg-type]
 
 def shutdown_sequence():
-    print("\n👋 Closing Nova Desktop...")
+    print("\n Closing Nova Desktop...")
     
     # Save cache and memory before shutdown
     try:
-        print("💾 Saving cache and memory...")
+        print(" Saving cache and memory...")
         optimizer.save_cache()
         memory.save_memory(async_save=False)  # Synchronous save on shutdown
     except Exception as e:

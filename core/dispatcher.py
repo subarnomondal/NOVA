@@ -56,7 +56,7 @@ class CommandDispatcher:
         module = self.loaded_modules.get(module_path)
         if module and hasattr(module, "unload"):
             try:
-                print(f"🛑 Unloading Skill Module: {module_path}...")
+                print(f" Unloading Skill Module: {module_path}...")
                 module.unload(self)
                 # We don't remove from loaded_modules (Python caching)
                 # But the module is now 'Quiet'.
@@ -71,7 +71,7 @@ class CommandDispatcher:
         for path in list(self.loaded_modules.keys()):
             if self.unload_module_manually(path):
                 count += 1
-        return f"Emergency Abort triggered! 🛑 I've attempted to stop {count} active systems."
+        return f"Emergency Abort triggered!  I've attempted to stop {count} active systems."
 
     def dispatch(self, user_input, nlp_results=None):
         """
@@ -95,7 +95,7 @@ class CommandDispatcher:
                         self._load_lazy_skill(cmd)
                         
                     if cmd in self.commands:
-                        print(f"👉 Step {i+1}: Executing '{cmd}'")
+                        print(f" Step {i+1}: Executing '{cmd}'")
                         try:
                             raw_resp = self.commands[cmd](text)
                             
@@ -106,7 +106,7 @@ class CommandDispatcher:
                                  # Check for PROACTIVE SUGGESTIONS
                                  suggestion = raw_resp.get("suggested_next")
                                  if suggestion:
-                                     print(f"💡 Skill Suggested: {suggestion}")
+                                     print(f" Skill Suggested: {suggestion}")
                                      nlp_results.insert(i + 1, {"command": suggestion, "original_text": text})
                             else:
                                  msg = raw_resp
@@ -141,7 +141,7 @@ class CommandDispatcher:
                 
                 # Double check after potential load
                 if key in self.commands:
-                    print(f"🎯 Dispatcher: Legacy match for '{key}'")
+                    print(f" Dispatcher: Legacy match for '{key}'")
                     return self.commands[key](user_input)
         
         return None

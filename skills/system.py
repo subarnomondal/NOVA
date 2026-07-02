@@ -19,7 +19,7 @@ def get_volume_interface():
         try:
             interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None) # type: ignore
             return interface.QueryInterface(IAudioEndpointVolume)
-        except:
+        except Exception:
             # Method 2: Fallback if Activate fails
             if hasattr(devices, "EndpointVolume"):
                 return devices.EndpointVolume
@@ -35,7 +35,7 @@ def cmd_volume(args):
         # Extract the first number found in the string
         match = re.search(r'(\d+)', args)
         if not match:
-            return "I can adjust the volume for you! Just let me know what percentage you'd like - anywhere from 0 to 100! 🔊"
+            return "I can adjust the volume for you! Just let me know what percentage you'd like - anywhere from 0 to 100! "
         
         target = float(match.group(1))
         target = max(0.0, min(100.0, target))
@@ -45,15 +45,15 @@ def cmd_volume(args):
             volume.SetMasterVolumeLevelScalar(target / 100.0, None)
             import random
             responses = [
-                f"Done! Volume is now at {target}%. 🔊",
+                f"Done! Volume is now at {target}%. ",
                 f"All set! I've adjusted the volume to {target}%. ✨",
-                f"Perfect! Volume's at {target}% now. 🎵"
+                f"Perfect! Volume's at {target}% now. "
             ]
             return random.choice(responses)
         else:
-            return "Hmm, I'm having trouble accessing the audio controls right now. Mind trying again? 🔄"
+            return "Hmm, I'm having trouble accessing the audio controls right now. Mind trying again? "
     except Exception as e:
-        return "Oops, I had a little hiccup adjusting the volume. Let's try that again! 💙"
+        return "Oops, I had a little hiccup adjusting the volume. Let's try that again! "
 
 
 def cmd_open_app(args):
@@ -87,7 +87,7 @@ def cmd_open_app(args):
                 
             from skills.browser_agent import agent
             agent.open_url(url)
-            return f"Opening {target_site} in NOVA's browser for you! 🌐✨"
+            return f"Opening {target_site} in NOVA's browser for you! ✨"
         
         # Common app mappings
         app_map = {
@@ -116,14 +116,14 @@ def cmd_open_app(args):
             os.system(f"start {app_map[app_name]}")
             import random
             responses = [
-                f"Oki doki! Launching {app_name} for you! 🚀",
+                f"Oki doki! Launching {app_name} for you! ",
                 f"You got it! Starting {app_name} now. Hehe~ ✨",
-                f"On it! {app_name.title()} coming right up! (≧◡≦) 💫"
+                f"On it! {app_name.title()} coming right up! (≧◡≦) "
             ]
             return random.choice(responses)
         else:
             os.system(f"start {app_name}")
-            return f"Trying to open {app_name} for you! 🔍"
+            return f"Trying to open {app_name} for you! "
             
     except Exception as e:
         print(f"Open App Error: {e}")
@@ -152,7 +152,7 @@ def cmd_screenshot(args):
         
         filename = os.path.join(ss_dir, f"screenshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
         pyautogui.screenshot(filename)
-        return f"Got it! Screenshot saved as {filename}. 📸"
+        return f"Got it! Screenshot saved as {filename}. "
     except Exception as e:
         return f"Oops, I couldn't take that screenshot. Here's what went wrong: {e}"
 
@@ -161,7 +161,7 @@ def cmd_usage(args):
     try:
         cpu = psutil.cpu_percent()
         ram = psutil.virtual_memory().percent
-        return f"Here's how your system is doing! 💻\n\nCPU: {cpu}%\nRAM: {ram}%"
+        return f"Here's how your system is doing! \n\nCPU: {cpu}%\nRAM: {ram}%"
     except Exception as e:
         return f"I had trouble checking system usage. Here's the error: {e}"
 
@@ -172,10 +172,10 @@ def cmd_battery(args):
         if battery:
             percent = battery.percent
             plugged = "charging" if battery.power_plugged else "on battery"
-            emoji = "🔌" if battery.power_plugged else "🔋"
+            emoji = "" if battery.power_plugged else ""
             return f"{emoji} You're at {percent}% and {plugged}!"
         else:
-            return "Hmm, I can't seem to find battery info on this device. Are you on a desktop? 🖥️"
+            return "Hmm, I can't seem to find battery info on this device. Are you on a desktop? ️"
     except Exception as e:
         return f"I couldn't check the battery status. Here's why: {e}"
 
@@ -197,8 +197,8 @@ def cmd_media(args):
             return "Stopped playback. ⏹️"
         elif "mute" in cmd:  # Toggle mute
             pyautogui.press("volumemute")
-            return "Toggled mute. 🔇"
-        return "I can control media for you. Try saying 'play', 'next', or 'pause'! 🎵"
+            return "Toggled mute. "
+        return "I can control media for you. Try saying 'play', 'next', or 'pause'! "
     except Exception as e:
         return f"Oops, media control failed: {e}"
 
@@ -209,16 +209,16 @@ def cmd_window(args):
         if "minimize" in cmd:
             if "all" in cmd:
                 pyautogui.hotkey('win', 'd')
-                return "Desktop revealed! 🖥️"
+                return "Desktop revealed! ️"
             else:
                 pyautogui.hotkey('win', 'down') # Minimizes current window usually
-                return "Minimized the window. 📉"
+                return "Minimized the window. "
         elif "maximize" in cmd:
             pyautogui.hotkey('win', 'up')
-            return "Maximized! 📈"
+            return "Maximized! "
         elif "switch" in cmd:
             pyautogui.hotkey('alt', 'tab')
-            return "Switched windows. 🔄"
+            return "Switched windows. "
         return "Unsure which window command to run. Try 'minimize all' or 'switch window'."
     except Exception as e:
         return f"Window control error: {e}"
@@ -264,11 +264,11 @@ def cmd_power(args):
             # without pid tracking, but shutdown /a handles Windows shutdown timer.
             agi_context.chain_data["pending_power_command"] = None
             agi_context.chain_data["pending_power_delay"] = 0
-            return "Shutdown/Restart aborted! That was close. 🛑✨"
+            return "Shutdown/Restart aborted! That was close. ✨"
 
         if "lock" in cmd:
             os.system("rundll32.exe user32.dll,LockWorkStation")
-            return "Locking your PC now. Stay safe! 🔒"
+            return "Locking your PC now. Stay safe! "
         
         delay = extract_delay_seconds(cmd)
         if not is_confirmed:
@@ -288,20 +288,20 @@ def cmd_power(args):
                 if delay > 0:
                     subprocess.Popen(f"timeout /t {delay} && {sleep_cmd}", shell=True)
                     agi_context.chain_data["pending_power_command"] = None
-                    return f"Oki doki! I'll put the system to sleep in {delay} seconds. Goodnight! 🌙💤"
+                    return f"Oki doki! I'll put the system to sleep in {delay} seconds. Goodnight! "
                 else:
                     os.system(sleep_cmd)
-                    return "Putting the system to sleep. Goodnight! 🌙"
+                    return "Putting the system to sleep. Goodnight! "
             else:
                 agi_context.chain_data["pending_power_command"] = "sleep"
-                return f"Are you sure you want to put the PC to sleep{delay_str}? (Say 'yes' to confirm) 🌙"
+                return f"Are you sure you want to put the PC to sleep{delay_str}? (Say 'yes' to confirm) "
             
         elif "shutdown" in cmd or (pending == "shutdown" and is_confirmed):
             if is_confirmed or "force" in cmd:
                 # shutdown /s /t <seconds> handles the delay natively
                 os.system(f"shutdown /s /t {delay if delay > 0 else 60}")
                 agi_context.chain_data["pending_power_command"] = None
-                return f"Initiating shutdown{delay_str}. Run 'abort' to cancel! 🛑"
+                return f"Initiating shutdown{delay_str}. Run 'abort' to cancel! "
             else:
                 agi_context.chain_data["pending_power_command"] = "shutdown"
                 return f"Are you absolutely sure you want to shut down{delay_str}? (Say 'yes' to confirm) ⚠️"
@@ -310,10 +310,10 @@ def cmd_power(args):
             if is_confirmed or "force" in cmd:
                 os.system(f"shutdown /r /t {delay if delay > 0 else 60}")
                 agi_context.chain_data["pending_power_command"] = None
-                return f"Restarting{delay_str}. Run 'abort' to cancel! 🔄"
+                return f"Restarting{delay_str}. Run 'abort' to cancel! "
             else:
                 agi_context.chain_data["pending_power_command"] = "restart"
-                return f"Are you sure you want to restart{delay_str}? (Say 'yes' to confirm) 🔄"
+                return f"Are you sure you want to restart{delay_str}? (Say 'yes' to confirm) "
             
         return "I can handle power options commands like 'lock', 'sleep', 'shutdown', or 'restart'. Be careful! ⚡"
     except Exception as e:
@@ -323,7 +323,7 @@ def cmd_voice_status(args):
     """Usage: voice status"""
     # This is a placeholder for actual voice authentication status
     # In a full implementation, this might check for a registered .wav profile
-    return "Your voice profile is active and recognized! I'm listening closely to you. 🎤✨"
+    return "Your voice profile is active and recognized! I'm listening closely to you. ✨"
 
 def cmd_browser(args):
     """Usage: new tab, close tab, reopen tab, next tab, previous tab"""
@@ -331,20 +331,20 @@ def cmd_browser(args):
         cmd = args.lower()
         if "new" in cmd:
             pyautogui.hotkey('ctrl', 't')
-            return "Opened a new tab. 📑"
+            return "Opened a new tab. "
         elif "close" in cmd:
             pyautogui.hotkey('ctrl', 'w')
             return "Closed current tab. ❌"
         elif "reopen" in cmd or "restore" in cmd:
             pyautogui.hotkey('ctrl', 'shift', 't')
-            return "Reopened the last closed tab. 🔙"
+            return "Reopened the last closed tab. "
         elif "next" in cmd:
             pyautogui.hotkey('ctrl', 'tab')
             return "Switched to next tab. ⏩"
         elif "previous" in cmd or "back" in cmd:
             pyautogui.hotkey('ctrl', 'shift', 'tab')
             return "Switched to previous tab. ⏪"
-        return "I can manage tabs for you. Try 'new tab' or 'close tab'. 🌐"
+        return "I can manage tabs for you. Try 'new tab' or 'close tab'. "
     except Exception as e:
         return f"Browser control failed: {e}"
 
@@ -364,7 +364,7 @@ def cmd_nav(args):
         elif "forward" in cmd:
             pyautogui.hotkey('alt', 'right')
             return "Went forward. ➡️"
-        return "I can scroll or navigate history. Try 'scroll down' or 'go back'. 🖱️"
+        return "I can scroll or navigate history. Try 'scroll down' or 'go back'. ️"
     except Exception as e:
         return f"Navigation failed: {e}"
 
@@ -374,10 +374,10 @@ def cmd_edit(args):
         cmd = args.lower()
         if "copy" in cmd:
             pyautogui.hotkey('ctrl', 'c')
-            return "Copied to clipboard. 📋"
+            return "Copied to clipboard. "
         elif "paste" in cmd:
             pyautogui.hotkey('ctrl', 'v')
-            return "Pasted. 📥"
+            return "Pasted. "
         elif "cut" in cmd:
             pyautogui.hotkey('ctrl', 'x')
             return "Cut selection. ✂️"
@@ -386,11 +386,11 @@ def cmd_edit(args):
             return "Undid last action. ↩️"
         elif "select all" in cmd:
             pyautogui.hotkey('ctrl', 'a')
-            return "Selected everything. 🟦"
+            return "Selected everything. "
         elif "save" in cmd:
             pyautogui.hotkey('ctrl', 's')
-            return "Saved. 💾"
-        return "I can help edit text. Try 'copy' or 'select all'. 📝"
+            return "Saved. "
+        return "I can help edit text. Try 'copy' or 'select all'. "
     except Exception as e:
         return f"Edit command failed: {e}"
 
@@ -401,13 +401,13 @@ def cmd_input(args):
         if "click" in cmd:
             if "right" in cmd:
                 pyautogui.rightClick()
-                return "Right clicked. 🖱️"
+                return "Right clicked. ️"
             elif "double" in cmd:
                 pyautogui.doubleClick()
-                return "Double clicked. 🖱️"
+                return "Double clicked. ️"
             else:
                 pyautogui.click()
-                return "Clicked. 🖱️"
+                return "Clicked. ️"
         elif "press" in cmd or "hit" in cmd:
             # Extract key name
             key = cmd.replace("press", "").replace("hit", "").strip()
@@ -442,18 +442,18 @@ def cmd_file_ops(args):
             path = os.path.join(desktop, name)
             if not os.path.exists(path):
                 os.makedirs(path)
-                return f"Created folder '{name}' on your Desktop. 📁"
+                return f"Created folder '{name}' on your Desktop. "
             else:
-                return f"Folder '{name}' already exists! 📁"
+                return f"Folder '{name}' already exists! "
         
         elif "desktop" in cmd and "show" in cmd:
             pyautogui.hotkey('win', 'd')
-            return "Showing Desktop. 🖥️"
+            return "Showing Desktop. ️"
             
         elif "explorer" in cmd:
             pyautogui.hotkey('win', 'e')
-            return "Opened File Explorer. 📂"
-        return "I can help with files. Try 'create folder test' or 'show desktop'. 📁"
+            return "Opened File Explorer. "
+        return "I can help with files. Try 'create folder test' or 'show desktop'. "
     except Exception as e:
         return f"File operation failed: {e}"
 

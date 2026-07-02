@@ -12,7 +12,7 @@ class CharTokenizer:
             self.chars = sorted(list(set(
                 "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 " + 
                 "!@#$%^&*()-_=+[{]}\\|;:'\",<.>/?`~\n\t" + 
-                "✨😊💖🤖💀🚀🔥🌈🌸🎮"
+                "✨"
             )))
         
         self.vocab_size = len(self.chars)

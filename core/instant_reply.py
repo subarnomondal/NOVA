@@ -78,13 +78,13 @@ class InstantReplyGenerator:
         fallbacks = {
             "greeting": "Hey there! What can I do for you? ✨",
             "thanks": "You're welcome! *smiles*",
-            "apology": "It's fine. Don't worry about it. 😊",
+            "apology": "It's fine. Don't worry about it. ",
             "affection": "*blushes* W-What are you saying all of a sudden?!",
             "joke": "Why did the AI go to school? To improve its learning algorithms! *giggles*",
-            "compliment": "*blushes* T-Thank you... That's very kind of you to say. 😊",
+            "compliment": "*blushes* T-Thank you... That's very kind of you to say. ",
             "goodbye": "Bye for now! I'll be here when you need me. ✨",
-            "how_are_you": "I'm doing well! Thanks for asking. How about you? 😊",
-            "gaming": "Gaming? I enjoy strategy games. They keep my mind sharp! 🎮"
+            "how_are_you": "I'm doing well! Thanks for asking. How about you? ",
+            "gaming": "Gaming? I enjoy strategy games. They keep my mind sharp! "
         }
         
         response = fallbacks.get(intent, "I'm here! What do you need? ✨")
@@ -113,7 +113,7 @@ if __name__ == "__main__":
             return text
     
     irg = InstantReplyGenerator(MockPM())
-    print(f"📊 Instant Reply Stats: {irg.get_stats()}")
-    print(f"\n🎯 Testing LLM Generation...")
+    print(f" Instant Reply Stats: {irg.get_stats()}")
+    print(f"\n Testing LLM Generation...")
     print(f"Greeting: {irg.generate('greeting')}")
     print(f"Thanks: {irg.generate('thanks')}")

@@ -66,7 +66,7 @@ def _find_stereo_mix_device():
             found_devices.sort()
             best_idx = found_devices[0][1]
             best_name = found_devices[0][2]
-            print(f"🎙️ [AudioConfig] Auto-selected recording device: {best_name} (Index {best_idx})")
+            print(f"️ [AudioConfig] Auto-selected recording device: {best_name} (Index {best_idx})")
             return best_idx
             
         print("⚠️ [AudioConfig] No Stereo Mix or loopback device found. Listing all input devices for debug:")
@@ -126,7 +126,7 @@ def _find_call_window():
             # Sort by priority (lower = better)
             candidates.sort(key=lambda x: x[0])
             chosen = candidates[0][1]
-            print(f"📞 [CallMonitor] MATCH! Found call window: '{chosen.title}' ({chosen.width}x{chosen.height})")
+            print(f" [CallMonitor] MATCH! Found call window: '{chosen.title}' ({chosen.width}x{chosen.height})")
             return chosen
 
     except Exception as e:
@@ -158,7 +158,8 @@ def _accept_call(win):
             if win.isMinimized:
                 win.restore()
             win.activate()
-        except: pass
+        except Exception:
+            pass
         time.sleep(0.8)
 
         # Take a screenshot of just the call popup window region
@@ -186,7 +187,7 @@ def _accept_call(win):
             avg_y = sum(p[1] for p in green_pixels) // len(green_pixels)
             abs_x = win.left + avg_x
             abs_y = win.top + avg_y
-            print(f"🟢 Green 'Accept' button confirmed at ({abs_x}, {abs_y})")
+            print(f" Green 'Accept' button confirmed at ({abs_x}, {abs_y})")
             pyautogui.click(abs_x, abs_y)
             return True
 
@@ -203,7 +204,7 @@ def _accept_call(win):
         for (fx, fy) in fallback_positions:
             cx = win.left + int(win.width * fx)
             cy = win.top + int(win.height * fy)
-            print(f"   🖱️ Trying fallback click at ({cx}, {cy})")
+            print(f"   ️ Trying fallback click at ({cx}, {cy})")
             pyautogui.click(cx, cy)
             time.sleep(0.3)
 
@@ -267,7 +268,7 @@ def _speak_tts(text):
             pygame.mixer.music.play()
             
             # Wait for playback to finish
-            print(f"🔊 Playing Nova's voice: '{text[:50]}...'")
+            print(f" Playing Nova's voice: '{text[:50]}...'")
             while pygame.mixer.music.get_busy():
                 time.sleep(0.1)
                 
@@ -318,7 +319,7 @@ def _record_chunk():
             
             # If the entire buffer was invalid, try fallback immediately
             if np.all(flat == 0):
-                print("🔄 [CallLoop] Buffer is empty after sanitization. Falling back to default input.")
+                print(" [CallLoop] Buffer is empty after sanitization. Falling back to default input.")
                 audio = sd.rec(int(_RECORD_SECONDS * _SAMPLE_RATE), samplerate=_SAMPLE_RATE, channels=_CHANNELS, dtype='float32', device=None)
                 sd.wait()
                 flat = np.nan_to_num(audio.flatten())
@@ -338,7 +339,7 @@ def _record_chunk():
             audio = sd.rec(int(_RECORD_SECONDS * _SAMPLE_RATE), samplerate=_SAMPLE_RATE, channels=_CHANNELS, dtype='float32')
             sd.wait()
             return np.nan_to_num(audio.flatten())
-        except:
+        except Exception:
             return None
 
 
@@ -403,7 +404,7 @@ def _call_audio_loop():
     - Speaks reply via edge-tts (Neural Voice)
     """
     global _call_active
-    print("🎙️ [CallLoop] Call audio loop started!")
+    print("️ [CallLoop] Call audio loop started!")
 
     # Give Nova's intro greeting first
     user_name = _get_user_name()
@@ -415,7 +416,7 @@ def _call_audio_loop():
 
     while _call_active:
         try:
-            print("👂 [CallLoop] Listening for caller...")
+            print(" [CallLoop] Listening for caller...")
             audio = _record_chunk()
 
             if audio is None:
@@ -428,16 +429,16 @@ def _call_audio_loop():
                 # print(f"   (silence: {rms:.5f})") # Debug silence
                 continue
 
-            print(f"🔊 [CallLoop] Audio detected (RMS={rms:.4f}), transcribing...")
+            print(f" [CallLoop] Audio detected (RMS={rms:.4f}), transcribing...")
             text = _transcribe_audio(audio)
 
             if not text:
                 print("   (empty transcript, skipping)")
                 continue
 
-            print(f"📝 [CallLoop] Caller said: '{text}'")
+            print(f" [CallLoop] Caller said: '{text}'")
             reply = _get_nova_response(text)
-            print(f"💬 [CallLoop] Nova replies: '{reply[:80]}'")
+            print(f" [CallLoop] Nova replies: '{reply[:80]}'")
 
             _speak_tts(reply)
 
@@ -445,7 +446,7 @@ def _call_audio_loop():
             print(f"⚠️ [CallLoop] Error: {e}")
             time.sleep(1)
 
-    print("🛑 [CallLoop] Call audio loop ended.")
+    print(" [CallLoop] Call audio loop ended.")
 
 
 def _start_call_audio_loop():
@@ -474,7 +475,7 @@ def _trigger_live_mode():
             json={"active": True},
             timeout=2
         )
-        print("🎙️ Auto-triggered Nova Live Mode for WhatsApp call!")
+        print("️ Auto-triggered Nova Live Mode for WhatsApp call!")
     except Exception as e:
         print(f"⚠️ Could not trigger Live Mode: {e}")
 
@@ -502,7 +503,7 @@ def _send_call_summary():
         )
         data = resp.json()
         if data.get("response"):
-            print(f"📋 Call Summary Sent: {data['response'][:80]}...")
+            print(f" Call Summary Sent: {data['response'][:80]}...")
         else:
             print("⚠️ Call summary: no response from backend.")
     except Exception as e:
@@ -515,7 +516,7 @@ def _monitor_loop():
     Runs every POLL_INTERVAL seconds.
     """
     global _monitor_running
-    print("👀 WhatsApp Call Monitor: Started (watching for calls every 1s...)")
+    print(" WhatsApp Call Monitor: Started (watching for calls every 1s...)")
     heartbeat = 0
 
     while _monitor_running:
@@ -523,10 +524,10 @@ def _monitor_loop():
             call_win = _find_call_window()
             if call_win:
                 title = call_win.title
-                print(f"🔔 Incoming call detected! Window: '{title}' ({call_win.width}x{call_win.height})")
+                print(f" Incoming call detected! Window: '{title}' ({call_win.width}x{call_win.height})")
 
                 if _is_video_call(title):
-                    print("📹 Video call detected — ignoring (voice only mode).")
+                    print(" Video call detected — ignoring (voice only mode).")
                 else:
                     print("☎️ Voice call! Accepting...")
                     accepted = _accept_call(call_win)
@@ -541,7 +542,7 @@ def _monitor_loop():
                 # Periodic heartbeat to confirm monitor is alive
                 heartbeat += 1
                 if heartbeat % 30 == 0:
-                    print("👂 [CallMonitor] Listening... (no call yet)")
+                    print(" [CallMonitor] Listening... (no call yet)")
 
         except Exception as e:
             print(f"⚠️ Call Monitor Error: {e}")
@@ -574,10 +575,10 @@ def cmd_accept_whatsapp_call(args=""):
     """Manually accept an incoming WhatsApp voice call."""
     win = _find_call_window()
     if not win:
-        return "I don't see an incoming call notification right now. Is it ringing? 🔔"
+        return "I don't see an incoming call notification right now. Is it ringing? "
 
     if _is_video_call(win.title):
-        return "That looks like a video call — I only accept voice calls per your instructions! 📹"
+        return "That looks like a video call — I only accept voice calls per your instructions! "
 
     accepted = _accept_call(win)
     if accepted:
@@ -585,15 +586,15 @@ def cmd_accept_whatsapp_call(args=""):
         _trigger_live_mode()
         time.sleep(1.0)
         _send_call_summary()
-        return "WHATSAPP_CALL_ACCEPTED: Picked up! Giving you a quick summary then entering voice mode. 🎙️"
-    return "I tried to accept but something went wrong. 😅"
+        return "WHATSAPP_CALL_ACCEPTED: Picked up! Giving you a quick summary then entering voice mode. ️"
+    return "I tried to accept but something went wrong. "
 
 
 def cmd_reject_whatsapp_call(args=""):
     """Manually reject an incoming WhatsApp call."""
     win = _find_call_window()
     if not win:
-        return "I don't see any call to reject. 🛑"
+        return "I don't see any call to reject. "
 
     try:
         win.activate()
@@ -602,7 +603,7 @@ def cmd_reject_whatsapp_call(args=""):
         click_x = win.left + int(win.width * 0.25)
         click_y = win.top + int(win.height * 0.60)
         pyautogui.click(click_x, click_y)
-        return "Declined the call. 🔕"
+        return "Declined the call. "
     except Exception as e:
         return f"ERROR [REJECT_FAILURE]: {e}"
 
@@ -610,13 +611,13 @@ def cmd_reject_whatsapp_call(args=""):
 def cmd_stop_call_monitor(args=""):
     """Stop the auto call monitor."""
     stop_call_monitor()
-    return "Auto call monitor stopped. I'll no longer auto-pick calls. 🛑"
+    return "Auto call monitor stopped. I'll no longer auto-pick calls. "
 
 
 def cmd_start_call_monitor(args=""):
     """Start/restart the auto call monitor."""
     start_call_monitor()
-    return "Auto call monitor started! I'll pick up WhatsApp voice calls automatically. 📞"
+    return "Auto call monitor started! I'll pick up WhatsApp voice calls automatically. "
 
 
 def register(dispatcher):

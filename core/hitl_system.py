@@ -23,7 +23,7 @@ class HITLSystem:
                     data = json.load(f)
                     self.feedback_data = data.get('feedback', [])
                     self.corrections = data.get('corrections', {})
-                print(f"🔄 HITL: Loaded {len(self.feedback_data)} feedback entries")
+                print(f" HITL: Loaded {len(self.feedback_data)} feedback entries")
         except Exception as e:
             print(f"⚠️ HITL load error: {e}")
     

@@ -28,7 +28,7 @@ def _strip_bot_prefixes(text):
     return cleaned
 
 def _execute_script(code):
-    print(f"🛠️ Executing Python Automation...")
+    print(f"️ Executing Python Automation...")
     old_stdout = sys.stdout
     redirected_output = io.StringIO()
     sys.stdout = redirected_output
@@ -45,7 +45,7 @@ def _execute_script(code):
         return f"ERROR [SCRIPT_FAILURE]: {e}\n\nTraceback:\n{error_trace}"
 
 def _execute_system_command(command, delayed=False):
-    prefix = "⏳ Delayed " if delayed else "🖥️ "
+    prefix = "⏳ Delayed " if delayed else "️ "
     print(f"{prefix}Executing System Command: {command}")
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
@@ -101,7 +101,7 @@ def cmd_run_script(args):
         # Extract code: remove triggers
         code = args.replace("automate script", "").replace("run script", "").strip()
         if not code:
-            return "Please provide the Python code you want me to execute! 🐍"
+            return "Please provide the Python code you want me to execute! "
             
         pending_execution = {'type': 'script', 'target': code}
         prediction = predict_outcome(code, is_script=True)
@@ -124,7 +124,7 @@ def cmd_run_system_command(args):
         command = command.replace("automate cmd", "").replace("execute command", "").replace("run command", "").strip()
         
         if not command:
-            return "What system command should I run? 🖥️"
+            return "What system command should I run? ️"
             
         # 1. Exception for simple tasks
         if is_simple_task(command):
@@ -143,7 +143,7 @@ def cmd_confirm_run(args):
     """Confirms and executes a pending command. Applies a 1-minute delay to system commands."""
     global pending_execution
     if not pending_execution:
-        return "There's no pending command to confirm. 🤔"
+        return "There's no pending command to confirm. "
     
     action_type = pending_execution['type']
     target = pending_execution['target']
@@ -165,9 +165,9 @@ def cmd_cancel_run(args):
     """Cancels a pending command."""
     global pending_execution
     if not pending_execution:
-        return "There's no pending command to cancel. 🤔"
+        return "There's no pending command to cancel. "
     pending_execution = None
-    return "Automation task cancelled. 🛑"
+    return "Automation task cancelled. "
 
 
 def cmd_automation_master(args):
@@ -191,23 +191,23 @@ def cmd_window_control(args):
     Usage: minimize all, minimize windows, show desktop
     """
     if not IS_WINDOWS:
-        return "I can only control windows on a Windows PC right now. 🖥️"
+        return "I can only control windows on a Windows PC right now. ️"
         
     cmd = args.lower()
     try:
         if "minimize" in cmd or "desktop" in cmd or "hide" in cmd:
             # PowerShell: Minimize All
             subprocess.run(["powershell", "-command", "(New-Object -ComObject Shell.Application).MinimizeAll()"], shell=True)
-            return "Minimizing all windows. 📉"
+            return "Minimizing all windows. "
         elif "maximize" in cmd or "restore" in cmd:
             # PowerShell: Undo Minimize All
             subprocess.run(["powershell", "-command", "(New-Object -ComObject Shell.Application).UndoMinimizeAll()"], shell=True)
-            return "Restoring windows. 📈"
+            return "Restoring windows. "
             
     except Exception as e:
         return f"Controller Error: {e}"
         
-    return "I wasn't sure what to do with the windows. Try 'minimize all'. 🪟"
+    return "I wasn't sure what to do with the windows. Try 'minimize all'. "
 
 def cmd_open_app(args):
     """
@@ -221,10 +221,10 @@ def cmd_open_app(args):
     app_name = app_name.replace("open", "").replace("launch", "").replace("start", "").strip()
     
     if not app_name:
-        return "Which app would you like me to open? 📂"
+        return "Which app would you like me to open? "
         
     try:
-        print(f"🚀 Launching: {app_name}")
+        print(f" Launching: {app_name}")
         # Common Windows App Shortcuts
         shortcuts = {
             "notepad": "notepad.exe",
@@ -245,7 +245,7 @@ def cmd_open_app(args):
         
         # Use 'start' in shell to handle paths and registered apps
         subprocess.run(f"start {target}", shell=True)
-        return f"Opening {app_name}... 🚀"
+        return f"Opening {app_name}... "
         
     except Exception as e:
         return f"I couldn't open {app_name}. Error: {e}"
@@ -255,7 +255,7 @@ def cmd_volume_control(args):
     Controls system volume via PowerShell.
     Usage: set volume 50, mute volume, volume up
     """
-    if not IS_WINDOWS: return "Volume control is Windows-only for now. 🔊"
+    if not IS_WINDOWS: return "Volume control is Windows-only for now. "
     
     try:
         # Simple Mute/Unmute logic using nircmd approach or VBScript wrapped in PS?
@@ -270,17 +270,17 @@ def cmd_volume_control(args):
         if "mute" in args:
             # 173 is VK_VOLUME_MUTE
             script = "$wsh = New-Object -ComObject WScript.Shell; $wsh.SendKeys([char]173)"
-            action = "Muted volume 🔇"
+            action = "Muted volume "
         elif "up" in args or "increase" in args:
             # 175 is VK_VOLUME_UP (Send 5 times)
             script = "$wsh = New-Object -ComObject WScript.Shell; 1..5 | ForEach-Object { $wsh.SendKeys([char]175) }"
-            action = "Turning it up! 🔊"
+            action = "Turning it up! "
         elif "down" in args or "decrease" in args:
             # 174 is VK_VOLUME_DOWN
             script = "$wsh = New-Object -ComObject WScript.Shell; 1..5 | ForEach-Object { $wsh.SendKeys([char]174) }"
-            action = "Turning it down. 🔉"
+            action = "Turning it down. "
         else:
-            return "I can mute, increase, or decrease volume. What do you need? 🎧"
+            return "I can mute, increase, or decrease volume. What do you need? "
             
         subprocess.run(["powershell", "-command", script], shell=True)
         return action
@@ -292,12 +292,12 @@ def cmd_cleanup_system(args):
     """Win11: Cleans temp files and Recycle Bin."""
     if not IS_WINDOWS: return "Cleanup is Windows-only."
     try:
-        print("🧹 Cleaning system...")
+        print(" Cleaning system...")
         # Empty Recycle Bin
         subprocess.run(["powershell", "-command", "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"], shell=True)
         # Clear Temp
         subprocess.run(["powershell", "-command", "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue"], shell=True)
-        return "System cleanup complete! 🧹 Emptied Recycle Bin and cleared temporary files."
+        return "System cleanup complete!  Emptied Recycle Bin and cleared temporary files."
     except Exception as e:
         return f"Cleanup Error: {e}"
 
@@ -319,7 +319,7 @@ def cmd_set_productivity_mode(args):
         subprocess.run(["powershell", "-command", "Set-ItemProperty -Path HKCU:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize -Name AppsUseLightTheme -Value 0"], shell=True)
         # Minimize All
         subprocess.run(["powershell", "-command", "(New-Object -ComObject Shell.Application).MinimizeAll()"], shell=True)
-        return "Productivity Mode Active! 🌙 Set Dark Mode and minimized all windows. Focus on your work, Senpai!"
+        return "Productivity Mode Active!  Set Dark Mode and minimized all windows. Focus on your work, Senpai!"
     except Exception as e:
         return f"Mode Error: {e}"
 
@@ -328,14 +328,14 @@ def cmd_system_control(args):
     arg = args.lower()
     if "lock" in arg:
         subprocess.run("rundll32.exe user32.dll,LockWorkStation", shell=True)
-        return "I've locked the workstation. 🔒"
+        return "I've locked the workstation. "
     if "cleanup" in arg or "clean" in arg:
         return cmd_cleanup_system(args)
     if "health" in arg or "status" in arg:
         return cmd_get_system_health(args)
     if "productivity" in arg or "focus" in arg:
         return cmd_set_productivity_mode(args)
-    return "I can lock the PC, clean files, check health, or set productivity mode. 🛡️"
+    return "I can lock the PC, clean files, check health, or set productivity mode. ️"
 
 def register(dispatcher):
     dispatcher.register("automate script", cmd_run_script)

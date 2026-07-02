@@ -7,7 +7,7 @@ def load_contacts():
     try:
         contacts_path = os.path.join("userdata", "contacts.json")
         if os.path.exists(contacts_path):
-            with open(contacts_path, "r") as f:
+            with open(contacts_path, "r", encoding="utf-8") as f:
                 return json.load(f)
     except Exception as e:
         print(f"Error loading contacts: {e}")
@@ -44,23 +44,24 @@ def cmd_call(args):
                         contact_name = match_name
         
         if not phone_number:
-            return "I couldn't find a number or contact for that. You can say 'Call 9876543210' or 'Call [Name]' if they are in your contacts. 📞"
+            return "I couldn't find a number or contact for that. You can say 'Call 9876543210' or 'Call [Name]' if they are in your contacts. "
         
         # Trigger Windows default telephony app (usually Phone Link)
-        print(f"📞 Initiating call to: {phone_number} ({contact_name if contact_name else 'Unknown'})")
-        os.system(f"start tel:{phone_number}")
+        print(f" Initiating call to: {phone_number} ({contact_name if contact_name else 'Unknown'})")
+        import subprocess
+        subprocess.run(f"start tel:{phone_number}", shell=True)
         
         import random
         responses = [
-            f"Got it! Calling {phone_number} now. Your Phone Link window should pop up any second! 📱",
-            f"On it! Dialing {phone_number} for you right now. 📞",
+            f"Got it! Calling {phone_number} now. Your Phone Link window should pop up any second! ",
+            f"On it! Dialing {phone_number} for you right now. ",
             f"Sure thing! Starting a call to {phone_number}. The Phone Link app should open up shortly! ✨"
         ]
         return random.choice(responses)
         
     except Exception as e:
         print(f"Calling Error: {e}")
-        return f"Oops, I ran into a little trouble starting that call. Could you check if Phone Link is set up on your PC? I'm here if you need help! 💙"
+        return f"Oops, I ran into a little trouble starting that call. Could you check if Phone Link is set up on your PC? I'm here if you need help! "
 
 def register(dispatcher):
     dispatcher.register("call", cmd_call)

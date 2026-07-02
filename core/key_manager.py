@@ -38,7 +38,7 @@ class KeyManager:
                 for k, v in data.items():
                     self.keys[k] = v
                     
-                print(f"🔑 Key Manager: Loaded {len(self.keys)} keys")
+                print(f" Key Manager: Loaded {len(self.keys)} keys")
             except Exception as e:
                 print(f"⚠️ Key load error: {e}")
                 self.keys = {}
@@ -136,7 +136,7 @@ class KeyManager:
             
         self.key_status[service_name]["cooldowns"][key] = time.time() + cooldown_time
         safe_key = f"{key[:8]}...{key[-4:]}" if len(key) > 12 else "UNKNOWN"
-        print(f"🛑 SmartKey: Marked provider '{service_name}' key {safe_key} on '{error_type}' cooldown for {cooldown_time}s.")
+        print(f" SmartKey: Marked provider '{service_name}' key {safe_key} on '{error_type}' cooldown for {cooldown_time}s.")
 
     def set_key(self, service_name, key_value):
         """Set or update an API key"""

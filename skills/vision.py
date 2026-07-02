@@ -36,7 +36,7 @@ class VisionSkill:
         YOUR RESPONSE (In character):
         """
         
-        print("🧠 Nova Brain: Analyzing MCQ...")
+        print(" Nova Brain: Analyzing MCQ...")
         try:
             actual_image_path = image_path if image_path else (text if os.path.exists(text) else None)
             response = llm_manager.generate(
@@ -79,9 +79,9 @@ class VisionSkill:
             # Check if there's text that looks like a question
             raw_text = analysis.get("text", "")
             if raw_text and self._is_question(raw_text):
-                print("🧠 Detecting question... Engaging Reasoning Core.")
+                print(" Detecting question... Engaging Reasoning Core.")
                 answer = self.solve_mcq(raw_text, image_path=path)
-                formatted += f"\n\n🧠 **Nova Analysis**:\n{answer}"
+                formatted += f"\n\n **Nova Analysis**:\n{answer}"
             else:
                 # If no question, use LLM to comment on visual content
                 if isinstance(analysis, dict) and analysis.get("objects"):
@@ -109,7 +109,7 @@ Nova:"""
                         )
                         if comment:
                             comment_text = comment.get('text', comment) if isinstance(comment, dict) else comment
-                            formatted += f"\n\n💭 {comment_text.strip()}"
+                            formatted += f"\n\n {comment_text.strip()}"
                     except Exception as e:
                         print(f"Vision commentary error: {e}")
             

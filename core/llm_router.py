@@ -40,7 +40,7 @@ class IntentRouter:
 
         # 3. Call the LLM in "raw" mode (no memory, no personality, fast response)
         try:
-            print("🧠 Advanced Router: Analyzing intent...")
+            print(" Advanced Router: Analyzing intent...")
             response = llm_manager.generate(
                 user_input=user_input,
                 system_prompt=system_prompt,
@@ -61,7 +61,7 @@ class IntentRouter:
             # 4. Validate the response against the allowed commands
             for cmd in valid_commands:
                 if result.lower() == cmd.lower():
-                    print(f"🎯 Advanced Router Map: '{user_input}' => '{cmd}'")
+                    print(f" Advanced Router Map: '{user_input}' => '{cmd}'")
                     return cmd
                     
             return None

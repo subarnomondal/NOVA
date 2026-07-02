@@ -119,15 +119,15 @@ def cmd_calculate(args):
             
         responses = [
             f"That's easy! The answer is {result}! ✨",
-            f"According to my calculations... it's {result}! 🤓",
-            f"Math wizard mode activated! It's {result}! 🪄",
+            f"According to my calculations... it's {result}! ",
+            f"Math wizard mode activated! It's {result}! ",
             f"Let me solve that... done! The result is {result}! (◕‿◕✿)"
         ]
         return random.choice(responses)
         
     except Exception as e:
         print(f"Math Error: {e}")
-        return "Oops! I couldn't solve that equation. Maybe check your syntax? 😵‍💫"
+        return "Oops! I couldn't solve that equation. Maybe check your syntax? ‍"
 
 def register(dispatcher):
     dispatcher.register("calculate", cmd_calculate)

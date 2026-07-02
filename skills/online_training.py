@@ -4,7 +4,7 @@ Enables importing conversation datasets from online sources (specifically Chatte
 """
 
 import requests
-import yaml
+import yaml # type: ignore
 import time
 from core.conversation_trainer import ConversationTrainer
 
@@ -24,7 +24,7 @@ AVAILABLE_TOPICS = [
 def cmd_list_datasets(args):
     """List available online datasets"""
     topics_list = ", ".join(AVAILABLE_TOPICS)
-    return f"""📚 **Available Training Topics**
+    return f""" **Available Training Topics**
 
 You can import knowledge on these topics:
 {topics_list}
@@ -35,7 +35,7 @@ def fetch_and_train_topic(topic):
     """Fetch a specific topic and train Nova"""
     url = f"{CORPUS_BASE_URL}{topic}.yml"
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
         
         data = yaml.safe_load(response.text)
@@ -84,7 +84,7 @@ def cmd_import_dataset(args):
     elif args in AVAILABLE_TOPICS:
         topics_to_import = [args]
     else:
-        return f"❌ Unknown topic: '{args}'. Available topics: {', '.join(AVAILABLE_TOPICS)}\n\n💡 Tip: Try 'import dataset social' for a social media pack!"
+        return f"❌ Unknown topic: '{args}'. Available topics: {', '.join(AVAILABLE_TOPICS)}\n\n Tip: Try 'import dataset social' for a social media pack!"
     
     total_learned = 0
     results = []
@@ -103,7 +103,7 @@ def cmd_import_dataset(args):
         time.sleep(0.1)
     
     summary = "\n".join(results)
-    return f"{msg}\n{summary}\n\n🎉 Total new patterns learned: {total_learned}"
+    return f"{msg}\n{summary}\n\n Total new patterns learned: {total_learned}"
 
 def register(dispatcher):
     """Register online training commands"""

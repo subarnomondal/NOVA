@@ -24,9 +24,9 @@ class OfflineManager:
     def get_offline_response(self, intent):
         """Return cached response for offline mode"""
         offline_responses = {
-            "search": "I can't search the web right now because I'm offline. Try again when internet is back! 📡",
+            "search": "I can't search the web right now because I'm offline. Try again when internet is back! ",
             "weather": "Weather data requires an internet connection. I'm currently offline. ☁️",
-            "news": "Can't fetch news while offline. Check back when you're connected! 📰",
-            "default": "I'm currently offline, so some features are limited. But I'm still here to chat! 💬"
+            "news": "Can't fetch news while offline. Check back when you're connected! ",
+            "default": "I'm currently offline, so some features are limited. But I'm still here to chat! "
         }
         return offline_responses.get(intent, offline_responses['default'])

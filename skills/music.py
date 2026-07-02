@@ -32,9 +32,9 @@ def cmd_music_info(args):
     query = args.lower().replace("music info", "").replace("tell me about the song", "").replace("who sang", "").replace("details of", "").strip()
     
     if not query:
-        return "Which song or artist should I look up for you? I'm ready to dive into the music world! 🎵"
+        return "Which song or artist should I look up for you? I'm ready to dive into the music world! "
 
-    print(f"🎵 Music Search (iTunes API): {query}")
+    print(f" Music Search (iTunes API): {query}")
     metadata = _fetch_itunes_metadata(query)
 
     if metadata:
@@ -46,14 +46,14 @@ def cmd_music_info(args):
         year = release_date[:4] if release_date else 'N/A'
         view_url = metadata.get('trackViewUrl', '#')
 
-        response = f"### 🎵 Nova Music Report: **{track}**\n\n"
+        response = f"###  Nova Music Report: **{track}**\n\n"
         response += f"| Category | Details |\n"
         response += f"| :--- | :--- |\n"
         response += f"| **Artist** | {artist} |\n"
         response += f"| **Album** | {album} |\n"
         response += f"| **Release Year** | {year} |\n"
         response += f"| **Genre** | {genre} |\n\n"
-        response += f"*smiles* This track is a masterclass in {genre.lower()}! Should I play it for you? 🎧"
+        response += f"*smiles* This track is a masterclass in {genre.lower()}! Should I play it for you? "
         
         return {
             "response": response,
@@ -62,13 +62,13 @@ def cmd_music_info(args):
         }
 
     # Fallback to DDGS if iTunes fails
-    print(f"🔄 iTunes Fallback -> DDGS: {query}")
+    print(f" iTunes Fallback -> DDGS: {query}")
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(f"{query} song details facts", region='in-en', max_results=3))
         
         if not results:
-            return f"I couldn't find detailed info about '{query}'. Maybe it's a hidden gem? 💎"
+            return f"I couldn't find detailed info about '{query}'. Maybe it's a hidden gem? "
 
         response = f"*adjusts glasses* I've gathered some insights on '{query}':\n\n"
         for res in results:
@@ -83,16 +83,16 @@ def cmd_music_info(args):
         }
     except Exception as e:
         print(f"Music Info Fallback Error: {e}")
-        return "I hit a snag while researching that song. My apologies. 🔄"
+        return "I hit a snag while researching that song. My apologies. "
 
 def cmd_lyrics(args):
     """Usage: lyrics <song name>"""
     query = args.lower().replace("lyrics of", "").replace("lyrics", "").strip()
     
     if not query:
-        return "Which song's lyrics are you looking for? 🎤"
+        return "Which song's lyrics are you looking for? "
 
-    print(f"🎤 Fetching Full Lyrics for: {query}")
+    print(f" Fetching Full Lyrics for: {query}")
     import requests
     
     try:
@@ -111,9 +111,9 @@ def cmd_lyrics(args):
                 if len(lyrics) > 3000:
                     lyrics = lyrics[:3000] + "\n\n... (Lyrics truncated)"
                     
-                response_text = f"### 🎤 Lyrics: **{title}** by {artist}\n\n"
+                response_text = f"###  Lyrics: **{title}** by {artist}\n\n"
                 response_text += f"{lyrics}\n\n"
-                response_text += f"*starts singing along* I love this part! Hope you enjoy singing it too! 🎶"
+                response_text += f"*starts singing along* I love this part! Hope you enjoy singing it too! "
                 return response_text
 
         # Fallback to DDGS snippet if API fails
@@ -121,7 +121,7 @@ def cmd_lyrics(args):
             results = list(ddgs.text(f"{query} song lyrics full", region='in-en', max_results=3))
         
         if not results:
-            return f"I couldn't find the lyrics for '{query}'. Perhaps you could hum a few lines for me? 🌸"
+            return f"I couldn't find the lyrics for '{query}'. Perhaps you could hum a few lines for me? "
 
         response_text = f"Here is a snippet of lyrics for '{query}':\n\n"
         for res in results[:2]:
@@ -131,11 +131,11 @@ def cmd_lyrics(args):
 
     except Exception as e:
         print(f"Lyrics Error: {e}")
-        return "I couldn't fetch the lyrics right now. Try again later? 🔄"
+        return "I couldn't fetch the lyrics right now. Try again later? "
 
 def cmd_trending_indian(args):
     """Usage: trending songs or popular indian music"""
-    print("🇮🇳 Fetching Authentic Indian Charts...")
+    print(" Fetching Authentic Indian Charts...")
     
     try:
         from ytmusicapi import YTMusic
@@ -146,13 +146,13 @@ def cmd_trending_indian(args):
         if not songs:
             raise Exception("No chart data from YTMusic")
             
-        response = "### 🇮🇳 Top Trending Songs in India (YT Music)\n\n"
+        response = "###  Top Trending Songs in India (YT Music)\n\n"
         for i, song in enumerate(songs[:7], 1):
             title = song.get('title', 'Unknown')
             artists = ", ".join([a.get('name', '') for a in song.get('artists', [])])
             response += f"**{i}. {title}** by {artists}\n"
 
-        response += "\n*hums a popular tune* Should I play one of these for you? Just say the name! 🎧"
+        response += "\n*hums a popular tune* Should I play one of these for you? Just say the name! "
         return response
 
     except Exception as e:
@@ -167,17 +167,17 @@ def cmd_trending_indian(args):
                 response_text += f"{i}. {res['title']}\n"
             response_text += "\nShould I play any of these?"
             return response_text
-        except:
-            return "Chart data is a bit messy right now. Let's try later! 📉"
+        except Exception:
+            return "Chart data is a bit messy right now. Let's try later! "
 
 def cmd_artist_briefing(args):
     """Usage: artist info <name> or tell me about <artist>"""
     artist = args.lower().replace("artist info", "").replace("tell me about", "").replace("who is", "").replace("details of", "").strip()
     
     if not artist:
-        return "Which artist should I research for you? 🎤"
+        return "Which artist should I research for you? "
 
-    print(f"🎤 Artist Research (iTunes API): {artist}")
+    print(f" Artist Research (iTunes API): {artist}")
     metadata = _fetch_itunes_metadata(artist, entity="musicArtist")
 
     if metadata:
@@ -185,9 +185,9 @@ def cmd_artist_briefing(args):
         genre = metadata.get('primaryGenreName', 'Music')
         view_url = metadata.get('artistLinkUrl', '#')
 
-        briefing = f"### 🎤 Artist Briefing: **{name}**\n\n"
+        briefing = f"###  Artist Briefing: **{name}**\n\n"
         briefing += f"**Primary Genre:** {genre}\n\n"
-        briefing += "*smiles* They are such a legendary figure in the music world! Should I play some of their top hits for you? 🎧"
+        briefing += "*smiles* They are such a legendary figure in the music world! Should I play some of their top hits for you? "
         
         return {
             "response": briefing,
@@ -196,19 +196,19 @@ def cmd_artist_briefing(args):
         }
 
     # Fallback to DDGS
-    print(f"🔄 Artist Fallback -> DDGS: {artist}")
+    print(f" Artist Fallback -> DDGS: {artist}")
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(f"{artist} artist biography career facts", region='in-en', max_results=3))
         
         if not results:
-            return f"I couldn't find detailed info about '{artist}'. Perhaps they're an underground talent? 💎"
+            return f"I couldn't find detailed info about '{artist}'. Perhaps they're an underground talent? "
 
-        briefing = f"### 🎤 Artist Briefing: **{artist.title()}**\n\n"
+        briefing = f"###  Artist Briefing: **{artist.title()}**\n\n"
         briefing += "| Category | Details |\n"
         briefing += "| :--- | :--- |\n"
         briefing += f"| **Highlights** | {results[0]['body'][:200]}... |\n\n"
-        briefing += "*smiles* Their journey is inspiring! Want to hear their music? 🎧"
+        briefing += "*smiles* Their journey is inspiring! Want to hear their music? "
         
         return {
             "response": briefing,
@@ -217,11 +217,11 @@ def cmd_artist_briefing(args):
         }
     except Exception as e:
         print(f"Artist Briefing Error: {e}")
-        return f"Aww, I had trouble looking up {artist}. Mind trying again? 🔄"
+        return f"Aww, I had trouble looking up {artist}. Mind trying again? "
 
 def cmd_global_charts(args):
     """Usage: worldwide charts, billboard, global trends"""
-    print("🌍 Fetching Global Music Trends...")
+    print(" Fetching Global Music Trends...")
     
     try:
         from ytmusicapi import YTMusic
@@ -232,18 +232,18 @@ def cmd_global_charts(args):
         if not songs:
             raise Exception("No chart data from YTMusic")
             
-        response = "### 🌍 Universal Music Trends (Global Top 5)\n\n"
+        response = "###  Universal Music Trends (Global Top 5)\n\n"
         for i, song in enumerate(songs[:5], 1):
             title = song.get('title', 'Unknown')
             artists = ", ".join([a.get('name', '') for a in song.get('artists', [])])
             response += f"**{i}. {title}** by {artists}\n"
 
-        response += "\n*hums a tune* Quite the variety today! Would you like to hear any of these? (◕‿◕✿) 🎧"
+        response += "\n*hums a tune* Quite the variety today! Would you like to hear any of these? (◕‿◕✿) "
         return response
 
     except Exception as e:
         print(f"Global Charts Error: {e}")
-        return "I couldn't synch with the global charts right now. I'll try again later! 📡"
+        return "I couldn't synch with the global charts right now. I'll try again later! "
 
 
 def cmd_download_song(args):
@@ -251,7 +251,7 @@ def cmd_download_song(args):
     query = args.lower().replace("download song", "").replace("download music", "").replace("download", "").strip()
     
     if not query:
-        return "Which song would you like me to download to your PC? 🎵"
+        return "Which song would you like me to download to your PC? "
         
     try:
         import platform
@@ -263,7 +263,7 @@ def cmd_download_song(args):
             
         def download_thread():
             try:
-                print(f"📥 Starting download: {query}")
+                print(f" Starting download: {query}")
                 out_template = os.path.join(music_dir, "%(title)s.%(ext)s")
                 
                 # Fetch top result and download as mp3
@@ -286,7 +286,7 @@ def cmd_download_song(args):
         # Start download in background so Nova doesn't freeze
         threading.Thread(target=download_thread, daemon=True).start()
         
-        return f"On it! I'm downloading '{query}' as an MP3. It will be saved to your `Music/Nova Downloads` folder shortly! 📥✨"
+        return f"On it! I'm downloading '{query}' as an MP3. It will be saved to your `Music/Nova Downloads` folder shortly! ✨"
         
     except Exception as e:
         return f"I had trouble starting the download. Error: {e}"
@@ -303,7 +303,7 @@ def cmd_mood_recommendation(args):
         elif any(w in args.lower() for w in ["chill", "study", "relax", "lofi"]): user_mood = "chill"
         elif any(w in args.lower() for w in ["gym", "workout", "pumped"]): user_mood = "excitement"
 
-    print(f"🎭 Mood-Music Inference: {user_mood}")
+    print(f" Mood-Music Inference: {user_mood}")
     
     # 2. Map Mood to Search Query
     mood_queries = {
@@ -318,14 +318,14 @@ def cmd_mood_recommendation(args):
     }
     
     search_query = mood_queries.get(user_mood, "lofi chill study beats")
-    print(f"🎵 Searching for {user_mood} music: {search_query}")
+    print(f" Searching for {user_mood} music: {search_query}")
 
     try:
         with DDGS() as ddgs:
             results = list(ddgs.text(f"best {search_query} spotify youtube", region='in-en', max_results=5))
         
         if not results:
-            return "I couldn't find a specific playlist for your mood right now. Maybe some classics? 📻"
+            return "I couldn't find a specific playlist for your mood right now. Maybe some classics? "
 
         # 3. Construct Narrative Result
         mood_intro = {
@@ -344,7 +344,7 @@ def cmd_mood_recommendation(args):
         for i, res in enumerate(results[:3], 1):
             response += f"{i}. {res['title'][:80]}\n"
             
-        response += f"\n*hums a matching tune* Should I play the top choice '{results[0]['title'][:40]}' for you? 🎧"
+        response += f"\n*hums a matching tune* Should I play the top choice '{results[0]['title'][:40]}' for you? "
         
         return {
             "response": response,
@@ -354,7 +354,7 @@ def cmd_mood_recommendation(args):
 
     except Exception as e:
         print(f"Mood Recommendation Error: {e}")
-        return "I hit a snag while looking for music. Try again? 🔄"
+        return "I hit a snag while looking for music. Try again? "
 
 def register(dispatcher):
     dispatcher.register("music info", cmd_music_info)

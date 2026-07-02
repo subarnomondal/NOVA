@@ -24,7 +24,7 @@ def get_nova():
     global nova_instance
     with nova_lock:
         if nova_instance is None:
-            print("🚀 Initializing NOVA for MCP...")
+            print(" Initializing NOVA for MCP...")
             nova_instance = Nova()
         return nova_instance
 

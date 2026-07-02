@@ -53,7 +53,8 @@ def cmd_import_csv(args):
             limit_match = re.search(r'limit\s+(\d+)', args, re.IGNORECASE)
             if limit_match:
                 limit = int(limit_match.group(1))
-        except: pass
+        except Exception:
+            pass
         
     # Parse path (handle quotes)
     import re
@@ -83,7 +84,7 @@ def cmd_import_csv(args):
             if not q_col or not a_col:
                 return f"❌ Could not auto-detect columns. Found: {reader.fieldnames}. I need pair like 'Question/Answer', 'User/Bot', 'Input/Output'."
             
-            print(f"📂 Importing from {q_col} -> {a_col}...")
+            print(f" Importing from {q_col} -> {a_col}...")
             
             for row in reader:
                 if count >= limit:
@@ -147,7 +148,8 @@ def cmd_import_hf(args):
             limit_match = re.search(r'limit\s+(\d+)', args, re.IGNORECASE)
             if limit_match:
                 limit = int(limit_match.group(1))
-        except: pass
+        except Exception:
+            pass
         
     # Parse dataset name
     import re
@@ -157,7 +159,7 @@ def cmd_import_hf(args):
     
     dataset_name = name_match.group(1)
     
-    print(f"🌍 Connecting to Hugging Face: {dataset_name} (Limit: {limit})...")
+    print(f" Connecting to Hugging Face: {dataset_name} (Limit: {limit})...")
     
     try:
         # Load in streaming mode to save memory
@@ -167,7 +169,7 @@ def cmd_import_hf(args):
         skipped = 0
         collected_pairs = []
         
-        print("📥 Downloading and processing (this may take a moment)...")
+        print(" Downloading and processing (this may take a moment)...")
         
         for i, row in enumerate(dataset):
             if count >= limit:
@@ -235,7 +237,7 @@ def cmd_import_hf(args):
         if not collected_pairs:
             return "❌ No suitable pairs found in the dataset."
         
-        print(f"\n💾 Adding {len(collected_pairs)} patterns to intents.json...")
+        print(f"\n Adding {len(collected_pairs)} patterns to intents.json...")
         
         intents_file = os.path.join("userdata", "intents.json")
         with open(intents_file, 'r', encoding='utf-8') as f:

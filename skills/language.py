@@ -37,7 +37,7 @@ def cmd_word_of_the_day(args):
     try:
         from core.llm_manager import llm_manager
         
-        print(f"🧠 Generating Word of the Day in {lang}...")
+        print(f" Generating Word of the Day in {lang}...")
         prompt = (
             f"Generate a 'Word of the Day' in {lang}. Include: "
             "1. The Word, 2. Part of speech, 3. Definition, 4. Example sentence. "
@@ -45,14 +45,14 @@ def cmd_word_of_the_day(args):
         )
         wotd = llm_manager.generate(prompt, raw_gen=False)
         
-        return f"🌟 **Word of the Day ({lang.title()}):**\n\n{wotd}\n\n*Keep learning!* 📚"
+        return f" **Word of the Day ({lang.title()}):**\n\n{wotd}\n\n*Keep learning!* "
     except Exception as e:
         return f"Language Error: {e}"
 
 def cmd_translate(args):
     """Usage: translate <text> to <lang>"""
     if " to " not in args.lower():
-        return "Please specify the language like: 'translate hello to Spanish'. 🌐"
+        return "Please specify the language like: 'translate hello to Spanish'. "
     
     parts = re.split(r' to ', args, flags=re.IGNORECASE)
     text = parts[0].replace("translate", "").strip()
@@ -61,14 +61,14 @@ def cmd_translate(args):
     try:
         from core.llm_manager import llm_manager
         
-        print(f"🌐 Translating '{text}' to {lang}...")
+        print(f" Translating '{text}' to {lang}...")
         system_prompt = (
             f"You are a professional translator. Translate the text to {lang}. "
             "Provide the translation and a brief explanation of the context or grammar if necessary."
         )
         translation = llm_manager.generate(f"Translate: {text}", system_prompt=system_prompt)
         
-        return f"🌍 **Translation to {lang.title()}:**\n\n{translation}"
+        return f" **Translation to {lang.title()}:**\n\n{translation}"
     except Exception as e:
         return f"Translation Error: {e}"
 
@@ -90,7 +90,7 @@ def cmd_grammar_check(args):
         )
         check = llm_manager.generate(f"Sentence: {sentence}", system_prompt=system_prompt)
         
-        return f"🔍 **Grammar Analysis:**\n\n{check}"
+        return f" **Grammar Analysis:**\n\n{check}"
     except Exception as e:
         return f"Grammar Error: {e}"
 

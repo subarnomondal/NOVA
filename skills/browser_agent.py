@@ -79,12 +79,11 @@ class BrowserAgent:
         def _do_open_url(u):
             try:
                 print(f"[Browser] Navigating to: {u}")
-                self._page.goto(u, wait_until="domcontentloaded", timeout=30000) # type: ignore
-                # Give it a tiny bit of extra time for network idle if possible
-                try: self._page.wait_for_load_state("networkidle", timeout=5000) # type: ignore
-                except: pass
-                
-                title = self._page.title() # type: ignore
+                self._page.goto(u, wait_until="domcontentloaded", timeout=30000)
+                try: self._page.wait_for_load_state("networkidle", timeout=5000)
+                except Exception:
+                    pass
+                title = self._page.title()
                 return f"*nods* I've arrived at the page: '{title}'. What should I look for here?"
             except Exception as e:
                 return f"Failed to open {u}: {str(e)}"
@@ -94,7 +93,6 @@ class BrowserAgent:
         """Uses DDGS to find the top result then visits it."""
         print(f"[Browser] Searching for: {query} using DDGS...")
         try:
-            from duckduckgo_search import DDGS
             with DDGS() as ddgs:
                 results = list(ddgs.text(query, max_results=1))
                 if not results:
@@ -120,18 +118,13 @@ class BrowserAgent:
                 
                 data = self._page.evaluate(r"""() => {
                     const getVisibleText = (el) => el.innerText.trim();
-                    
-                    // Try to find prices
                     const priceMatch = document.body.innerText.match(/(\$|£|€|₹)\s?(\d{1,3}(,\d{3})*(\.\d{2})?)/g);
-                    
-                    // Try to find tables
                     const tables = Array.from(document.querySelectorAll('table')).map(t => {
                         const rows = Array.from(t.rows).slice(0, 5).map(r => 
                             Array.from(r.cells).map(c => c.innerText.trim()).join(' | ')
                         ).join('\n');
                         return rows;
                     });
-
                     return {
                         title: document.title,
                         url: window.location.href,
@@ -141,16 +134,16 @@ class BrowserAgent:
                     };
                 }""")
                 
-                response = f"📊 **Extracted Data from {data['title']}**\n\n"
+                response = f" **Extracted Data from {data['title']}**\n\n"
                 if data['prices']:
-                    response += f"💰 **Potential Prices Found:** {', '.join(data['prices'])}\n\n"
+                    response += f" **Potential Prices Found:** {', '.join(data['prices'])}\n\n"
                 
                 if data['tables']:
-                    response += "📋 **Detected Tables (Preview):**\n"
+                    response += " **Detected Tables (Preview):**\n"
                     for i, table in enumerate(data['tables'], 1):
                         response += f"Table {i}:\n{table}\n\n"
                 
-                response += f"📝 **Content Preview:**\n{data['main_content'][:500]}..."
+                response += f" **Content Preview:**\n{data['main_content'][:500]}..."
                 
                 return {
                     "response": response,
@@ -190,10 +183,9 @@ class BrowserAgent:
                 return "Nothing to screenshot! Open a page first."
                 
             try:
+                import time, os
                 filename = f"capture_{int(time.time())}.png"
-                # Path relative to project root
                 relative_path = os.path.join("userdata", "screenshots", filename)
-                # URL relative to static web server
                 web_url = f"userdata/screenshots/{filename}"
                 
                 self._page.screenshot(path=relative_path)
@@ -207,6 +199,7 @@ class BrowserAgent:
                 }
             except Exception as e:
                 return f"Screenshot failed: {str(e)}"
+        return self._run_in_browser_thread(_do_screenshot)
         return self._run_in_browser_thread(_do_screenshot)
 
 # Singleton instance
@@ -224,7 +217,7 @@ def cmd_browser_navigate(args):
 def cmd_browser_search(args):
     """Usage: search and browse [query]"""
     query = args.lower().replace("search and browse", "").replace("find on web", "").strip()
-    if not query: return "Search for what? Try 'search and browse latest bitcoin price'. 🔍"
+    if not query: return "Search for what? Try 'search and browse latest bitcoin price'. "
     return agent.search_and_browse(query)
 
 def cmd_browser_scrape(args):
@@ -244,7 +237,7 @@ def cmd_browser_fill(args):
 def cmd_browser_click(args):
     """Usage: browser click [selector]"""
     selector = args.replace("browser click", "").strip()
-    if not selector: return "What should I click? (Need a CSS selector) 🖱️"
+    if not selector: return "What should I click? (Need a CSS selector) ️"
     return agent.interact("click", selector)
 
 def cmd_browser_close(args):

@@ -52,7 +52,7 @@ def cmd_remind(args):
             responses = [
                 f"You got it! I'll remind you to '{action}' in {amount} {unit}(s). ⏰",
                 f"Perfect! '{action}' is now on your schedule for {amount} {unit}(s) from now. ✅",
-                f"Done! I've set a reminder for '{action}' in {amount} {unit}(s). I've got your back! 💪"
+                f"Done! I've set a reminder for '{action}' in {amount} {unit}(s). I've got your back! "
             ]
             return random.choice(responses)
         # Next, try absolute time pattern like "at 6 pm" or "at 18:30"
@@ -89,7 +89,7 @@ def cmd_remind(args):
                 if number:
                     # Construct notification
                     notification = f"Hi {person.title()}! Just letting you know I've scheduled: '{action}' at {hour:02d}:{minute:02d}. See you then!"
-                    print(f"🔔 Attempting to notify {person} ({number})...")
+                    print(f" Attempting to notify {person} ({number})...")
                     try:
                         # We direct invoke the messenger command string which handles the logic
                         # But simpler: we have the NUMBER. We should construct the command precisely.
@@ -111,7 +111,7 @@ def cmd_remind(args):
             ]
             return random.choice(responses)
         # If no pattern matched
-        return "I'd love to help you schedule something! Just let me know what and when - like 'remind me to call mom in 10 minutes' 😊"
+        return "I'd love to help you schedule something! Just let me know what and when - like 'remind me to call mom in 10 minutes' "
             
     except Exception as e:
         return f"Oops, I had a little trouble setting that up. Here's what happened: {e}"
@@ -122,9 +122,9 @@ def cmd_list_schedule(args):
     if not jobs:
         import random
         responses = [
-            "Your schedule's all clear! Want me to add something? 📅",
+            "Your schedule's all clear! Want me to add something? ",
             "Nothing on the schedule right now. Need me to set up a reminder? ✨",
-            "All free at the moment! What would you like to schedule? 😊"
+            "All free at the moment! What would you like to schedule? "
         ]
         return random.choice(responses)
     

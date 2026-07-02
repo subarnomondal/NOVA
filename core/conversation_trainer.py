@@ -29,7 +29,7 @@ class ConversationTrainer:
                     self.conversation_examples = data.get('examples', [])
                     self.response_templates = data.get('templates', {})
                     self.contextual_responses = data.get('contextual', {})
-                print(f"🎓 Conversation Trainer: Loaded {len(self.trained_patterns)} patterns, {len(self.conversation_examples)} examples")
+                print(f" Conversation Trainer: Loaded {len(self.trained_patterns)} patterns, {len(self.conversation_examples)} examples")
         except Exception as e:
             print(f"⚠️ Training data load error: {e}")
     
@@ -44,7 +44,7 @@ class ConversationTrainer:
                     'contextual': self.contextual_responses,
                     'last_updated': datetime.now().isoformat()
                 }, f, indent=2, ensure_ascii=False)
-            print("💾 Training data saved successfully")
+            print(" Training data saved successfully")
         except Exception as e:
             print(f"⚠️ Training data save error: {e}")
     
@@ -252,7 +252,7 @@ class ConversationTrainer:
         analysis['metrics']['length_score'] = length_score
         
         # 2. Emotional engagement (check for actions, emojis, personality markers)
-        emotion_markers = ['*', '(', ')', '!', '?', '...', '~', '♡', '✨', '💖']
+        emotion_markers = ['*', '(', ')', '!', '?', '...', '~', '♡', '✨', '']
         has_emotion = any(marker in nova_response for marker in emotion_markers)
         analysis['metrics']['emotional_engagement'] = 1.0 if has_emotion else 0.3
         
@@ -325,16 +325,16 @@ class ConversationTrainer:
             suggestions.append("⚠️ Multiple low-quality responses detected. Consider training more natural conversation patterns.")
         
         if missing_emotion_count > 5:
-            suggestions.append("💭 Responses lack emotional engagement. Train more expressive responses with actions and emotions.")
+            suggestions.append(" Responses lack emotional engagement. Train more expressive responses with actions and emotions.")
         
         if missing_personality_count > 5:
-            suggestions.append("🎭 Personality consistency is low. Reinforce Nova's character traits (smart, witty, direct) in responses.")
+            suggestions.append(" Personality consistency is low. Reinforce Nova's character traits (smart, witty, direct) in responses.")
         
         # Check for repetitive responses
         response_texts = [conv.get('nova', '') for conv in recent_conversations[-10:]]
         unique_responses = len(set(response_texts))
         if unique_responses < len(response_texts) * 0.7:
-            suggestions.append("🔄 Detected repetitive responses. Add more response variations.")
+            suggestions.append(" Detected repetitive responses. Add more response variations.")
         
         if not suggestions:
             suggestions.append("✅ Conversation quality looks good! Keep up the great work!")
@@ -379,7 +379,7 @@ class ConversationTrainer:
             if category in self.trained_patterns:
                 del self.trained_patterns[category]
                 self.save_training_data()
-                print(f"🗑️ Cleared training data for category: {category}")
+                print(f"️ Cleared training data for category: {category}")
                 return True
             return False
         else:
@@ -388,5 +388,5 @@ class ConversationTrainer:
             self.response_templates = {}
             self.contextual_responses = {}
             self.save_training_data()
-            print("🗑️ Cleared all training data")
+            print("️ Cleared all training data")
             return True

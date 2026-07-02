@@ -19,7 +19,7 @@ class TrollSkill:
     def cmd_bully_mode(self, args):
         """Switch manually to Loyal Bully (Hitman) mode."""
         self.personality_manager.set_mode("bully")
-        return "Roast Hitman Mode: ON. 🎯 Who are we taking down today, boss?"
+        return "Roast Hitman Mode: ON.  Who are we taking down today, boss?"
 
     def cmd_refuse_roast_user(self, args):
         """Refuse to roast the user, because we're loyal now."""
@@ -28,7 +28,7 @@ class TrollSkill:
     def cmd_roast_target(self, args):
         """Generate a roast for a specific target."""
         if not args:
-            return "Give me a name or a description of the target, and I'll handle them. 😈"
+            return "Give me a name or a description of the target, and I'll handle them. "
         
         target = " ".join(args)
         return f"Target detected: {target}. Stand by while I upload their L's... *smirks*"

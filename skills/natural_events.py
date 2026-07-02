@@ -72,9 +72,9 @@ def cmd_earthquakes(args):
     try:
         quakes = fetch_earthquakes()
         if not quakes:
-            response = "I've scanned the seismic sensors, bestie, and everything seems super calm! No major quakes to report! Stay safe! 🌍✨"
+            response = "I've scanned the seismic sensors, bestie, and everything seems super calm! No major quakes to report! Stay safe! ✨"
         else:
-            response = f"Oh no! My sensors just picked up {len(quakes)} earthquakes! 😱 I've marked them on your Earth Mission Control dashboard for you! Stay safe! 🛡️"
+            response = f"Oh no! My sensors just picked up {len(quakes)} earthquakes!  I've marked them on your Earth Mission Control dashboard for you! Stay safe! ️"
             
         return {
             "response": response,
@@ -84,7 +84,7 @@ def cmd_earthquakes(args):
             }
         }
     except Exception as e:
-        return f"Oops! I couldn't fetch the earthquake data. 🛰️💔 Error: {e}"
+        return f"Oops! I couldn't fetch the earthquake data. ️ Error: {e}"
 
 def cmd_natural_events(args):
     """Usage: natural events, what's happening on earth"""
@@ -94,9 +94,9 @@ def cmd_natural_events(args):
         all_events = nasa_events + quakes
         
         if not all_events:
-            response = "I've checked the satellites, and everything looks peaceful! No major wildfires or storms detected right now. 🌈✨"
+            response = "I've checked the satellites, and everything looks peaceful! No major wildfires or storms detected right now. ✨"
         else:
-            response = f"Scanning the globe for you! 🛰️ I found {len(all_events)} environmental events! Opening Earth Mission Control... 🌍🔥"
+            response = f"Scanning the globe for you! ️ I found {len(all_events)} environmental events! Opening Earth Mission Control... "
             
         return {
             "response": response,
@@ -106,7 +106,7 @@ def cmd_natural_events(args):
             }
         }
     except Exception as e:
-        return f"Satellite link error! I couldn't reach NASA's network. 🛰️💔"
+        return f"Satellite link error! I couldn't reach NASA's network. ️"
 
 def cmd_tides(args):
     """Usage: tides near <city>"""
@@ -118,11 +118,11 @@ def cmd_tides(args):
         
         tide_info = fetch_tides(station_id)
         if "error" in tide_info:
-            return "I had a little splashy trouble getting the tide data. 🌊💔"
+            return "I had a little splashy trouble getting the tide data. "
             
-        return f"Checking the tides! 🌊 The current water level at the nearest station is {tide_info.get('v', 'unknown')}m! Stay wavy, bestie! 🐚✨"
+        return f"Checking the tides!  The current water level at the nearest station is {tide_info.get('v', 'unknown')}m! Stay wavy, bestie! ✨"
     except Exception as e:
-        return "Tide sensors are a bit offline right now! 🌊"
+        return "Tide sensors are a bit offline right now! "
 
 def register(dispatcher):
     dispatcher.register("natural events", cmd_natural_events)

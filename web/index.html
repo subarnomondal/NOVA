@@ -185,7 +185,7 @@
 </div>
 <!-- Footer Nav -->
 <div class="px-4 mt-auto flex flex-col gap-2">
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
+<a id="settings-btn" class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300 scale-[0.98] active:scale-95 font-data-label text-data-label" href="#">
 <span class="material-symbols-outlined" data-icon="settings">settings</span>
                 Settings
             </a>
@@ -276,45 +276,12 @@
 <!-- Center Interaction Area (Chat Canvas) -->
 <main class="fixed top-16 left-[280px] right-[320px] bottom-0 z-10 flex flex-col bg-transparent">
 <!-- Messages Scroll Area -->
-<div class="flex-grow overflow-y-auto px-10 py-8 flex flex-col gap-6">
+<div id="output-area" class="flex-grow overflow-y-auto px-10 py-8 flex flex-col gap-6">
 <!-- System Timestamp -->
 <div class="flex justify-center w-full">
-<span class="px-3 py-1 rounded-full bg-surface-container/40 border border-white/5 font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest backdrop-blur-sm">Session Initialized // 09:42 UTC</span>
+<span class="px-3 py-1 rounded-full bg-surface-container/40 border border-white/5 font-data-label text-[10px] text-on-surface-variant uppercase tracking-widest backdrop-blur-sm">Session Initialized</span>
 </div>
-<!-- User Message -->
-<div class="bg-surface-container-high/40 backdrop-blur-md rounded-2xl rounded-tr-sm p-5 self-end max-w-[75%] border border-white/5 text-on-surface font-body-md shadow-lg">
-<p>Compile a summary of the latest anomaly reports from the orbital sensor grid. Prioritize structural integrity warnings.</p>
 </div>
-<!-- AI Message -->
-<div class="luminous-panel rounded-2xl rounded-tl-sm p-6 self-start max-w-[85%] ai-bubble-glow font-body-md text-on-surface flex gap-4">
-<div class="mt-1">
-<span class="material-symbols-outlined text-primary">psychology</span>
-</div>
-<div>
-<p class="mb-4">I have aggregated the telemetry from the orbital grid spanning the last 72 hours. There are <strong class="text-primary font-bold">3 critical anomalies</strong> concerning structural integrity:</p>
-<ul class="space-y-3 font-data-label text-sm text-on-surface-variant">
-<li class="flex items-start gap-2">
-<span class="material-symbols-outlined text-error text-[18px] mt-0.5">warning</span>
-<span><strong>Node 42-Alpha:</strong> Micro-fracture detected in the primary tether casing. Stress variance exceeds safe operational limits by 14%.</span>
-</li>
-<li class="flex items-start gap-2">
-<span class="material-symbols-outlined text-secondary text-[18px] mt-0.5">info</span>
-<span><strong>Sector 7 Array:</strong> Thermal shielding degradation. Minor impact, recalibrating heat dispersion algorithms automatically.</span>
-</li>
-<li class="flex items-start gap-2">
-<span class="material-symbols-outlined text-error text-[18px] mt-0.5">warning</span>
-<span><strong>Hub Relay Delta:</strong> Unexplained vibration resonance matching class-3 kinetic impacts. Suggest immediate drone inspection.</span>
-</li>
-</ul>
-<div class="mt-5 flex gap-3">
-<button class="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 transition-colors font-data-label text-xs flex items-center gap-2">
-<span class="material-symbols-outlined text-[14px]">send</span>
-                            Deploy Drones
-                        </button>
-<button class="px-4 py-1.5 rounded-full border border-white/10 hover:bg-white/5 transition-colors font-data-label text-xs flex items-center gap-2">
-<span class="material-symbols-outlined text-[14px]">download</span>
-                            Raw Log
-                        </button>
 </div>
 </div>
 </div>
@@ -323,12 +290,19 @@
 <div class="p-6 pt-2 w-full max-w-4xl mx-auto">
 <div class="bg-surface/30 backdrop-blur-2xl rounded-full border-t border-l border-white/10 border-b border-r border-white/5 flex items-center p-2 pl-6 pr-3 input-glow relative overflow-hidden group transition-all focus-within:bg-surface/50">
 <div class="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-<input class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder-on-surface-variant/50 font-body-md py-3 outline-none z-10" placeholder="Command Nova Core..." type="text"/>
+<input id="user-input" class="w-full bg-transparent border-none focus:ring-0 text-on-surface placeholder-on-surface-variant/50 font-body-md py-3 outline-none z-10" placeholder="Command Nova Core..." type="text"/>
 <div class="flex items-center gap-2 z-10 ml-2">
-<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-white/5">
+<button id="upload-btn" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-white/5" onclick="document.getElementById('file-upload').click()">
+<span class="material-symbols-outlined text-[20px]">attach_file</span>
+</button>
+<input type="file" id="file-upload" style="display: none;">
+<button id="stop-btn" class="p-2 text-error hover:text-error transition-colors rounded-full hover:bg-white/5" style="display: none;">
+<span class="material-symbols-outlined text-[20px]">stop</span>
+</button>
+<button id="mic-btn" class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-white/5">
 <span class="material-symbols-outlined text-[20px]">mic</span>
 </button>
-<button class="bg-primary/20 text-primary p-2.5 rounded-full hover:bg-primary/30 transition-colors border border-primary/30 flex items-center justify-center group-focus-within:bg-primary group-focus-within:text-on-primary">
+<button id="send-btn" class="bg-primary/20 text-primary p-2.5 rounded-full hover:bg-primary/30 transition-colors border border-primary/30 flex items-center justify-center group-focus-within:bg-primary group-focus-within:text-on-primary">
 <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">arrow_upward</span>
 </button>
 </div>
@@ -338,5 +312,260 @@
 </div>
 </div>
 </main>
+<!-- Settings Modal -->
+<div id="settings-modal" class="logs-overlay" style="display: none;">
+    <div class="logs-content settings-modal-content">
+        <div class="logs-header">
+            <h2><i class="fas fa-sliders-h"></i> Nova Settings</h2>
+            <button id="close-settings-btn" class="close-btn"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="settings-body-layout">
+            <!-- Settings Sidebar -->
+            <div class="settings-nav">
+                <button class="settings-tab active" data-tab="voice">
+                    <i class="fas fa-microphone-alt"></i> Voice
+                </button>
+                <button class="settings-tab" data-tab="personality">
+                    <i class="fas fa-user-circle"></i> Personality
+                </button>
+                <button class="settings-tab" data-tab="model">
+                    <i class="fas fa-brain"></i> Model
+                </button>
+                <button class="settings-tab" data-tab="memory">
+                    <i class="fas fa-hdd"></i> Memory
+                </button>
+                <button class="settings-tab" data-tab="interface">
+                    <i class="fas fa-paint-brush"></i> Interface
+                </button>
+                <button class="settings-tab" data-tab="advanced">
+                    <i class="fas fa-bolt"></i> Advanced
+                </button>
+                <button class="settings-tab" data-tab="skills">
+                    <i class="fas fa-puzzle-piece"></i> Skills
+                </button>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="settings-content-wrapper">
+                
+                <!-- Voice Settings -->
+                <div class="settings-panel active" id="voice-panel">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-headphones"></i> Audio Preferences</h3>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Voice Language</label>
+                            <select id="voice-language" class="setting-input">
+                                <option value="en-US-AvaNeural">English (Ava - Female)</option>
+                                <option value="en-US-GuyNeural">English (Guy - Male)</option>
+                                <option value="ja-JP-NanamiNeural">Japanese (Nanami - Female)</option>
+                                <option value="en-GB-SoniaNeural">British (Sonia - Female)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Voice Speed: <span id="speed-value">1.0x</span></label>
+                            <input type="range" id="voice-speed" class="setting-slider" min="0.5" max="2.0" step="0.1" value="1.0">
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Voice Pitch: <span id="pitch-value">+0Hz</span></label>
+                            <input type="range" id="voice-pitch" class="setting-slider" min="-10" max="10" step="1" value="0">
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label class="toggle-label">
+                                <span>Auto-play Audio Responses</span>
+                                <input type="checkbox" id="auto-play-audio" checked>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personality Settings -->
+                <div class="settings-panel" id="personality-panel">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-comment-dots"></i> Behavior</h3>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Response Length</label>
+                            <select id="response-length" class="setting-input">
+                                <option value="short">Short & Concise</option>
+                                <option value="medium" selected>Medium (Balanced)</option>
+                                <option value="long">Long & Detailed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Emotion Expression</label>
+                            <select id="emotion-level" class="setting-input">
+                                <option value="low">Low (Professional)</option>
+                                <option value="medium" selected>Medium (Balanced)</option>
+                                <option value="high">High (Very Expressive)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 15px;">
+                            <label class="toggle-label">
+                                <span>Use Emojis in Responses</span>
+                                <input type="checkbox" id="use-emojis" checked>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-group" style="display: none;">
+                            <label class="toggle-label">
+                                <span>Use Russian Phrases (Alya Mode)</span>
+                                <input type="checkbox" id="use-russian" disabled>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Settings -->
+                <div class="settings-panel" id="model-panel">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-microchip"></i> Generation Parameters</h3>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Detailed System Prompt</label>
+                            <textarea id="system-prompt" class="setting-input" style="height: 120px; resize: vertical;" placeholder="You are Nova, a highly advanced AI..."></textarea>
+                            <span class="setting-hint">Customize the core personality and instructions provided to the AI.</span>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Response Temperature: <span id="temp-value">0.7</span></label>
+                            <input type="range" id="temperature" class="setting-slider" min="0.1" max="1.0" step="0.1" value="0.7">
+                            <span class="setting-hint">Lower = More focused, Higher = More creative</span>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Max Response Tokens: <span id="tokens-value">300</span></label>
+                            <input type="range" id="max-tokens" class="setting-slider" min="50" max="500" step="50" value="300">
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label class="setting-label-bold">Context Window (Messages): <span id="context-value">10</span></label>
+                            <input type="range" id="context-window" class="setting-slider" min="5" max="20" step="1" value="10">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Settings -->
+                <div class="settings-panel" id="memory-panel">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-database"></i> Long-Term Storage</h3>
+                        
+                        <div class="setting-group" style="margin-bottom: 15px;">
+                            <label class="toggle-label">
+                                <span>Enable Long-Term Memory</span>
+                                <input type="checkbox" id="enable-ltm" checked>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Fact Learning Mode</label>
+                            <select id="fact-learning" class="setting-input">
+                                <option value="auto" selected>Automatic</option>
+                                <option value="manual">Manual Only</option>
+                                <option value="off">Disabled</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Memory Retention</label>
+                            <select id="memory-retention" class="setting-input">
+                                <option value="7">7 Days</option>
+                                <option value="30" selected>30 Days</option>
+                                <option value="90">90 Days</option>
+                                <option value="forever">Forever</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-top: 30px;">
+                            <button id="clear-memory-btn" class="btn-danger-glow">
+                                <i class="fas fa-exclamation-triangle"></i> Clear All Memories
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interface Settings -->
+                <div class="settings-panel" id="interface-panel">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-desktop"></i> Appearance</h3>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Theme</label>
+                            <select id="theme-select" class="setting-input">
+                                <option value="dark" selected>Dark</option>
+                                <option value="light">Light</option>
+                                <option value="auto">Auto (System)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 20px;">
+                            <label class="setting-label-bold">Font Size</label>
+                            <select id="font-size" class="setting-input">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-group" style="margin-bottom: 15px;">
+                            <label class="toggle-label">
+                                <span>Show Message Timestamps</span>
+                                <input type="checkbox" id="show-timestamps" checked>
+                            </label>
+                        </div>
+                        
+                        <div class="setting-group">
+                            <label class="toggle-label">
+                                <span>Enable Globe Animation</span>
+                                <input type="checkbox" id="globe-animation" checked>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Settings -->
+                <div class="settings-panel" id="advanced-panel">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-cogs"></i> System & Developer</h3>
+                        <div class="setting-group" style="margin-bottom: 15px;">
+                            <label class="toggle-label">
+                                <span>Developer Mode Logging</span>
+                                <input type="checkbox" id="dev-mode">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skill Management (Dynamic) -->
+                <div class="settings-panel" id="skills-panel">
+                    <div class="setting-card">
+                        <h3><i class="fas fa-project-diagram"></i> Smart Skill Discovery</h3>
+                        <span class="setting-hint" style="margin-bottom: 20px;">Nova has automatically scanned her 'skills/' directory and identified her capabilities. Most modules are "Sleeping" to save RAM and will "Wake Up" when first used.</span>
+                        
+                        <div id="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+                            <!-- Skill Cards will be injected by app.js -->
+                            <div style="grid-column: span 2; text-align: center; padding: 40px; opacity: 0.5;">
+                                <i class="fas fa-search"></i> Scanning for skills...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="settings-footer" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <button id="save-settings-btn" class="btn-primary-glow">
+                <i class="fas fa-save"></i> Save Settings
+            </button>
+        </div>
+    </div>
+</div>
 <script src="app.js"></script>
 </body></html>

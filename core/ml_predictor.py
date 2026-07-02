@@ -21,7 +21,7 @@ class MLPredictor:
                     # Rebuild in-memory model
                     for entry in self.history_data:
                         self._update_model(entry)
-                print(f"🧠 ML Predictor: Loaded {len(self.history_data)} actions.")
+                print(f" ML Predictor: Loaded {len(self.history_data)} actions.")
             except Exception as e:
                 print(f"⚠️ ML Load Error: {e}")
     

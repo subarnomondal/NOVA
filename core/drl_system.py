@@ -27,7 +27,7 @@ class DRLSystem:
                     data = json.load(f)
                     self.q_table = data.get('q_table', {})
                     self.reward_history = data.get('reward_history', [])
-                print(f"🤖 DRL System: Loaded {len(self.q_table)} state-action pairs")
+                print(f" DRL System: Loaded {len(self.q_table)} state-action pairs")
         except Exception as e:
             print(f"⚠️ DRL load error: {e}")
     

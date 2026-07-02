@@ -18,7 +18,7 @@ def cmd_health_advice(args):
     query = args.lower().replace("health advice", "").replace("medical info", "").replace("tell me about", "").strip()
     
     if not query:
-        return "*adjusts glasses* You haven't specified what health topic you're interested in. I need a subject to provide a consultation. 🩺"
+        return "*adjusts glasses* You haven't specified what health topic you're interested in. I need a subject to provide a consultation. "
 
     # 1. Search Knowledge Base First (for grounded facts)
     kb_path = os.path.join("userdata", "domain_knowledge.json")
@@ -34,7 +34,7 @@ def cmd_health_advice(args):
 
     # 2. Web Search for deeper info
     search_query = f"{query} medical facts health advice recovery diet"
-    print(f"🏥 Health Search: {search_query}")
+    print(f" Health Search: {search_query}")
     
     web_snippet = ""
     try:
@@ -53,7 +53,7 @@ def cmd_health_advice(args):
         evidence += f"MEDICAL RESEARCH: {web_snippet}\n"
 
     if not evidence:
-         return f"I couldn't find specific medical data for '{query}'. Please consult a local professional for serious concerns! 🏥"
+         return f"I couldn't find specific medical data for '{query}'. Please consult a local professional for serious concerns! "
 
     # The LLM will use this as context via the dispatcher
     return f"[EVIDENCE: {evidence}] Based on my medical training, here is a detailed analysis for '{query}':"
@@ -63,7 +63,7 @@ def cmd_diet_plan(args):
     goal = args.lower().replace("diet plan", "").replace("meal plan", "").strip()
     
     if not goal:
-        return "What is your health goal? I can design a plan for weight loss, muscle gain, or general wellness. 🥗"
+        return "What is your health goal? I can design a plan for weight loss, muscle gain, or general wellness. "
 
     # Grounding for diet
     search_query = f"{goal} healthy diet plan calories macros"

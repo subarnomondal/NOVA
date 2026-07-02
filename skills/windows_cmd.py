@@ -25,13 +25,14 @@ def cmd_system_info(args):
             try:
                 usage = psutil.disk_usage(partition.mountpoint)
                 disk_usage += f"- {partition.device}: {usage.percent}% used ({usage.free // (2**30)} GB free)\n"
-            except: pass
+            except Exception:
+                pass
 
-        response = f"### 🖥️ Windows System Report\n\n"
+        response = f"### ️ Windows System Report\n\n"
         response += f"**OS:** {uname.system} {uname.release} ({uname.version})\n"
         response += f"**Processor:** {uname.processor}\n"
         response += f"**System Uptime:** Since {boot_time}\n"
-        response += f"\n**💾 Disk Usage:**\n{disk_usage if disk_usage else 'No fixed drives detected.'}\n\n"
+        response += f"\n** Disk Usage:**\n{disk_usage if disk_usage else 'No fixed drives detected.'}\n\n"
         response += "*smiles* Your system is looking healthy! Let me know if you need any maintenance. ✨"
         
         return response
@@ -47,15 +48,15 @@ def cmd_network_status(args):
         # Get public IP
         try:
             public_ip = requests.get('https://api.ipify.org', timeout=3).text
-        except:
+        except Exception:
             public_ip = "Unavailable"
             
-        response = f"### 🌐 Network Diagnostics\n\n"
+        response = f"###  Network Diagnostics\n\n"
         response += f"**Hostname:** {hostname}\n"
         response += f"**Local IP:** {local_ip}\n"
         response += f"**Public IP:** {public_ip}\n"
         response += f"\n**Connection:** {'✅ Online' if public_ip != 'Unavailable' else '❌ Offline'}\n\n"
-        response += "*nods* Everything seems to be flowing correctly. 🌊"
+        response += "*nods* Everything seems to be flowing correctly. "
         return response
     except Exception as e:
         return f"Network check failed: {e}"
@@ -73,7 +74,7 @@ def cmd_process_list(args):
         
         processes = sorted(processes, key=lambda x: x['memory_percent'], reverse=True)[:10]
         
-        response = "### 📑 Resource Intensive Processes\n\n"
+        response = "###  Resource Intensive Processes\n\n"
         response += "| PID | Process Name | RAM % |\n"
         response += "| :--- | :--- | :--- |\n"
         for p in processes:
@@ -98,9 +99,9 @@ def cmd_kill_process(args):
                 terminated += 1
         
         if terminated > 0:
-            return f"*nods* I've terminated {terminated} instances of '{name}'. System breathing room restored! 🌬️"
+            return f"*nods* I've terminated {terminated} instances of '{name}'. System breathing room restored! ️"
         else:
-            return f"I couldn't find any running process with the name '{name}'. 🔍"
+            return f"I couldn't find any running process with the name '{name}'. "
     except Exception as e:
         return f"I failed to kill the process: {e}"
 
@@ -109,7 +110,7 @@ def cmd_flush_dns(args):
     try:
         print("[System] Flushing DNS...")
         subprocess.run(["ipconfig", "/flushdns"], capture_output=True)
-        return "*smiles* DNS cache has been flushed! This might help with your connection issues. 🌐✨"
+        return "*smiles* DNS cache has been flushed! This might help with your connection issues. ✨"
     except Exception as e:
         return f"Failed to flush DNS: {e}"
 
@@ -117,8 +118,8 @@ def cmd_disk_cleanup(args):
     """Usage: disk cleanup, clean drives"""
     try:
         # This opens the Windows Disk Cleanup utility
-        subprocess.Popen("cleanmgr.exe /d C", shell=True)
-        return "I've launched the Windows Disk Cleanup utility for you. *smiles* It's good to keep things tidy! 🧹"
+        subprocess.Popen(["cleanmgr.exe", "/d", "C"])
+        return "I've launched the Windows Disk Cleanup utility for you. *smiles* It's good to keep things tidy! "
     except Exception as e:
         return f"Couldn't launch cleanmgr: {e}"
 

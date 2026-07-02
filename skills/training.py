@@ -60,7 +60,7 @@ def cmd_teach_response(args):
         else:
             return """I'd love to learn! Here's how to teach me with more parameters:
             
-📝 Format: teach "trigger" to say "response" [with mood "mood"] [in category "category"]
+ Format: teach "trigger" to say "response" [with mood "mood"] [in category "category"]
 
 Example: teach "good morning" to say "Good morning!" with mood "happy"
 
@@ -89,7 +89,7 @@ def cmd_teach_variation(args):
         else:
             return """To add a variation:
             
-🔄 Format: add variation "trigger phrase" with "alternative response"
+ Format: add variation "trigger phrase" with "alternative response"
 
 Example: add variation "good morning" with "*waves* Morning! Ready for another day?"""
     
@@ -114,7 +114,7 @@ def cmd_teach_conversation(args):
         else:
             return """Teach me a conversation flow:
             
-💬 Format: learn conversation "what user says" then "how I should respond"
+ Format: learn conversation "what user says" then "how I should respond"
 
 Example: learn conversation "I'm tired" then "You should rest. Don't overwork yourself."
 """
@@ -127,17 +127,17 @@ def cmd_training_stats(args):
     try:
         summary = trainer.export_training_summary()
         
-        stats_text = f"""📊 **Training Statistics**
+        stats_text = f""" **Training Statistics**
 
 ✅ Total Patterns Learned: {summary['total_patterns']}
-📚 Conversation Examples: {summary['total_examples']}
-📝 Response Templates: {summary['total_templates']}
-🗂️ Categories: {', '.join(summary['categories']) if summary['categories'] else 'None yet'}
+ Conversation Examples: {summary['total_examples']}
+ Response Templates: {summary['total_templates']}
+️ Categories: {', '.join(summary['categories']) if summary['categories'] else 'None yet'}
 
 """
         
         if summary['most_used_patterns']:
-            stats_text += "🔥 **Most Used Patterns:**\n"
+            stats_text += " **Most Used Patterns:**\n"
             for i, pattern in enumerate(summary['most_used_patterns'], 1):
                 stats_text += f"{i}. '{pattern['trigger']}' (used {pattern['usage_count']} times)\n"
         
@@ -156,7 +156,7 @@ def cmd_training_suggestions(args):
         
         suggestions = trainer.get_training_suggestions(recent)
         
-        response = "📋 **Training Suggestions:**\n\n"
+        response = " **Training Suggestions:**\n\n"
         for suggestion in suggestions:
             response += f"• {suggestion}\n"
         
@@ -186,11 +186,11 @@ def cmd_analyze_quality(args):
         overall = overall_data['score'] if isinstance(overall_data, dict) else overall_data
         
         # Create visual quality indicator
-        quality_emoji = "🌟" if overall >= 0.8 else "✨" if overall >= 0.6 else "💫" if overall >= 0.4 else "⚠️"
+        quality_emoji = "" if overall >= 0.8 else "✨" if overall >= 0.6 else "" if overall >= 0.4 else "⚠️"
         
         response = f"""{quality_emoji} **Conversation Quality Analysis**
 
-📊 Overall Score: {overall:.1%}
+ Overall Score: {overall:.1%}
 
 **Metrics:**
 • Length Appropriateness: {metrics['length_score']:.1%}
@@ -202,11 +202,11 @@ def cmd_analyze_quality(args):
         
         # Add recommendations
         if metrics['emotional_engagement'] < 0.5:
-            response += "💡 Tip: Add more emotions or engaging elements!\n"
+            response += " Tip: Add more emotions or engaging elements!\n"
         if metrics['personality_consistency'] < 0.5:
-            response += "💡 Tip: Keep Nova's personality consistent across responses!\n"
+            response += " Tip: Keep Nova's personality consistent across responses!\n"
         if metrics['natural_flow'] < 0.5:
-            response += "💡 Tip: Avoid robotic AI phrases, stay natural!\n"
+            response += " Tip: Avoid robotic AI phrases, stay natural!\n"
         
         return response
     
@@ -228,7 +228,7 @@ This will clear:
 • Response variations"""
         
         trainer.clear_training_data()
-        return "🗑️ All training data has been cleared. I'm ready to learn fresh!"
+        return "️ All training data has been cleared. I'm ready to learn fresh!"
     
     except Exception as e:
         return f"Error clearing training: {e}"

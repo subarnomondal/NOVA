@@ -13,7 +13,7 @@ def cmd_explain_emotions(args):
     categories = {
         "Positive ✨": ["joy", "love", "admiration", "amusement", "excitement", "gratitude", "optimism", "pride", "relief", "approval"],
         "Negative ❄️": ["sadness", "anger", "fear", "disgust", "grief", "disappointment", "annoyance", "embarrassment", "nervousness", "remorse", "disapproval"],
-        "Ambiguous 🌀": ["surprise", "confusion", "curiosity", "realization", "caring", "desire"]
+        "Ambiguous ": ["surprise", "confusion", "curiosity", "realization", "caring", "desire"]
     }
     
     intro = (
@@ -61,7 +61,7 @@ def cmd_define_emotion(args):
     responses = [
         f"*thinks* {found_emotion.capitalize()} is a {category} emotion. I usually detect it when I hear words like '{random.choice(keywords)}' or '{random.choice(keywords)}'.",
         f"Ah, {found_emotion}! That's when you're feeling {found_emotion}, right? My sensors look for keywords like {', '.join(keywords[:3])} to identify it.",
-        f"In my database, {found_emotion} is categorized under {category} feelings. It's quite complex for an AI, but I do my best to understand it! 🌸"
+        f"In my database, {found_emotion} is categorized under {category} feelings. It's quite complex for an AI, but I do my best to understand it! "
     ]
     
     return random.choice(responses)

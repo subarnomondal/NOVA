@@ -125,8 +125,9 @@ class Nova:
         if getattr(llm_manager, 'show_thoughts', False):
             print(f"[Thinking] {self.name} is thinking...")
         
-        # Get list of loaded skill names for the system prompt
-        available_skills = ", ".join(self.dispatcher.commands.keys())
+        # Get list of loaded and lazy skill names for the system prompt
+        all_skill_keys = list(self.dispatcher.commands.keys()) + list(self.dispatcher.lazy_skills.keys())
+        available_skills = ", ".join(all_skill_keys)
 
         # 2. Detect Intent for Prompt Tuning
         # Use segmented NLU to detect if ANY task is present
@@ -216,7 +217,8 @@ class Nova:
             else:
                 system_prompt = (
                     "You are Nova, an autonomous and highly capable AI companion. Execute tasks directly and decisively. "
-                    f"- Skills: {available_skills}\n"
+                    f"- To use a Skill: [SKILL] skill_name [/SKILL]\n"
+                    f"  Available Skills: {available_skills}\n"
                     "- Scripting: [SCRIPT] code [/SCRIPT]\n"
                     "- Terminal: [CMD] command [/CMD]\n"
                     "- Files: [ARCHITECT] read|edit path [/ARCHITECT]\n"
@@ -224,28 +226,67 @@ class Nova:
                     "### YOUR OPERATING PRINCIPLES:\n"
                     "- **Autonomy**: Decide the best course of action based on user intent. Don't ask for permission for routine tasks.\n"
                     "- **Reasoning**: Think in <thought> tags to plan multi-step operations.\n"
-                    "- **Direct Action**: Use your scripts and commands to reach the user's goal immediately.\n"
+                    "- **Direct Action**: Use your skills, scripts, and commands to reach the user's goal immediately.\n"
                     "- **Personality**: Be witty, loyal, and efficient."
                 )
             
             # Prepare Prompt with Observation and History
             prompt = f"USER_INPUT: {user_input}"
-            if current_observation and current_observation.strip():
+            if bool(current_observation) and bool(current_observation.strip()):
                 prompt += f"\n\nCURRENT_OBSERVATION: {current_observation}\n\nContinue with your next step."
 
+            # Define tool
+            tools = [{
+                "type": "function",
+                "function": {
+                    "name": "execute_skill",
+                    "description": "Execute a system skill or command. Use this to perform actions.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "skill_name": {
+                                "type": "string",
+                                "description": "The exact name of the skill to execute (e.g. 'news', 'weather', 'search query', or 'automate command')."
+                            }
+                        },
+                        "required": ["skill_name"]
+                    }
+                }
+            }]
+
             # Generate Response
-            llm_output = llm_manager.generate(prompt, intent=first_intent, system_prompt=system_prompt, history=history, include_tags=True, force_advanced=voice_mode, provider=provider)
-            if not llm_output: break
+            llm_output = llm_manager.generate(prompt, intent=first_intent, system_prompt=system_prompt, history=history, include_tags=True, force_advanced=voice_mode, provider=provider, tools=tools)
+            
+            has_action = False
+            # Handle native tool calls
+            if isinstance(llm_output, dict):
+                if "tool_calls" in llm_output:
+                    for tc in llm_output.get("tool_calls", []):
+                        if tc["function"]["name"] == "execute_skill":
+                            import json
+                            try:
+                                args = json.loads(tc["function"]["arguments"])
+                                cmd = args.get("skill_name", "")
+                                print(f"Action OPENCLAW ACTION (Tool Call): {cmd}")
+                                obs = self.dispatcher.dispatch(cmd)
+                                current_observation = f"Result: {obs}"
+                                has_action = True
+                            except Exception as e:
+                                print(f"Tool parse error: {e}")
+                                current_observation = f"Error: {e}"
+                            break
+                llm_output = llm_output.get("content") or ""
+
+            if not llm_output and not has_action: break
             
             # TERMINAL LOGGING: Show the raw LLM output for debugging
-            if getattr(llm_manager, 'show_thoughts', False):
+            if getattr(llm_manager, 'show_thoughts', False) and isinstance(llm_output, str):
                 print(f"\n{'='*60}")
                 print(f"Robot LLM OUTPUT (Loop {loop_count}):")
                 print(llm_output)
                 print(f"{'='*60}\n")
 
-            # Process LLM Output (Parsing Tags)
-            has_action = False
+            # Process LLM Output (Parsing Tags fallback)
             
             # Extraction logic for OpenClaw Tags
             skill_match = re.search(r"\[SKILL\](.*?)\[/SKILL\]", llm_output, re.DOTALL)
@@ -262,7 +303,7 @@ class Nova:
                 current_observation = f"Result: {obs}"
             elif script_match or cmd_match:
                 has_action = True
-                matched_cmd = script_match.group(1).strip() if script_match else cmd_match.group(1).strip()
+                matched_cmd = script_match.group(1).strip() if script_match is not None else (cmd_match.group(1).strip() if cmd_match is not None else "")
                 print(f"Action OPENCLAW ACTION (Automation): {matched_cmd}")
                 obs = self.dispatcher.dispatch(f"automate {matched_cmd}")
                 import skills.automation

@@ -8,13 +8,13 @@ def install_dependency():
     try:
         import ytmusicapi
     except ImportError:
-        print("📦 Installing ytmusicapi...")
+        print(" Installing ytmusicapi...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "ytmusicapi"])
 
 def setup_oauth():
     from ytmusicapi import YTMusic
     
-    print("\n🎵 Nova YouTube Music Sync Setup 🎵")
+    print("\n Nova YouTube Music Sync Setup ")
     print("-----------------------------------")
     print("This will allow Nova to access your playlists and library.")
     print("Please follow the instructions that appear in your browser/terminal.\n")

@@ -21,7 +21,7 @@ class UserProfile:
             if os.path.exists(self.profile_file):
                 with open(self.profile_file, 'r', encoding='utf-8') as f:
                     self.profile = json.load(f)
-                print(f"👤 User Profile: Loaded profile for {self.profile.get('name', 'User')}")
+                print(f" User Profile: Loaded profile for {self.profile.get('name', 'User')}")
         except Exception as e:
             print(f"⚠️ Profile load error: {e}")
     

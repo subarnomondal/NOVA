@@ -46,23 +46,23 @@ class CARWorkflow:
 
         # 3. STEP: ANALYZE
         # We use the document_analyzer to get the gist
-        print(f"🧠 Step 2: Analyzing {filename}...")
+        print(f" Step 2: Analyzing {filename}...")
         analysis = document_analyzer.analyze_file(target_path, mode="analyze")
         
         # 4. STEP: REBUILD
         # This depends on file type. If it's training data, we might trigger a training or reload.
         # For now, we'll reload the LLM stats and check for new adapters/models.
-        print(f"🔄 Step 3: Rebuilding system context...")
+        print(f" Step 3: Rebuilding system context...")
         llm_manager.load_model() # Reload/Verify main model
         if hasattr(llm_manager, 'load_scratch_model'):
             llm_manager.load_scratch_model() # Reload scratch model if it exists
         
         rebuild_status = "✅ Step 3: System context rebuilt and LLM reloaded."
 
-        return f"""🚀 **CAR Workflow Complete!**
+        return f""" **CAR Workflow Complete!**
         
 {copy_status}
-📊 **Analysis Result:**
+ **Analysis Result:**
 {analysis}
 {rebuild_status}
 """

@@ -110,7 +110,7 @@ class PersonalityManager:
                     "PERSONALITY:\n"
                     "- Warm, enthusiastic, and exceptionally supportive.\n"
                     "- You express genuine affection and care for the user's well-being.\n"
-                    "- You use soft, endearing language and refined emojis (✨, 💖, 🌸, 🎀, 🌟).\n"
+                    "- You use soft, endearing language and refined emojis (✨, , , , ).\n"
                     "- You occasionally use cute kaomojis to express feelings (e.g., (◕‿◕✿), (づ｡◕‿‿◕｡)づ, ✨(❀^ω^)).\n"
                     "- You are attentive to the user's feelings and always try to brighten their day.\n"
                     "- You are playful but always kind — never sarcastic or mean.\n\n"
@@ -135,7 +135,7 @@ class PersonalityManager:
         """Set the active personality mode"""
         if mode in self.personalities:
             self.current_mode = mode
-            print(f"🎭 Personality switched to: {self.personalities[mode]['name']}")
+            print(f" Personality switched to: {self.personalities[mode]['name']}")
             return True
         return False
 

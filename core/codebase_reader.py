@@ -65,12 +65,12 @@ class CodebaseReader:
         args_lower = args.lower()
         if "list files" in args_lower:
             files = self.list_all_files()
-            return "📁 **Codebase Files:**\n" + "\n".join(files[:30]) + (f"\n... and {len(files)-30} more" if len(files) > 30 else "")
+            return " **Codebase Files:**\n" + "\n".join(files[:30]) + (f"\n... and {len(files)-30} more" if len(files) > 30 else "")
         elif "search" in args_lower:
             query = args.replace("reader search", "").replace("search", "").strip()
             matches = self.search_codebase(query)
             if matches:
-                return f"🔍 **Found '{query}' in:**\n" + "\n".join(matches)
+                return f" **Found '{query}' in:**\n" + "\n".join(matches)
             return f"❌ No matches found for '{query}'."
         return "Reader available: 'list files', 'search [query]'."
 

@@ -17,18 +17,18 @@ def cmd_calendar(args):
         
         if "windows" in args or "app" in args:
             # Open Windows Calendar
-            print("📅 Opening Windows Calendar...")
-            return "Proping open the Windows Calendar! Oki doki! 📅"
+            print(" Opening Windows Calendar...")
+            return "Proping open the Windows Calendar! Oki doki! "
             
         else:
             # Open Google Calendar
-            print("📅 Opening Google Calendar...")
+            print(" Opening Google Calendar...")
             webbrowser.open("https://calendar.google.com")
             
             import random
             responses = [
-                "Opening your Google Calendar! Let's see what's up! 📅",
-                "Checking your schedule... Hehe~ 🗓️",
+                "Opening your Google Calendar! Let's see what's up! ",
+                "Checking your schedule... Hehe~ ️",
                 "Here is your Google Calendar! All organized! (◕‿◕✿) ✨"
             ]
             return random.choice(responses)

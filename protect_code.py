@@ -9,7 +9,7 @@ import py_compile
 from pathlib import Path
 
 def protect_nova():
-    print("🔐 NOVA Code Protection System")
+    print(" NOVA Code Protection System")
     print("=" * 50)
     
     # Files to protect
@@ -29,7 +29,7 @@ def protect_nova():
     os.makedirs(protected_dir)
     os.makedirs(f"{protected_dir}/core", exist_ok=True)
     
-    print("\n📦 Compiling to bytecode (.pyc)...")
+    print("\n Compiling to bytecode (.pyc)...")
     
     for file_path in core_files:
         if not os.path.exists(file_path):
@@ -53,7 +53,7 @@ def protect_nova():
             print(f"❌ Failed to protect {file_path}: {e}")
     
     # Copy non-sensitive files as-is
-    print("\n📋 Copying configuration files...")
+    print("\n Copying configuration files...")
     copy_files = [
         "config/settings.yaml",
         "requirements.txt",
@@ -65,7 +65,7 @@ def protect_nova():
             if "/" in file_path:
                 os.makedirs(f"{protected_dir}/{Path(file_path).parent}", exist_ok=True)
             shutil.copy(file_path, f"{protected_dir}/{file_path}")
-            print(f"📄 Copied: {file_path}")
+            print(f" Copied: {file_path}")
     
     # Create README
     with open(f"{protected_dir}/README.txt", "w") as f:
@@ -86,7 +86,7 @@ For licensing inquiries, contact the developer.
     
     print("\n" + "=" * 50)
     print("✅ Protection Complete!")
-    print(f"📁 Protected files are in: ./{protected_dir}/")
+    print(f" Protected files are in: ./{protected_dir}/")
     print("\n⚠️  IMPORTANT:")
     print("   - .pyc files are bytecode (harder to reverse)")
     print("   - For stronger protection, use PyArmor (commercial)")

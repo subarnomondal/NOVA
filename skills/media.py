@@ -18,7 +18,7 @@ def get_yt_client():
         if os.path.exists("oauth.json"):
             return YTMusic("oauth.json")
         return YTMusic()
-    except:
+    except Exception:
         return None
 
 def get_music_mood(query):
@@ -42,10 +42,10 @@ def get_emotional_reaction(mood):
     """Returns a narrative action and response style based on mood"""
     reactions = {
         'happy': ("*smiles brightly*", "Yay! I love upbeat songs. Let's play this! ✨"),
-        'sad': ("*looks sympathetic*", "Aww, are you feeling a bit down? Here's some music to help you through it. 💙"),
-        'chill': ("*relaxes*", "That sounds like a great idea. Let's chill for a bit. 🍵"),
+        'sad': ("*looks sympathetic*", "Aww, are you feeling a bit down? Here's some music to help you through it. "),
+        'chill': ("*relaxes*", "That sounds like a great idea. Let's chill for a bit. "),
         'energetic': ("*gets pumped*", "Let's get energized! This is going to be awesome! ⚡"),
-        'romantic': ("*smiles warmly*", "A romantic choice. Let me put it on for you. 💖")
+        'romantic': ("*smiles warmly*", "A romantic choice. Let me put it on for you. ")
     }
     return reactions.get(mood, ("*smiles*", "Sure thing! Let me play that for you! ✨"))
 
@@ -83,7 +83,7 @@ def get_nova_taste(query):
         return ("*smiles warmly*", "Bengali music? Excellent choice! Local vibes are the best. ✨")
     
     if any(word in q for word in ["miku", "yoasobi"]):
-        return ("*smiles*", "J-Pop! Great choice. Let's listen! 🌸")
+        return ("*smiles*", "J-Pop! Great choice. Let's listen! ")
 
     return None
 
@@ -114,7 +114,7 @@ def cmd_play(args):
                 
                 if taste_clues:
                     query = random.choice(taste_clues)
-                    print(f"🧠 LTM Taste selected: {query}")
+                    print(f" LTM Taste selected: {query}")
                 else:
                     # Fallback if no taste exists in LTM yet
                     query = "lofi chill beats"
@@ -135,13 +135,13 @@ def cmd_play(args):
         # --- NEW: LOCAL FILE SEARCH ---
         if "local" in query_raw or "pc" in query_raw or "computer" in query_raw:
             clean_query = query.replace("local", "").replace("pc", "").replace("on", "").strip()
-            print(f"📂 Searching local files for: {clean_query}")
+            print(f" Searching local files for: {clean_query}")
             local_files = find_local_music(clean_query)
             if local_files:
                 target = local_files[0]
-                print(f"🎶 Playing local file: {target}")
+                print(f" Playing local file: {target}")
                 os.startfile(target)
-                return f"*smiles* Found it on your PC! Playing '{os.path.basename(target)}' for you. 🎵"
+                return f"*smiles* Found it on your PC! Playing '{os.path.basename(target)}' for you. "
 
         # Persona & Mood Check
         special_reaction = get_nova_taste(query)
@@ -154,16 +154,16 @@ def cmd_play(args):
         # Platform Routing
         if "spotify" in query:
             clean_query = query.replace("on spotify", "").replace("spotify", "").strip()
-            print(f"💚 Opening Spotify: {clean_query}")
+            print(f" Opening Spotify: {clean_query}")
             os.system(f"start spotify:search:{clean_query}")
         
-            return f"{action} {intro}\nOpening Spotify for '{clean_query}'! 🎧"
+            return f"{action} {intro}\nOpening Spotify for '{clean_query}'! "
             
         # YT Music Search & Play
         client = get_yt_client()
         clean_query = query.replace("on youtube music", "").replace("youtube music", "").replace("yt music", "").replace("on yt music", "").strip()
         
-        print(f"🎬 Searching YT Music for: {clean_query}")
+        print(f" Searching YT Music for: {clean_query}")
         
         search_results = []
         if client:
@@ -184,7 +184,7 @@ def cmd_play(args):
                     best_match = search_results[0]
                     best_url = f"https://music.youtube.com/watch?v={best_match['videoId']}"
                     
-                    print(f"🎵 Best YT Music Match: {best_match['title']} by {best_match['artist']}")
+                    print(f" Best YT Music Match: {best_match['title']} by {best_match['artist']}")
                     
                     # Stop currently playing media before opening a new song
                     try:
@@ -197,7 +197,7 @@ def cmd_play(args):
                     
                     # Return rich data for the UI to render cards if it supports it
                     return {
-                        "response": f"{action} {intro}\nPlaying **{best_match['title']}** by {best_match['artist']}! 🎧",
+                        "response": f"{action} {intro}\nPlaying **{best_match['title']}** by {best_match['artist']}! ",
                         "data": {
                             "type": "music_results",
                             "results": search_results,
@@ -208,7 +208,7 @@ def cmd_play(args):
                 print(f"⚠️ YT Music API error: {yt_err}")
 
         # Fallback to DDGS if YTMusic fails or client not available
-        print(f"🔄 Fallback to DDGS Search: {clean_query}")
+        print(f" Fallback to DDGS Search: {clean_query}")
         try:
             from duckduckgo_search import DDGS
             with DDGS() as ddgs:
@@ -223,7 +223,7 @@ def cmd_play(args):
                             pass
                         from skills.browser_agent import agent
                         agent.open_url(best_url)
-                        return f"{action} {intro}\nFinding '{clean_query}' for you on YouTube! 🎧"
+                        return f"{action} {intro}\nFinding '{clean_query}' for you on YouTube! "
         except Exception as search_err:
             print(f"⚠️ Search fallback snag: {search_err}")
 
@@ -234,7 +234,7 @@ def cmd_play(args):
             pass
         from skills.browser_agent import agent
         agent.open_url(f"https://music.youtube.com/search?q={clean_query}")
-        return f"{action} {intro}\nOpening search results for '{clean_query}'! 📻"
+        return f"{action} {intro}\nOpening search results for '{clean_query}'! "
 
     except Exception as e:
         return f"Oops, I couldn't play that. Error: {e}"
@@ -246,11 +246,11 @@ def cmd_my_music(args):
         client = get_yt_client()
 
         if not client:
-            return "I can't access your library yet! Please run `python setup_ytmusic.py` to sync your account first. 🔓"
+            return "I can't access your library yet! Please run `python setup_ytmusic.py` to sync your account first. "
             
         query = args.replace("my music", "").replace("playlist", "").replace("play", "").strip()
         if not query:
-            return "Which playlist should I play, Darling? 🎵"
+            return "Which playlist should I play, Darling? "
             
         results = client.search(query, filter="playlists")
         if results:
@@ -260,10 +260,10 @@ def cmd_my_music(args):
             from skills.browser_agent import agent
             agent.open_url(f"https://music.youtube.com/playlist?list={playlist_id}")
         
-            return f"Found '{title}' in your library! Playing it now. 🎧"
+            return f"Found '{title}' in your library! Playing it now. "
         else:
         
-            return f"I couldn't find a playlist called '{query}' in your account. 🔎"
+            return f"I couldn't find a playlist called '{query}' in your account. "
             
     except Exception as e:
         return f"Error accessing your music: {e}"

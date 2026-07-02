@@ -130,16 +130,16 @@ replacement = r'''    def __init__(self):
                     };
                 }""")
                 
-                response = f"📊 **Extracted Data from {data['title']}**\n\n"
+                response = f" **Extracted Data from {data['title']}**\n\n"
                 if data['prices']:
-                    response += f"💰 **Potential Prices Found:** {', '.join(data['prices'])}\n\n"
+                    response += f" **Potential Prices Found:** {', '.join(data['prices'])}\n\n"
                 
                 if data['tables']:
-                    response += "📋 **Detected Tables (Preview):**\n"
+                    response += " **Detected Tables (Preview):**\n"
                     for i, table in enumerate(data['tables'], 1):
                         response += f"Table {i}:\n{table}\n\n"
                 
-                response += f"📝 **Content Preview:**\n{data['main_content'][:500]}..."
+                response += f" **Content Preview:**\n{data['main_content'][:500]}..."
                 
                 return {
                     "response": response,

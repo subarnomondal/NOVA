@@ -26,7 +26,7 @@ class LocationService:
 
     def fetch_location(self):
         """Fetches precise location using IP-API."""
-        print("🌍 Detecting precise location via IP...")
+        print(" Detecting precise location via IP...")
         try:
             # Using ip-api.com (Free, no key required for basic usage)
             response = requests.get("http://ip-api.com/json/", timeout=5)
@@ -41,7 +41,7 @@ class LocationService:
                         "lon": data.get("lon"),
                         "timezone": data.get("timezone")
                     }
-                    print(f"📍 Location Detected: {loc_data['city']}, {loc_data['region']}")
+                    print(f" Location Detected: {loc_data['city']}, {loc_data['region']}")
                     self._save_location_to_profile(loc_data)
                     return loc_data
         except Exception as e:

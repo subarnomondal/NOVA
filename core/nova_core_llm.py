@@ -10,7 +10,7 @@ class NovaCoreLLM:
     def __init__(self):
         self.initialized = True
         self.llm = llm_manager
-        print("🧠 Nova Core: Linked to Main LLM Manager (API-Only)")
+        print(" Nova Core: Linked to Main LLM Manager (API-Only)")
         
     def predict(self, text):
         """

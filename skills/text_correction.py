@@ -11,7 +11,7 @@ text_corrector = None
 def cmd_correct_text(args):
     """Usage: correct this <text> or fix my grammar <text>"""
     if not text_corrector:
-        return "I'm sorry, my text correction engine isn't initialized yet. 🛠️"
+        return "I'm sorry, my text correction engine isn't initialized yet. ️"
         
     # Extract the text to be corrected
     text = args.lower()
@@ -54,8 +54,8 @@ def cmd_correct_text(args):
     if not result.get("is_changed"):
         return random.choice([
             "Your text looks perfect already! I didn't find any errors. ✨",
-            "I couldn't find anything to fix. It looks great as it is! 👍",
-            "Everything seems correct in that sentence! Good job. 😊"
+            "I couldn't find anything to fix. It looks great as it is! ",
+            "Everything seems correct in that sentence! Good job. "
         ])
         
     corrected = result.get("corrected")
@@ -97,6 +97,6 @@ def cmd_add_word(args):
         return "Which word should I remember?"
         
     if text_corrector.add_word(word):
-        return f"Got it! I'll remember the spelling for '{word}'. 📝"
+        return f"Got it! I'll remember the spelling for '{word}'. "
     else:
         return f"I already know '{word}'! ✨"

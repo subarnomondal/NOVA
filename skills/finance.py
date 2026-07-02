@@ -51,11 +51,11 @@ def cmd_add_expense(args):
                 clean_json = clean_json.split("```")[1].split("```")[0].strip()
             
             result = json.loads(clean_json)
-        except:
-            return "I couldn't quite catch the amount. Could you say it like 'add expense 50 for lunch'? 💸"
+        except (json.JSONDecodeError, ValueError, KeyError):
+            return "I couldn't quite catch the amount. Could you say it like 'add expense 50 for lunch'?"
 
         if "error" in result:
-            return "What was the amount for this expense? I need a number to track it! 💰"
+            return "What was the amount for this expense? I need a number to track it! "
 
         amount = result["amount"]
         item = result["item"]
@@ -72,7 +72,7 @@ def cmd_add_expense(args):
         data["expenses"].append(entry)
         save_finance_data(data)
         
-        return f"Got it! Recorded {amount} for '{item}'. Your wallet is watching! 😉📉"
+        return f"Got it! Recorded {amount} for '{item}'. Your wallet is watching! "
         
     except Exception as e:
         return f"Finance Error: {e}"
@@ -83,12 +83,12 @@ def cmd_check_budget(args):
     expenses = data.get("expenses", [])
     
     if not expenses:
-        return "You haven't recorded any expenses yet. Your bank account is safe... for now! 🏦✨"
+        return "You haven't recorded any expenses yet. Your bank account is safe... for now! ✨"
     
     total = sum(e["amount"] for e in expenses)
     recent = expenses[-5:]
     
-    msg = f"🔍 **Financial Summary**\nTotal Spending: **{total:.2f}**\n\n**Recent Transactions:**\n"
+    msg = f" **Financial Summary**\nTotal Spending: **{total:.2f}**\n\n**Recent Transactions:**\n"
     for e in reversed(recent):
         msg += f"• {e['date'].split(' ')[0]}: {e['amount']} - {e['item']}\n"
         
@@ -101,7 +101,7 @@ def cmd_currency_convert(args):
     """Usage: convert 50 USD to INR"""
     query = args.lower().replace("convert", "").strip()
     if not query:
-        return "Which currencies should I convert? (e.g., '50 USD to INR') 💱"
+        return "Which currencies should I convert? (e.g., '50 USD to INR') "
     
     try:
         from core.llm_manager import llm_manager
@@ -118,7 +118,7 @@ def cmd_currency_convert(args):
         result = llm_manager.generate(prompt, raw_gen=True)
         
         result_str = result.strip() if result else "unknown"
-        return f"💱 **Conversion:** {result_str}"
+        return f" **Conversion:** {result_str}"
     except Exception as e:
         return f"Currency Error: {e}"
 

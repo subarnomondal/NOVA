@@ -72,7 +72,7 @@ class ResponseOptimizer:
                 to_remove.append(key)
         
         if to_remove:
-            print(f"🧹 Scrubbing {len(to_remove)} dynamic entries from cache...")
+            print(f" Scrubbing {len(to_remove)} dynamic entries from cache...")
             for key in to_remove:
                 del self.cache[key]
             self.save_cache()
@@ -106,7 +106,7 @@ class ResponseOptimizer:
         """Enable/disable thoughtful reasoning mode"""
         self.thoughtful_mode = enabled
         mode = "THOUGHTFUL" if enabled else "FAST"
-        print(f"🧠 Response Mode: {mode}")
+        print(f" Response Mode: {mode}")
     
     def add_thinking_delay(self, complexity: str = "medium"):
         """Add artificial delay for thoughtful responses"""
@@ -120,7 +120,7 @@ class ResponseOptimizer:
         }
         
         delay = delays.get(complexity, 1.0)
-        # print(f"🤔 Thinking deeply... ({delay}s)")
+        # print(f" Thinking deeply... ({delay}s)")
         # time.sleep(delay) - REMOVED for speed as requested
     
     def preprocess_input(self, user_input: str) -> str:

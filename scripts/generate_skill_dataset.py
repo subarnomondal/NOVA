@@ -16,7 +16,7 @@ def generate_dataset():
     nlu = NLUProcessor()
     dataset = []
     
-    print(f"🔍 Scanning {SKILLS_DIR} for commands...")
+    print(f" Scanning {SKILLS_DIR} for commands...")
     
     # 1. Map intents to triggers
     command_examples = {

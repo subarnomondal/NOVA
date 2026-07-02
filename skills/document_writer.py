@@ -32,7 +32,7 @@ def cmd_write_essay(args):
     """Usage: write essay on/about <topic>"""
     match = re.search(r'write\s+(?:an\s+)?essay\s+(?:on|about)\s+(.+)', args, re.IGNORECASE)
     if not match:
-        return "What should I write the essay about? (Usage: write essay about Cats) 📝"
+        return "What should I write the essay about? (Usage: write essay about Cats) "
     
     topic = match.group(1).strip()
     
@@ -66,7 +66,7 @@ def cmd_write_essay(args):
         except OSError as e:
             return f"Failed to save essay: {e}"
             
-        return f"I've written the essay on '{topic}' and saved it to {filename}! 📝"
+        return f"I've written the essay on '{topic}' and saved it to {filename}! "
     
     return "I couldn't generate the essay. Please try again later."
 
@@ -79,13 +79,13 @@ def cmd_write_email(args):
         args, re.IGNORECASE
     )
     if not match:
-        return "What should I write? (Usage: write email about automate sales OR write message for networking) 📧💬"
+        return "What should I write? (Usage: write email about automate sales OR write message for networking) "
     
     doc_type = match.group(1).lower()
     topic = match.group(2).strip()
     
     if not topic:
-        return f"Please specify a topic for the {doc_type}. 📧💬"
+        return f"Please specify a topic for the {doc_type}. "
     
     from core.llm_manager import llm_manager
     
@@ -127,7 +127,7 @@ def cmd_write_email(args):
         except OSError as e:
             return f"Failed to save {doc_type}: {e}"
             
-        icon = "📧" if doc_type == "email" else "💬"
+        icon = "" if doc_type == "email" else ""
         return f"I've written the professional {doc_type} about '{topic}' and saved it to {filename}! {icon}"
     
     return f"I couldn't generate the {doc_type}. Please try again later."
@@ -154,7 +154,7 @@ def cmd_read_essay(args):
     target = target.strip()
     
     if not target:
-        file_list = "\n".join([f"📄 {f}" for f in files])
+        file_list = "\n".join([f" {f}" for f in files])
         return f"Which document should I read? Here are the available ones:\n{file_list}"
     
     # Fuzzy match against filenames
@@ -197,7 +197,7 @@ def cmd_list_docs(args):
     
     msg = "My Documents:\n"
     for f in files:
-        msg += f"📄 {f}\n"
+        msg += f" {f}\n"
     return msg
 
 

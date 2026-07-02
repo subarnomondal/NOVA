@@ -131,13 +131,13 @@ class CorrectionManager:
             if verified:
                 responses = [
                     f"*adjusts glasses* You're absolutely right! {correction} I've updated my knowledge. Thank you for teaching me! ✨",
-                    f"*blushes* Ah, I was wrong... {correction} I'll remember this! Thanks for the correction. 😊",
-                    f"*nods* You're correct! {correction} I've learned something new today. Thank you! 🌹"
+                    f"*blushes* Ah, I was wrong... {correction} I'll remember this! Thanks for the correction. ",
+                    f"*nods* You're correct! {correction} I've learned something new today. Thank you! "
                 ]
             else:
                 responses = [
-                    f"*looks uncertain* Hmm, I fact-checked that and found some conflicting information. Are you absolutely sure? 🤔",
-                    f"*hesitates* I tried to verify that, but I'm getting mixed results... Could you double-check? 💭"
+                    f"*looks uncertain* Hmm, I fact-checked that and found some conflicting information. Are you absolutely sure? ",
+                    f"*hesitates* I tried to verify that, but I'm getting mixed results... Could you double-check? "
                 ]
         elif personality == "professional":
             if verified:

@@ -66,7 +66,7 @@ class NeuralChat:
                 self.model = NeuralNet(self.input_size, self.hidden_size, self.output_size, self.emotion_size).to(self.device)
                 self.model.load_state_dict(self.model_state)
                 self.model.eval()
-                print(f"🧠 NeuralChat: Loaded model from {model_path}")
+                print(f" NeuralChat: Loaded model from {model_path}")
             except Exception as e:
                 print(f"❌ NeuralChat Error loading model: {e}")
                 self.model = None # type: ignore
@@ -112,5 +112,5 @@ class NeuralChat:
 
     def train(self, epochs=500):
         # Placeholder for training logic if needed
-        print("🛠️ NeuralChat: Training logic requested. (Not fully implemented in restoration)")
+        print("️ NeuralChat: Training logic requested. (Not fully implemented in restoration)")
         pass

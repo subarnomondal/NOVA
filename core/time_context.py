@@ -177,7 +177,7 @@ class TimeContextManager:
             },
             (12, 25): {
                 "name": "Christmas",
-                "message": "Merry Christmas! 🎄 I hope you're having a wonderful holiday."
+                "message": "Merry Christmas!  I hope you're having a wonderful holiday."
             },
             (12, 31): {
                 "name": "New Year's Eve",
@@ -185,7 +185,7 @@ class TimeContextManager:
             },
             (10, 31): {
                 "name": "Halloween",
-                "message": "Happy Halloween! 🎃 Stay safe if you happen to be going out tonight."
+                "message": "Happy Halloween!  Stay safe if you happen to be going out tonight."
             }
         }
         
@@ -261,14 +261,14 @@ class TimeContextManager:
         context = self.get_day_context()
         special = self.get_special_occasion()
         
-        summary = f"📅 {context['day_of_week']}, {context['date']}\n"
-        summary += f"🕐 {context['time']}\n"
+        summary = f" {context['day_of_week']}, {context['date']}\n"
+        summary += f" {context['time']}\n"
         summary += f"⏰ Time Period: {context['time_period'].replace('_', ' ').title()}\n"
         
         if special:
-            summary += f"🎉 Special Occasion: {special['name']}\n"
+            summary += f" Special Occasion: {special['name']}\n"
         
         if context["is_weekend"]:
-            summary += "🎊 It's the weekend!\n"
+            summary += " It's the weekend!\n"
         
         return summary

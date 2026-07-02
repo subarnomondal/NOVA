@@ -22,26 +22,26 @@ def cmd_download(args):
             
             # Simple heuristic: if user asks for "image of" or "picture of", use image search
             if "image" in query or "picture" in query or "photo" in query:
-                print(f"🔎 Searching for images of: {query}")
+                print(f" Searching for images of: {query}")
                 try:
                     with DDGS() as ddgs:
                         # Search for 1 image
                         results = list(ddgs.images(query, max_results=1))
                         if results:
                             url = results[0]['image']
-                            print(f"🔗 Found image URL: {url}")
+                            print(f" Found image URL: {url}")
                             # Clean up filename from query
                             filename_hint = query.replace(" ", "_").replace("image_of_", "").replace("picture_of_", "") + ".jpg"
                         else:
-                            return f"I searched for images of '{query}' but couldn't find any downloadable ones. 😔"
+                            return f"I searched for images of '{query}' but couldn't find any downloadable ones. "
                 except Exception as s_err:
                      print(f"Search Error: {s_err}")
-                     return "I tried to search for that image, but ran into a connection issue. 🔌"
+                     return "I tried to search for that image, but ran into a connection issue. "
             else:
-                 return "I'd love to download that! If it's a specific file, please paste the link. If you want an image, ask for 'image of [thing]'. 📥"
+                 return "I'd love to download that! If it's a specific file, please paste the link. If you want an image, ask for 'image of [thing]'. "
 
         if not url:
-             return "I couldn't find a valid URL to download. 🤷"
+             return "I couldn't find a valid URL to download. "
         
         # Determine filename (use hint if available from search)
         
@@ -62,7 +62,7 @@ def cmd_download(args):
         filepath = os.path.join(download_dir, filename)
         
         # Perform download
-        print(f"📡 Downloading: {url}")
+        print(f" Downloading: {url}")
         response = requests.get(url, stream=True, timeout=30)
         response.raise_for_status()
         
@@ -73,8 +73,8 @@ def cmd_download(args):
         import random
         responses = [
             f"All done! Your file is saved in the downloads folder as '{filename}'. ✅",
-            f"Success! I've downloaded '{filename}' to your downloads folder. 📁",
-            f"Got it! You'll find '{filename}' in the downloads folder now. 🎉"
+            f"Success! I've downloaded '{filename}' to your downloads folder. ",
+            f"Got it! You'll find '{filename}' in the downloads folder now. "
         ]
         return random.choice(responses)
         

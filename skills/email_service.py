@@ -25,7 +25,7 @@ class EmailDirectory:
     def load_emails(self):
         try:
             if os.path.exists(self.email_file):
-                with open(self.email_file, 'r') as f:
+                with open(self.email_file, 'r', encoding='utf-8') as f:
                     self.emails = json.load(f)
         except Exception as e:
             print(f"⚠️ Error loading emails: {e}")
@@ -34,7 +34,7 @@ class EmailDirectory:
     def save_emails(self):
         try:
             os.makedirs("userdata", exist_ok=True)
-            with open(self.email_file, 'w') as f:
+            with open(self.email_file, 'w', encoding='utf-8') as f:
                 json.dump(self.emails, f, indent=2)
         except Exception as e:
             print(f"⚠️ Error saving emails: {e}")
@@ -64,7 +64,7 @@ def cmd_add_email(args):
                  email = email_match.group(0)
                  name = args.replace("add email", "").replace(email, "").strip()
              else:
-                 return "I need a name and an email address! (e.g. add email John john@test.com) 📧"
+                 return "I need a name and an email address! (e.g. add email John john@test.com) "
         else:
              name, email = parts[0], parts[1]
 
@@ -99,7 +99,7 @@ def fetch_explanation(topic):
             results = list(ddgs.text(f"explain {topic} simple", max_results=1))
             if results:
                 return results[0].get('body', "")
-    except:
+    except Exception:
         pass
     return f"Here is some information about {topic}."
 
@@ -146,7 +146,7 @@ def cmd_send_email(args):
                 target = email_manager.get_email(name)
                 topic_pure = args.split(name)[-1].strip()
             else:
-                return "Who should I send this email to? 📧"
+                return "Who should I send this email to? "
 
         if not target:
             return "I couldn't find that contact's email address. Try 'add email <name> <address>' first!"
@@ -154,10 +154,10 @@ def cmd_send_email(args):
         # 2. Extract/Clean Topic
         topic = topic_pure.replace("about", "").replace("saying", "").replace("regarding", "").replace("that", "").strip()
         if not topic:
-            return f"What should the email to {target} be about? 📝"
+            return f"What should the email to {target} be about? "
 
         # 3. Generate Professional Draft using LLM
-        print(f"📧 Drafting professional email for: {topic}")
+        print(f" Drafting professional email for: {topic}")
         system_prompt = (
             "You are Nova, a professional yet friendly assistant. "
             "Draft a professional email based on the user's brief note. "
@@ -178,7 +178,7 @@ def cmd_send_email(args):
                 subject = subject_line.replace("Subject:", "").replace("subject:", "").strip()
                 # Everything after the subject line is the body
                 body = "\n".join([l for l in lines if l != subject_line]).strip()
-            except:
+            except (IndexError, ValueError):
                 subject = "Professional Update"
                 body = draft
 
@@ -188,7 +188,7 @@ def cmd_send_email(args):
         mailto_link = f"mailto:{target}?{query_string}"
         
         if webbrowser.open(mailto_link):
-            return f"I've prepared a professional email to {target}! 📧✨"
+            return f"I've prepared a professional email to {target}! ✨"
         else:
             return f"I couldn't open your mail client, but here is the draft:\n\n*Subject:* {subject}\n\n{body}"
         

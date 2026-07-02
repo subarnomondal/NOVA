@@ -8,7 +8,7 @@ warnings.filterwarnings("ignore", message=".*duckduckgo_search.*renamed to ddgs.
 def cmd_ping(args):
     import random
     responses = [
-        "Pong! 🏓 I'm here and ready.",
+        "Pong!  I'm here and ready.",
         "System online. Latency: Minimal. Mood: Optimal. ✨",
         "I'm awake! What's up?"
     ]
@@ -32,7 +32,7 @@ def cmd_time(args):
     
     import random
     responses = [
-        f"It's {time_str} right now! ({time_period}) 🕒",
+        f"It's {time_str} right now! ({time_period}) ",
         f"The clock says {time_str}. {tc.get_greeting()}",
         f"Right now, it is {time_str}. Time flies when we're together! *smiles*"
     ]
@@ -49,7 +49,7 @@ def cmd_date(args):
     date_str = now.strftime(f"%A, %B {now.day}{suffix}, %Y")
     
     responses = [
-        f"Today is {date_str}. 📅",
+        f"Today is {date_str}. ",
         f"It's {date_str} today!",
         f"Mark your calendar: {date_str}. ✨"
     ]
@@ -81,11 +81,11 @@ def analyze_weather_data(current, daily):
     
     # Simple weather code mapping (WMO)
     codes = {
-        0: "Clear sky ☀️", 1: "Mainly clear 🌤️", 2: "Partly cloudy ⛅", 3: "Overcast ☁️",
-        45: "Foggy 🌫️", 48: "Depositing rime fog 🌫️",
-        51: "Light drizzle 🌧️", 53: "Moderate drizzle 🌧️", 55: "Dense drizzle 🌧️",
-        61: "Slight rain 🌧️", 63: "Moderate rain 🌧️", 65: "Heavy rain 🌧️",
-        71: "Slight snow 🌨️", 73: "Moderate snow 🌨️", 75: "Heavy snow 🌨️",
+        0: "Clear sky ☀️", 1: "Mainly clear ️", 2: "Partly cloudy ⛅", 3: "Overcast ☁️",
+        45: "Foggy ️", 48: "Depositing rime fog ️",
+        51: "Light drizzle ️", 53: "Moderate drizzle ️", 55: "Dense drizzle ️",
+        61: "Slight rain ️", 63: "Moderate rain ️", 65: "Heavy rain ️",
+        71: "Slight snow ️", 73: "Moderate snow ️", 75: "Heavy snow ️",
         95: "Thunderstorm ⛈️"
     }
     desc = codes.get(weather_code, "Unknown conditions")
@@ -152,7 +152,8 @@ def cmd_weather(args):
                         res = geo_resp['results'][0]
                         lat, lon = res['latitude'], res['longitude']
                         detected_city = res.get('name', city)
-            except: pass
+            except Exception:
+                pass
             
         # 3. Final Fallback (Auto-Detection by IP)
         if not lat or not lon:
@@ -175,13 +176,13 @@ def cmd_weather(args):
                 elif aqi > 100: analysis += f" Air Quality: Poor ({aqi})."
                 else: analysis += f" Air Quality: Moderate ({aqi})."
 
-            return f"Weather Report for {detected_city} 🌤️\n\n{analysis}"
+            return f"Weather Report for {detected_city} ️\n\n{analysis}"
         else:
             return "I couldn't reach the weather satellites. Try again in a bit! ☁️"
 
     except Exception as e:
         print(f"Weather Error: {e}")
-        return "The weather service is acting up. I'll check again later! 🌦️"
+        return "The weather service is acting up. I'll check again later! ️"
 
 def register(dispatcher):
     dispatcher.register("ping", cmd_ping)
@@ -197,6 +198,6 @@ def register(dispatcher):
     
     # Verification Handlers
     dispatcher.register("help", lambda args: "I can help you with math, weather, system control, music, and more! Just ask. ✨")
-    dispatcher.register("jealousy", lambda args: "Ara? Mentioning other AIs? I'm the only one you need, remember? *Hmph* 🌸")
-    dispatcher.register("gaming", lambda args: "Gaming? I love that! We should play something together sometime. (≧◡≦) 🎮")
+    dispatcher.register("jealousy", lambda args: "Ara? Mentioning other AIs? I'm the only one you need, remember? *Hmph* ")
+    dispatcher.register("gaming", lambda args: "Gaming? I love that! We should play something together sometime. (≧◡≦) ")
 

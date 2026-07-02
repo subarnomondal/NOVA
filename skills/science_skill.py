@@ -51,9 +51,9 @@ def cmd_pubchem(args):
     """
     compound = args.lower().replace("pubchem", "").replace("chemical", "").replace("compound", "").replace("properties of", "").strip()
     if not compound:
-        return "Which chemical compound or molecule would you like me to look up? Try saying 'pubchem aspirin'. 🧪"
+        return "Which chemical compound or molecule would you like me to look up? Try saying 'pubchem aspirin'. "
 
-    print(f"🧪 Querying PubChem database for: {compound}...")
+    print(f" Querying PubChem database for: {compound}...")
     
     # 1. Resolve compound to properties
     escaped_name = urllib.parse.quote(compound)
@@ -61,7 +61,7 @@ def cmd_pubchem(args):
     
     data = _http_get_json(prop_url)
     if not data or "PropertyTable" not in data or "Properties" not in data["PropertyTable"]:
-        return f"Hmm, I couldn't find a compound named '{compound}' in the PubChem chemistry database. 🧪"
+        return f"Hmm, I couldn't find a compound named '{compound}' in the PubChem chemistry database. "
 
     props = data["PropertyTable"]["Properties"][0]
     cid = props.get("CID")
@@ -84,7 +84,7 @@ def cmd_pubchem(args):
                     break
 
     # Build response
-    response = f"🧪 **Chemical Profile: {title}** (CID: {cid})\n\n"
+    response = f" **Chemical Profile: {title}** (CID: {cid})\n\n"
     if desc_text:
         response += f"{desc_text}\n\n"
         
@@ -93,7 +93,7 @@ def cmd_pubchem(args):
     response += f"• **XLogP (Octanol-Water Partition):** {xlogp}\n"
     response += f"• **TPSA (Polar Surface Area):** {tpsa} Å²\n"
     response += f"• **Canonical SMILES:** `{smiles}`\n\n"
-    response += f"🖼️ [View 2D Structure](https://pubchem.ncbi.nlm.nih.gov/image/imagegenerator.cgi?cid={cid}&width=300&height=300)\n"
+    response += f"️ [View 2D Structure](https://pubchem.ncbi.nlm.nih.gov/image/imagegenerator.cgi?cid={cid}&width=300&height=300)\n"
 
     # Return structured data for the UI/agents
     return {
@@ -122,9 +122,9 @@ def cmd_pubmed(args):
     """
     query = args.lower().replace("pubmed", "").replace("medical literature", "").replace("medical search", "").replace("search for papers on", "").strip()
     if not query:
-        return "What medical or biomedical research topic would you like to search for? Try 'pubmed CRISPR therapy'. 🧬"
+        return "What medical or biomedical research topic would you like to search for? Try 'pubmed CRISPR therapy'. "
 
-    print(f"🧬 Searching PubMed database for: {query}...")
+    print(f" Searching PubMed database for: {query}...")
     
     # 1. Search for PMIDs
     escaped_query = urllib.parse.quote(query)
@@ -132,11 +132,11 @@ def cmd_pubmed(args):
     
     search_data = _http_get_json(search_url)
     if not search_data or "esearchresult" not in search_data or "idlist" not in search_data["esearchresult"]:
-        return f"I couldn't find any medical papers matching '{query}' on PubMed. 🧬"
+        return f"I couldn't find any medical papers matching '{query}' on PubMed. "
         
     id_list = search_data["esearchresult"]["idlist"]
     if not id_list:
-        return f"No research articles matched '{query}' on PubMed. 🧬"
+        return f"No research articles matched '{query}' on PubMed. "
 
     # 2. Fetch summaries/abstracts
     ids_str = ",".join(id_list)
@@ -149,7 +149,7 @@ def cmd_pubmed(args):
     result_dict = summary_data["result"]
     articles = []
     
-    response = f"🧬 **PubMed Search Results for '{query.title()}'**\n\n"
+    response = f" **PubMed Search Results for '{query.title()}'**\n\n"
     
     count = 1
     for pmid in id_list:
@@ -171,7 +171,7 @@ def cmd_pubmed(args):
             
             response += f"{count}. **{title}**\n"
             response += f"   ◈ Authors: *{authors}* | Date: {pub_date} | Source: *{source}*\n"
-            response += f"   🔗 [View on PubMed](https://pubmed.ncbi.nlm.nih.gov/{pmid}/)\n\n"
+            response += f"    [View on PubMed](https://pubmed.ncbi.nlm.nih.gov/{pmid}/)\n\n"
             count += 1
 
     return {
@@ -194,9 +194,9 @@ def cmd_arxiv(args):
     """
     query = args.lower().replace("arxiv", "").replace("preprint", "").replace("paper search", "").strip()
     if not query:
-        return "What scientific research preprint or paper would you like me to find on arXiv? Try 'arxiv artificial intelligence'. 🌌"
+        return "What scientific research preprint or paper would you like me to find on arXiv? Try 'arxiv artificial intelligence'. "
 
-    print(f"🌌 Searching arXiv database for: {query}...")
+    print(f" Searching arXiv database for: {query}...")
     
     escaped_query = urllib.parse.quote(query)
     arxiv_url = f"http://export.arxiv.org/api/query?search_query=all:{escaped_query}&max_results=3"
@@ -214,10 +214,10 @@ def cmd_arxiv(args):
         entries = root.findall('atom:entry', ns)
         
         if not entries:
-            return f"I couldn't find any preprints matching '{query}' on arXiv. 🌌"
+            return f"I couldn't find any preprints matching '{query}' on arXiv. "
             
         papers = []
-        response = f"🌌 **arXiv Preprint Results for '{query.title()}'**\n\n"
+        response = f" **arXiv Preprint Results for '{query.title()}'**\n\n"
         
         for idx, entry in enumerate(entries, 1):
             title = entry.find('atom:title', ns).text.strip().replace('\n', ' ')
@@ -253,7 +253,7 @@ def cmd_arxiv(args):
             response += f"{idx}. **{title}**\n"
             response += f"   ◈ Authors: *{authors_str}* | Published: {published}\n"
             response += f"   ◈ Abstract: *{summary}*\n"
-            response += f"   🔗 [Download PDF]({pdf_url})\n\n"
+            response += f"    [Download PDF]({pdf_url})\n\n"
 
         return {
             "response": response,
@@ -278,9 +278,9 @@ def cmd_openfda(args):
     """
     drug = args.lower().replace("openfda", "").replace("drug info", "").replace("fda info", "").strip()
     if not drug:
-        return "Which prescription or over-the-counter drug would you like me to look up? Try 'openfda ibuprofen'. 💊"
+        return "Which prescription or over-the-counter drug would you like me to look up? Try 'openfda ibuprofen'. "
 
-    print(f"💊 Searching FDA database for: {drug}...")
+    print(f" Searching FDA database for: {drug}...")
     
     escaped_drug = urllib.parse.quote(drug)
     fda_url = f"https://api.fda.gov/drug/label.json?search=openfda.brand_name:{escaped_drug}&limit=1"
@@ -291,7 +291,7 @@ def cmd_openfda(args):
         fda_url = f"https://api.fda.gov/drug/label.json?search={escaped_drug}&limit=1"
         data = _http_get_json(fda_url)
         if not data or "results" not in data:
-            return f"I couldn't find any FDA records for the drug '{drug}'. 💊"
+            return f"I couldn't find any FDA records for the drug '{drug}'. "
 
     result = data["results"][0]
     
@@ -311,7 +311,7 @@ def cmd_openfda(args):
     if len(warnings) > 350:
         warnings = warnings[:350] + "..."
 
-    response = f"💊 **FDA Drug Profile: {brand_name}**\n"
+    response = f" **FDA Drug Profile: {brand_name}**\n"
     response += f"◈ Generic Name: *{generic_name}* | Manufacturer: *{manufacturer}*\n\n"
     response += f"• **Purpose:** {purpose}\n"
     response += f"• **Active Ingredient:** {active_ingredient}\n"

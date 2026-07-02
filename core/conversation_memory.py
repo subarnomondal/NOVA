@@ -24,7 +24,7 @@ class ConversationMemory:
                 with open(self.memory_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     self.conversations = data.get('conversations', [])
-                print(f"💾 Loaded {len(self.conversations)} previous conversations")
+                print(f" Loaded {len(self.conversations)} previous conversations")
         except Exception as e:
             print(f"⚠️ Could not load memory: {e}")
             self.conversations = []
@@ -62,7 +62,7 @@ class ConversationMemory:
                 self.conversations = self.conversations[-1000:]
             
             self.save_memory()
-            print(f"💾 Conversation saved. History size: {len(self.conversations)}")
+            print(f" Conversation saved. History size: {len(self.conversations)}")
 
     def find_relevant_memories(self, query: str, limit: int = 3) -> str:
         """Simple keyword-based retrieval of older relevant conversations"""
@@ -136,7 +136,7 @@ class ConversationMemory:
         """Clear all conversation history"""
         self.conversations = []
         self.save_memory()
-        print("🗑️ Conversation memory cleared")
+        print("️ Conversation memory cleared")
     
     def get_stats(self) -> Dict:
         """Get memory statistics"""

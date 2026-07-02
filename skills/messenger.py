@@ -17,7 +17,7 @@ class ContactManager:
     def load_contacts(self):
         try:
             if os.path.exists(self.contact_file):
-                with open(self.contact_file, 'r') as f:
+                with open(self.contact_file, 'r', encoding='utf-8') as f:
                     self.contacts = json.load(f)
         except Exception as e:
             print(f"⚠️ Error loading contacts: {e}")
@@ -25,7 +25,7 @@ class ContactManager:
 
     def save_contacts(self):
         try:
-            with open(self.contact_file, 'w') as f:
+            with open(self.contact_file, 'w', encoding='utf-8') as f:
                 json.dump(self.contacts, f, indent=2)
         except Exception as e:
             print(f"⚠️ Error saving contacts: {e}")
@@ -53,7 +53,7 @@ def cmd_add_contact(args):
         # Extract number first
         phone_match = re.search(r'(\+?\d{10,15})', args)
         if not phone_match:
-            return "I need a valid phone number to add a contact! (e.g. add contact John 1234567890) 📱"
+            return "I need a valid phone number to add a contact! (e.g. add contact John 1234567890) "
         
         number = phone_match.group(1)
         
@@ -66,7 +66,7 @@ def cmd_add_contact(args):
         name_part = clean_args.replace(number, "").strip()
         
         if not name_part:
-            return "What name should I save this number as? 🤔"
+            return "What name should I save this number as? "
             
         contact_manager.add_contact(name_part, number)
         return f"Saved! {name_part.title()} is now in your contacts with number {number}. try saying 'whatsapp {name_part} hello'!"
@@ -100,7 +100,7 @@ def cmd_find_contact(args):
         
         query = clean_args.strip()
         if not query:
-            return "Who should I look for? Just say 'find contact name'. 🔍"
+            return "Who should I look for? Just say 'find contact name'. "
 
         # 1. Resolve internally first to see if we have it
         contacts = contact_manager.list_contacts()
@@ -132,7 +132,7 @@ def cmd_find_contact(args):
             return f"Opening WhatsApp and searching for '{query}'... *notes down* I actually have {found_name.title()} in my records as {found_number}! ✨"
         else:
             query_display = query.title() if query else "that contact"
-            return f"Opening WhatsApp and typing '{query_display}' into the search bar for you now! I hope you find them. 🔍"
+            return f"Opening WhatsApp and typing '{query_display}' into the search bar for you now! I hope you find them. "
 
     except Exception as e:
         return f"Aww, I couldn't finish the search automation: {e}"
@@ -146,15 +146,15 @@ def cmd_delete_contact(args):
         
         name = clean_args.strip()
         if not name:
-            return "Which contact (or contract) should I delete? 🗑️"
+            return "Which contact (or contract) should I delete? ️"
 
         contacts = contact_manager.list_contacts()
         if name in contacts:
             del contact_manager.contacts[name]
             contact_manager.save_contacts()
-            return f"Done! I've removed {name.title()} from your contacts. *dusts hands* 🧹"
+            return f"Done! I've removed {name.title()} from your contacts. *dusts hands* "
         else:
-            return f"I couldn't find anyone named '{name}' in your contacts to delete. 🧐"
+            return f"I couldn't find anyone named '{name}' in your contacts to delete. "
     except Exception as e:
         return f"Error deleting contact: {e}"
 
@@ -211,7 +211,7 @@ def cmd_send_message(args):
                         name = matches[0]
                 msg_args = args.split(name)[-1].strip() if raw_phone else args
             else:
-                return "Who should I message on WhatsApp? 📱"
+                return "Who should I message on WhatsApp? "
 
         if not raw_phone:
             return "I couldn't find that contact. Try 'add contact <name> <number>' first!"
@@ -231,10 +231,10 @@ def cmd_send_message(args):
             content = content.strip()
 
         if not content:
-            return f"What would you like me to say to {raw_phone}? 📝"
+            return f"What would you like me to say to {raw_phone}? "
 
         # 3. Professionalize Message using LLM
-        print(f"📱 Professionalizing WhatsApp message for: {content}")
+        print(f" Professionalizing WhatsApp message for: {content}")
         system_prompt = (
             "You are Nova, a professional and efficient assistant. "
             "Rewrite the user's brief note into a short, clear, and professional WhatsApp message. "
@@ -256,7 +256,7 @@ def cmd_send_message(args):
         import pyautogui # type: ignore
         
         uri = f"whatsapp://send?phone={clean_phone}"
-        print(f"🚀 Launching WhatsApp: {uri}")
+        print(f" Launching WhatsApp: {uri}")
         
         if webbrowser.open(uri):
             time.sleep(3) # Wait for WhatsApp to open and focus
@@ -284,7 +284,7 @@ def cmd_whatsapp_call(args):
     
     name = clean_args.strip()
     if not name:
-        return "Who should I call on WhatsApp? 📞"
+        return "Who should I call on WhatsApp? "
         
     contacts = contact_manager.list_contacts()
     # Direct lookup
@@ -298,7 +298,7 @@ def cmd_whatsapp_call(args):
             phone = contacts[name]
             
     if not phone:
-        return f"I couldn't find {name} in your contacts. Try adding them first! 📱"
+        return f"I couldn't find {name} in your contacts. Try adding them first! "
         
     # Standardize phone format
     clean_phone = str(phone).replace('+', '').replace(' ', '').replace('-', '')
@@ -307,10 +307,10 @@ def cmd_whatsapp_call(args):
     
     # URI for WhatsApp Voice Call
     uri = f"whatsapp://voice/?phone={clean_phone}"
-    print(f"🚀 [Messenger] Initiating WhatsApp Call to {name}: {uri}")
+    print(f" [Messenger] Initiating WhatsApp Call to {name}: {uri}")
     
     if webbrowser.open(uri):
-        return f"Starting a WhatsApp voice call with {name.title()}! 📞"
+        return f"Starting a WhatsApp voice call with {name.title()}! "
     else:
         return f"I tried to start the call for {name.title()}, but I had trouble opening WhatsApp."
 

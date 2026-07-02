@@ -56,7 +56,7 @@ class LLMManager:
                 self.show_thoughts = False
             
             if self.show_thoughts:
-                print("🧠 Thought Process Visualization Enabled")
+                print(" Thought Process Visualization Enabled")
             
             self.personality_manager = PersonalityManager()
             self.base_persona = self.personality_manager.get_active_personality()["system_prompt"]
@@ -103,7 +103,7 @@ class LLMManager:
     
     def load_model(self, provider_override=None):
         """No-op. We no longer load a local model."""
-        print("🧠 Skipping local brain load (API-Only Mode Enabled)...")
+        print(" Skipping local brain load (API-Only Mode Enabled)...")
         return True
 
 
@@ -251,7 +251,7 @@ class LLMManager:
         pass
 
 
-    def _generate_openrouter(self, user_input, system_prompt, history=None):
+    def _generate_openrouter(self, user_input, system_prompt, history=None, tools=None):
         """Primary Brain via OpenRouter API with Smart Multi-Key Swarm support."""
         try:
             import requests # type: ignore
@@ -332,9 +332,12 @@ class LLMManager:
                         "temperature": 0.5 if isinstance(user_input, dict) and user_input.get("image_path") else 0.7,
                         "max_tokens": 800 if isinstance(user_input, dict) and user_input.get("image_path") else 500
                     }
+                    if tools:
+                        data["tools"] = tools
+
 
                     
-                    print(f"📡 Requesting {model} OpenRouter (Attempt {attempt+1}/3)...")
+                    print(f" Requesting {model} OpenRouter (Attempt {attempt+1}/3)...")
                     response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
                     self.last_error_code = response.status_code
                     
@@ -343,6 +346,8 @@ class LLMManager:
                         if "choices" in result and result["choices"]:
                             self.last_provider = "OpenRouter"
                             self.last_model = model
+                            if tools:
+                                return result["choices"][0]["message"]
                             return result["choices"][0]["message"]["content"]
                     elif response.status_code == 429:
                         print(f"⚠️ OpenRouter Rate Limited (429) for {model}. Flagging key for cooldown.")
@@ -447,7 +452,7 @@ class LLMManager:
             print(f"⚠️ Ollama Error: {e}")
             return None
 
-    def generate(self, user_input, intent=None, max_tokens=250, temperature=0.7, system_prompt=None, raw_gen=False, provider=None, history=None, include_tags=False, force_advanced=False, image_path=None):
+    def generate(self, user_input, intent=None, max_tokens=250, temperature=0.7, system_prompt=None, raw_gen=False, provider=None, history=None, include_tags=False, force_advanced=False, image_path=None, tools=None):
         """Generate response using the OpenRouter or Ollama API."""
         
         # Multimodal handling: user_input becomes a dict if image is present
@@ -520,10 +525,12 @@ class LLMManager:
                 if not raw_gen:
                     # 1. Try OpenRouter first (Verified working free swarm)
                     if provider == "free" or not provider:
-                        print("🚀 Routing to OpenRouter (Verified Free Swarm)...")
+                        print(" Routing to OpenRouter (Verified Free Swarm)...")
                         try:
-                            resp = self._generate_openrouter(actual_input, full_system_prompt, history=history)
+                            resp = self._generate_openrouter(actual_input, full_system_prompt, history=history, tools=tools)
                             if resp:
+                                if tools and isinstance(resp, dict):
+                                    return resp
                                 return self._process_response_text(resp, text_for_emotion, include_tags)
 
                         except Exception as e:
@@ -544,7 +551,7 @@ class LLMManager:
 
                 # OLLAMA PROVIDER (Fallback)
                 if provider == "ollama" or (not provider and os.getenv("USE_OLLAMA") == "true"):
-                    print("🦙 Routing to Ollama...")
+                    print(" Routing to Ollama...")
                     ollama_resp = self._generate_ollama(user_input, full_system_prompt)
                     if ollama_resp:
                         return self._process_response_text(ollama_resp, user_input, include_tags)

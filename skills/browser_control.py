@@ -10,7 +10,7 @@ def cmd_browser_nav(args):
     url = re.sub(r'^(?:browse to|visit|open website|go to)\s+', '', args, flags=re.IGNORECASE).strip()
     
     if not url:
-        return "Which website should I open for you? 🌐"
+        return "Which website should I open for you? "
     
     # Handle simple names (add .com if no dot)
     if '.' not in url:
@@ -20,7 +20,7 @@ def cmd_browser_nav(args):
         url = "https://" + url
         
     return {
-        "response": f"Opening **{url}** for you now! 🌐",
+        "response": f"Opening **{url}** for you now! ",
         "data": {
             "browser_action": "navigate",
             "url": url
@@ -31,11 +31,11 @@ def cmd_browser_search(args):
     """Usage: browser search <query>"""
     query = args.lower().replace("browser search", "").strip()
     if not query:
-        return "What should I search for in the browser? 🔍"
+        return "What should I search for in the browser? "
         
     search_url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
     return {
-        "response": f"Searching for '{query}' in your browser... 🔍",
+        "response": f"Searching for '{query}' in your browser... ",
         "data": {
             "browser_action": "navigate",
             "url": search_url
@@ -45,7 +45,7 @@ def cmd_browser_search(args):
 def cmd_read_page(args):
     """Usage: read this page or what's on this website?"""
     return {
-        "response": "Alright, let me analyze the contents of this page for you... 🔍",
+        "response": "Alright, let me analyze the contents of this page for you... ",
         "data": {
             "browser_action": "read_page"
         }

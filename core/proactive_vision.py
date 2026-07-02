@@ -24,7 +24,7 @@ class ProactiveVisionEngine:
             self.running = True
             self.thread = threading.Thread(target=self._run_loop, daemon=True)
             self.thread.start()
-            print("👁️ Proactive Vision Engine: Started")
+            print("️ Proactive Vision Engine: Started")
 
     def stop(self):
         self.running = False
@@ -36,7 +36,7 @@ class ProactiveVisionEngine:
             # Random wait
             wait_time = random.randint(self.min_cooldown, self.max_cooldown)
             # wait_time = 60 # FOR TESTING: 1 minute
-            print(f"👁️ Proactive Vision Engine: Sleeping for {wait_time} seconds...")
+            print(f"️ Proactive Vision Engine: Sleeping for {wait_time} seconds...")
             
             # Use small sleeps to allow stopping
             for _ in range(wait_time):
@@ -50,7 +50,7 @@ class ProactiveVisionEngine:
     def _capture_and_notice(self):
         """Captures screen and potentially notifies user of a notable observation."""
         try:
-            print("👁️ Proactive Vision Engine: Glancing at screen...")
+            print("️ Proactive Vision Engine: Glancing at screen...")
             filepath = vision_manager.capture_screen()
             if not filepath:
                 return
@@ -118,7 +118,7 @@ class ProactiveVisionEngine:
             response = llm_manager.generate(prompt, max_tokens=100, image_path=filepath)
             
             if response and "IGNORE" not in response.upper():
-                print(f"👁️ Proactive Vision Engine: Nova has something to say: {response}")
+                print(f"️ Proactive Vision Engine: Nova has something to say: {response}")
                 if self.callback:
                     # Clean up filepath after callback or keep for a bit
                     self.callback(response)

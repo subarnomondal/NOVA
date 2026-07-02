@@ -8,10 +8,10 @@ from core.personality_manager import PersonalityManager
 def cmd_ocr_screen(args):
     """Usage: read my screen / ocr screen"""
     try:
-        print("🔍 Vision Skill: OCR Mode - Scanning screen for text...")
+        print(" Vision Skill: OCR Mode - Scanning screen for text...")
         filepath = vision_manager.capture_screen()
         if not filepath:
-            return "❌ I'm trying to look, but your screen is a bit shy right now. Can you check if my visibility is blocked? 🔄"
+            return "❌ I'm trying to look, but your screen is a bit shy right now. Can you check if my visibility is blocked? "
 
         # Active Window for context
         import pygetwindow as gw
@@ -20,7 +20,8 @@ def cmd_ocr_screen(args):
             active_window = gw.getActiveWindow()
             if active_window:
                 window_title = active_window.title
-        except: pass
+        except Exception:
+            pass
 
         # Persona-aware prompt for OCR & Understanding
         pm = PersonalityManager()
@@ -49,7 +50,7 @@ def cmd_ocr_screen(args):
         if os.path.exists(filepath):
             os.remove(filepath)
             
-        return response if response else "I scanned the screen, but I couldn't make out any clear text! Is it too blurry? 🧐"
+        return response if response else "I scanned the screen, but I couldn't make out any clear text! Is it too blurry? "
 
     except Exception as e:
         print(f"❌ OCR Skill Error: {e}")

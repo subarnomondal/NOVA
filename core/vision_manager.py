@@ -50,7 +50,7 @@ class VisionManager:
                 os.makedirs(self.temp_dir)
                 
             pyautogui.screenshot(filepath)
-            print(f"📸 Screen captured: {filepath}")
+            print(f" Screen captured: {filepath}")
             return filepath
         except Exception as e:
             print(f"❌ Screen capture failed: {e}")
@@ -120,7 +120,7 @@ class VisionManager:
             return {"error": "Image file not found."}
             
         try:
-            print(f"👁️ Analyzing image: {image_path}")
+            print(f"️ Analyzing image: {image_path}")
             
             # 1. Extract Metadata
             metadata = self.extract_metadata(image_path)
@@ -174,9 +174,9 @@ class VisionManager:
             if isinstance(top_obj, dict):
                 label = top_obj.get('label', 'Unknown')
                 conf = top_obj.get('confidence', 0.0)
-                result.append(f"🖼️ I see: {label} ({conf*100:.1f}% confident)")
+                result.append(f"️ I see: {label} ({conf*100:.1f}% confident)")
             else:
-                result.append(f"🖼️ I see: {str(top_obj)}")
+                result.append(f"️ I see: {str(top_obj)}")
             
             # Detect categories
             all_labels = [obj['label'].lower() if isinstance(obj, dict) else str(obj).lower() for obj in objects]
@@ -185,26 +185,26 @@ class VisionManager:
             animal_keywords = ['dog', 'cat', 'bird', 'horse', 'elephant', 'tiger', 'lion', 'bear', 'fish', 'snake']
             animals = [l for l in all_labels if any(a in l for a in animal_keywords)]
             if animals:
-                result.append(f"🐾 Animals detected: {', '.join(animals[:2])}")
+                result.append(f" Animals detected: {', '.join(animals[:2])}")
             
             # Places/Scenes
             place_keywords = ['beach', 'mountain', 'forest', 'city', 'building', 'street', 'park', 'lake', 'ocean']
             places = [l for l in all_labels if any(p in l for p in place_keywords)]
             if places:
-                result.append(f"📍 Scene: {', '.join(places[:2])}")
+                result.append(f" Scene: {', '.join(places[:2])}")
         
         # Text Content
         if analysis.get("text"):
-            result.append(f"📝 Text found: {analysis['text'][:100]}...")
+            result.append(f" Text found: {analysis['text'][:100]}...")
         
         # Metadata
         meta = analysis.get("metadata", {})
         if meta.get("timestamp"):
-            result.append(f"📅 Taken: {meta['timestamp']}")
+            result.append(f" Taken: {meta['timestamp']}")
         if meta.get("camera_model"):
-            result.append(f"📷 Camera: {meta['camera_model']}")
+            result.append(f" Camera: {meta['camera_model']}")
         if meta.get("gps"):
-            result.append(f"🌍 Location data available")
+            result.append(f" Location data available")
             
         return "\n".join(result) if result else "I analyzed the image but couldn't extract much information."
 
@@ -217,7 +217,7 @@ class VisionManager:
             time.sleep(0.5) 
             if os.path.exists(file_path):
                 os.remove(file_path)
-                print(f"🗑️ Cleaned up temp image: {file_path}")
+                print(f"️ Cleaned up temp image: {file_path}")
         except Exception as e:
             print(f"⚠️ Failed to delete {file_path}: {e}")
 
@@ -229,7 +229,7 @@ class VisionManager:
             if os.path.exists(self.temp_dir):
                 shutil.rmtree(self.temp_dir)
             os.makedirs(self.temp_dir, exist_ok=True)
-            print("🧹 Vision temp storage cleared.")
+            print(" Vision temp storage cleared.")
         except Exception as e:
             print(f"⚠️ Vision Cleanup Error: {e}")
 
