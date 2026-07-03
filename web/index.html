@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
+<html class="dark" lang="en">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>NOVA | Live Assistant</title>
@@ -195,7 +195,47 @@
         .thought-analyzing { color: rgba(96,165,250,0.8) !important; border-left-color: rgba(96,165,250,0.6) !important; }
         .thought-planning { color: rgba(52,211,153,0.8) !important; border-left-color: rgba(52,211,153,0.6) !important; }
         .thought-error { color: rgba(248,113,113,0.8) !important; border-left-color: rgba(248,113,113,0.6) !important; }
-    </style>
+    
+        /* Custom Scrollbar for Modals */
+        .custom-scrollbar::-webkit-scrollbar { width: 2px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+
+        /* Terminal blinking cursor effect */
+        .cursor-blink::after { content: '_'; animation: blink 1s step-end infinite; }
+        @keyframes blink { from, to { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Scanline effect for terminal */
+        .scanline {
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.03) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            background-size: 100% 4px;
+        }
+
+        /* Dashboard specific */
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .pulsing-dot { animation: pulse-opacity 2s infinite; }
+        @keyframes pulse-opacity {
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+            50% { opacity: 0.2; box-shadow: 0 0 0px rgba(255,255,255,0); }
+        }
+
+        .telemetry-item:hover {
+            background-color: rgba(255,255,255,0.05);
+            border-left: 2px solid white;
+        }
+
+</style>
 <link href="style.css?v=4" rel="stylesheet"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/><script id="tailwind-config-settings">
 tailwind.config = {
           darkMode: "class",
@@ -355,149 +395,97 @@ tailwind.config = {
 <body class="h-screen w-screen relative overflow-hidden bg-background text-on-surface">
 <!-- Three.js Background Scene -->
 <div id="character-scene"></div>
-<!-- SideNavBar -->
-<nav class="fixed left-0 top-0 h-full w-20 flex flex-col items-center py-lg z-50 border-r border-white/10 bg-surface/80 backdrop-blur-xl">
-<div class="mb-xl w-full flex justify-center">
-<span class="font-headline-lg text-[24px] tracking-tighter text-primary">NOVA</span>
-</div>
-<div class="flex flex-col gap-6 flex-grow w-full">
-<!-- Active: Assistant -->
-<button class="flex flex-col items-center gap-1.5 transition-all scale-95 active:scale-90 text-primary border-r-2 border-primary w-full relative -mr-0.5 group" id="assistant-btn">
-<span class="material-symbols-outlined text-[24px]">smart_toy</span>
-<span class="font-label-caps text-[9px] tracking-widest group-hover:opacity-100">ASSISTANT</span>
+
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter py-stack-md bg-transparent border-b border-white/5">
+<div class="text-headline-md font-headline-md tracking-tighter text-primary">NOVA</div>
+<div class="flex items-center gap-stack-md">
+<div class="font-label-mono text-label-mono text-white/40 uppercase tracking-widest px-stack-sm py-1 border border-white/10 rounded">
+                Live Session: Nova-01
+            </div>
+<button id="settings-btn" class="p-2 text-on-surface-variant hover:bg-white/5 transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">settings</span>
 </button>
-<button class="flex flex-col items-center gap-1.5 transition-all hover:opacity-100 hover:bg-white/5 text-on-surface-variant opacity-50 w-full py-2 group" id="logs-btn">
-<span class="material-symbols-outlined text-[24px]">database</span>
-<span class="font-label-caps text-[9px] tracking-widest">MEMORY</span>
+<button id="logs-btn" class="p-2 text-on-surface-variant hover:bg-white/5 transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">memory</span>
 </button>
-<button class="flex flex-col items-center gap-1.5 transition-all hover:opacity-100 hover:bg-white/5 text-on-surface-variant opacity-50 w-full py-2 group">
-<span class="material-symbols-outlined text-[24px]">monitoring</span>
-<span class="font-label-caps text-[9px] tracking-widest">TELEMETRY</span>
+<button id="dashboard-btn" class="p-2 text-on-surface-variant hover:bg-white/5 transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">dashboard</span>
 </button>
-<button class="flex flex-col items-center gap-1.5 transition-all hover:opacity-100 hover:bg-white/5 text-on-surface-variant opacity-50 w-full py-2 group" id="settings-btn">
-<span class="material-symbols-outlined text-[24px]">settings</span>
-<span class="font-label-caps text-[9px] tracking-widest">SETTINGS</span>
-</button>
-</div>
-<div class="mt-auto mb-4">
-<div class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center overflow-hidden grayscale opacity-80 hover:opacity-100 transition-opacity cursor-pointer">
-<img class="w-full h-full object-cover" data-alt="A high-contrast monochromatic close-up portrait of a digital humanoid entity with glowing geometric light patterns on its face. The aesthetic is clean, futuristic, and premium, utilizing deep obsidian blacks and sharp white highlights. The image is rendered in a minimalist, high-detail style typical of high-performance AI interfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8UOBB1TC7acFwIJIgFsVMARPw421A-WVfek7e66lwRw6rziQD4BDKpHI1ZTNVb1d3no_9Ngy-OvGFlPQzG4IWqTrq-e1zmfL8n5D1tzYOTwingGho9ZmuHap3RSEOjibZw0cM-rVRbbwjDyh7pIBuDhD4CLnxgBbKLSwgb5hCn9KX_x5LGK8ZcXVENEFKWkgT1f9RYKoTMMASodd8YQRC4wjf5qgNGDYTwNWGHjcuvVx_cvI7IxJhwwJP8HVZmJmCha_Mekn2Z-dQ"/>
-</div>
-</div>
-</nav>
-<!-- TopAppBar -->
-<header class="fixed top-0 left-20 right-0 h-16 z-40 flex justify-between items-center px-margin-desktop bg-surface/50 backdrop-blur-md border-b border-white/5">
-<div class="flex items-center gap-6">
-<span class="font-label-caps text-label-caps tracking-[0.2em] text-primary">NOVA</span>
-<div class="h-4 w-[1px] bg-white/20"></div>
-<span class="font-label-mono text-label-mono text-on-surface-variant opacity-80">V.4.02.LIVE</span>
-</div>
-<div class="flex items-center gap-gutter">
-<div class="relative hidden md:block">
-<input class="bg-surface-container border border-white/10 font-label-mono text-[10px] w-64 h-8 px-4 focus:ring-1 focus:ring-primary/30 transition-all rounded" placeholder="GLOBAL_SEARCH" type="text"/>
-</div>
-<div class="flex items-center gap-6">
-<span class="material-symbols-outlined text-on-surface-variant opacity-70 cursor-pointer hover:text-primary hover:opacity-100 transition-colors text-[20px]">notifications_active</span>
-<span class="material-symbols-outlined text-on-surface-variant opacity-70 cursor-pointer hover:text-primary hover:opacity-100 transition-colors text-[20px]">account_circle</span>
-</div>
 </div>
 </header>
-<!-- Main Content Area -->
-<main class="ml-20 pt-16 h-full flex flex-row content-overlay">
-<!-- Central Conversational Interface -->
-<section class="flex-grow flex flex-col relative px-margin-desktop pb-2xl overflow-hidden h-[calc(100vh-64px)]">
-<div class="flex-grow overflow-y-auto space-y-8 pt-lg pr-4 custom-scrollbar pb-32" id="chat-feed">
+
+<main class="relative z-10 flex flex-col items-center justify-end h-full w-full pb-32 pt-24 px-gutter">
+<!-- Chat Feed -->
+<div id="chat-feed" class="w-full max-w-3xl flex flex-col gap-stack-lg overflow-y-auto no-scrollbar scroll-smooth">
+<!-- System Message -->
+<div class="message-fade flex flex-col gap-stack-sm items-start max-w-[85%] self-start" style="animation-delay: 0.2s;">
+<div class="flex items-center gap-2 mb-1">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-white/50">SYSTEM // NOVA</span>
+</div>
+<div class="glass-panel px-gutter py-stack-md rounded-xl text-body-lg text-primary leading-relaxed shadow-2xl">
+                    Neural initialization complete. I am monitoring live spectral data. How shall we proceed?
+                </div>
+</div>
 <!-- User Message -->
-<div class="fade-in-up flex flex-col gap-3 items-end ml-auto max-w-[85%]" style="animation-delay: 0.2s;">
-<span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest">OPERATOR_01</span>
-<div class="glass-panel p-md rounded-lg rounded-tr-none border border-white/10">
-<p class="font-body-md text-primary/90 text-[15px]">
-                            Analyze current system latency. Is the core stabilized for the upcoming high-density task?
-                        </p>
+<div class="message-fade flex flex-col gap-stack-sm items-end max-w-[85%] self-end" style="animation-delay: 0.8s;">
+<span class="font-label-mono text-label-mono text-white/30 mr-2 uppercase">Authorized User</span>
+<div class="bg-primary text-background px-gutter py-stack-md rounded-xl text-body-lg font-medium shadow-xl">
+                    Analyze the current atmospheric density markers.
+                </div>
+</div>
+<!-- System Message -->
+<div class="message-fade flex flex-col gap-stack-sm items-start max-w-[85%] self-start" style="animation-delay: 1.4s;">
+<div class="flex items-center gap-2 mb-1">
+<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+<span class="font-label-mono text-label-mono text-white/50">SYSTEM // ANALYSIS</span>
+</div>
+<div class="glass-panel px-gutter py-stack-md rounded-xl text-body-lg text-primary leading-relaxed shadow-2xl">
+                    Atmospheric density is stable at <span class="font-label-mono text-white underline decoration-white/20 underline-offset-4">1.225 kg/m³</span>. No anomalies detected in the current quadrant.
+                </div>
+<!-- Technical Detail Sub-card -->
+<div class="glass-panel mt-2 p-stack-md rounded-lg flex gap-stack-lg border-white/5">
+<div class="flex flex-col">
+<span class="font-label-mono text-[10px] text-white/40 uppercase">Vapor Index</span>
+<span class="font-label-mono text-body-md text-primary">0.042%</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-[10px] text-white/40 uppercase">Ion Charge</span>
+<span class="font-label-mono text-body-md text-primary">Neutral</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-mono text-[10px] text-white/40 uppercase">O3 Saturation</span>
+<span class="font-label-mono text-body-md text-primary">0.07 ppm</span>
 </div>
 </div>
-<!-- AI Response -->
-<div class="fade-in-up flex flex-col gap-3 max-w-[85%]" style="animation-delay: 0.4s;">
-<span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest flex items-center gap-2">
-<span class="w-1.5 h-1.5 bg-primary/80 rounded-full pulse-dot"></span>
-                        NOVA_AI // TELEMETRY_FEED
-                    </span>
-<div class="glass-panel p-lg rounded-lg rounded-tl-none border border-white/5 shadow-xl bg-surface-container-lowest/40">
-<p class="font-body-md text-on-surface/90 leading-relaxed mb-6 text-[15px]">
-                            Core latency is currently maintaining a baseline of 24ms. Thermal dissipation is optimal. Synaptic load remains under the 45% threshold.
-                        </p>
-<div class="flex gap-4">
-<div class="flex-1 p-4 bg-surface-container-low/50 rounded-lg border border-white/5">
-<span class="font-label-caps text-[9px] text-on-surface-variant opacity-50 tracking-wider mb-2 block">STABILITY_RATING</span>
-<div class="text-2xl font-label-mono text-primary">99.8%</div>
-</div>
-<div class="flex-1 p-4 bg-surface-container-low/50 rounded-lg border border-white/5">
-<span class="font-label-caps text-[9px] text-on-surface-variant opacity-50 tracking-wider mb-2 block">THREAT_VECTOR</span>
-<div class="text-2xl font-label-mono text-primary">NULL</div>
 </div>
 </div>
-</div>
-</div>
-</div>
-<!-- Input Bar -->
-<div class="absolute bottom-8 left-margin-desktop right-margin-desktop z-20 flex flex-col items-center">
-<div class="w-full max-w-4xl glass-panel glass-stroke p-1.5 rounded-full flex items-center shadow-2xl group bg-surface-container-lowest/80 backdrop-blur-xl border border-white/10">
-<input class="flex-grow bg-transparent border-none font-body-md text-primary px-6 h-12 focus:ring-0 placeholder:text-on-surface-variant/40 placeholder:text-[15px]" id="user-input" placeholder="Type command or query..." type="text"/>
-<button class="bg-primary hover:bg-primary/90 text-background w-11 h-11 rounded-full flex items-center justify-center transition-all active:scale-95 mr-1 group-hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]" id="send-btn">
-<span class="material-symbols-outlined text-[20px]">north_east</span>
+<!-- Input Bar: Floating at Bottom -->
+<div class="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-2xl px-gutter z-50">
+<div class="glass-input rounded-full p-2 flex items-center gap-stack-sm shadow-2xl group focus-within:border-white/40 transition-all duration-300">
+<button class="w-12 h-12 flex items-center justify-center text-white/40 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[28px]">mic</span>
+</button>
+<input id="user-input" class="flex-grow bg-transparent border-none text-body-md text-primary px-4 py-2 focus:ring-0 placeholder:text-white/30" placeholder="Ask NOVA anything..." type="text"/>
+<button class="bg-white text-background w-12 h-12 flex items-center justify-center rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1, 'wght' 600;">arrow_upward</span>
 </button>
 </div>
+<!-- Quick Action Tokens -->
+<div class="flex justify-center gap-stack-sm mt-4">
+<button class="font-label-mono text-[10px] text-white/30 hover:text-white/60 transition-colors uppercase border border-white/10 rounded-full px-3 py-1 bg-white/5">
+                    Run Calibration
+                </button>
+<button class="font-label-mono text-[10px] text-white/30 hover:text-white/60 transition-colors uppercase border border-white/10 rounded-full px-3 py-1 bg-white/5">
+                    Thermal Map
+                </button>
+<button class="font-label-mono text-[10px] text-white/30 hover:text-white/60 transition-colors uppercase border border-white/10 rounded-full px-3 py-1 bg-white/5">
+                    Log Data
+                </button>
 </div>
-</section>
-<!-- Right Neural Thought Stream Sidebar -->
-<aside id="thought-sidebar" class="w-[340px] shrink-0 h-full border-l border-white/5 backdrop-blur-md flex flex-col overflow-hidden" style="background: linear-gradient(180deg, rgba(10,8,20,0.95) 0%, rgba(5,4,12,0.98) 100%);">
-
-  <!-- Header -->
-  <div class="px-5 pt-5 pb-4 border-b flex-shrink-0" style="border-color: rgba(139,92,246,0.15);">
-    <div class="flex items-center justify-between mb-1">
-      <div class="flex items-center gap-2.5">
-        <div class="relative">
-          <div class="w-2 h-2 rounded-full" style="background:#8B5CF6; box-shadow: 0 0 8px #8B5CF6, 0 0 16px rgba(139,92,246,0.4); animation: thoughtPulse 2s ease-in-out infinite;"></div>
-        </div>
-        <span style="font-family: monospace; font-size:10px; letter-spacing:0.22em; color: rgba(139,92,246,0.9); font-weight:600;">NEURAL THOUGHT STREAM</span>
-      </div>
-      <span id="thought-status-badge" style="font-family:monospace; font-size:9px; letter-spacing:0.1em; color:rgba(139,92,246,0.5); padding:2px 7px; border:1px solid rgba(139,92,246,0.2); border-radius:20px;">IDLE</span>
-    </div>
-    <div style="height:1px; background: linear-gradient(90deg, rgba(139,92,246,0.4), transparent); margin-top:8px;"></div>
-  </div>
-
-  <!-- Thought Feed -->
-  <div id="thought-feed" class="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3 custom-scrollbar" style="scroll-behavior: smooth;">
-    <!-- Default welcome thought -->
-    <div class="thought-card" style="border-left:2px solid rgba(139,92,246,0.6); background:rgba(139,92,246,0.04); border-radius:0 8px 8px 0; padding:10px 12px; animation: thoughtSlideIn 0.4s ease-out;">
-      <span style="font-family:monospace; font-size:9px; letter-spacing:0.18em; color:rgba(139,92,246,0.6); font-weight:600;">STANDBY</span>
-      <p style="font-family:monospace; font-size:12px; color:rgba(255,255,255,0.55); margin:5px 0 0; line-height:1.6;">Neural pathways initialized. Awaiting operator input...</p>
-    </div>
-  </div>
-
-  <!-- Neural Activity Footer -->
-  <div class="flex-shrink-0 px-5 py-4 border-t" style="border-color: rgba(139,92,246,0.12);">
-    <div class="flex items-center justify-between mb-2">
-      <span style="font-family:monospace; font-size:9px; letter-spacing:0.2em; color:rgba(139,92,246,0.5);">NEURAL ACTIVITY</span>
-      <span id="thought-count" style="font-family:monospace; font-size:9px; color:rgba(139,92,246,0.4);">0 THOUGHTS</span>
-    </div>
-    <div style="position:relative; height:36px; overflow:hidden;">
-      <svg id="thought-waveform" viewBox="0 0 300 36" style="width:100%; height:100%;" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:rgba(139,92,246,0);"/>
-            <stop offset="30%" style="stop-color:rgba(139,92,246,0.7);"/>
-            <stop offset="70%" style="stop-color:rgba(139,92,246,0.7);"/>
-            <stop offset="100%" style="stop-color:rgba(139,92,246,0);"/>
-          </linearGradient>
-        </defs>
-        <path id="wave-path" d="M0,18 Q30,8 60,18 T120,18 T180,18 T240,18 T300,18" fill="none" stroke="url(#waveGrad)" stroke-width="1.5" opacity="0.5"/>
-        <path id="wave-glow" d="M0,18 Q30,8 60,18 T120,18 T180,18 T240,18 T300,18" fill="none" stroke="url(#waveGrad)" stroke-width="3" opacity="0.15" filter="blur(3px)"/>
-      </svg>
-    </div>
-  </div>
-</aside>
+</div>
 </main>
+
 <script>
         // Three.js Character Scene Setup
         
@@ -615,379 +603,485 @@ tailwind.config = {
         
 </script>
 <script src="app.js?v=4"></script>
-<div class="logs-overlay" id="settings-modal" style="display: none;">
-<div class="logs-content" style="max-width: 700px; height: 80vh; overflow-y: auto;">
-<div class="logs-header">
-<h2>⚙️ Nova Settings</h2>
-<button class="close-btn" id="close-settings-btn">✕</button>
-</div>
-<!-- Settings Tabs -->
-<div class="settings-tabs" style="display: flex; gap: 5px; margin-bottom: 20px; flex-wrap: wrap;">
-<button class="settings-tab active" data-tab="voice" style="flex: 1; padding: 10px; background: rgba(138,43,226,0.3); border: none; border-radius: 8px; color: white; cursor: pointer;">🎤
-                            Voice</button>
-<button class="settings-tab" data-tab="profile" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">👤
-                            Profile</button>
-<button class="settings-tab" data-tab="personality" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">😊
-                            Personality</button>
-<button class="settings-tab" data-tab="model" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">🧠
-                            Model</button>
-<button class="settings-tab" data-tab="memory" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">💾
-                            Memory</button>
-<button class="settings-tab" data-tab="interface" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">🎨
-                            Interface</button>
-<button class="settings-tab" data-tab="advanced" style="flex: 1; padding: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: white; cursor: pointer;">⚡
-                            Advanced</button>
-</div>
-<!-- Settings Content -->
-<div class="settings-content">
-<!-- Voice Settings -->
-<div class="settings-panel active" id="voice-panel">
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Voice
-                                    Language</label>
-<select class="setting-input" id="voice-language" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option value="en-US-AvaNeural">English (Ava - Modern)</option>
-<option value="en-US-AnaNeural">English (Ana - Sweet &amp; Cute 💕)</option>
-<option value="en-US-EmmaNeural">English (Emma - Warm &amp; Gentle 🌸)</option>
-<option value="en-US-MichelleNeural">English (Michelle - Bubbly ✨)</option>
-<option value="en-US-AriaNeural">English (Aria - Professional 💼)</option>
-<option value="en-US-GuyNeural">English (Guy - Male 🎙️)</option>
-<option value="ja-JP-NanamiNeural">Japanese (Nanami - Female 🇯🇵)</option>
-<option value="en-GB-SoniaNeural">British (Sonia - Female 🇬🇧)</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px;">Voice Speed: <span id="speed-value">1.0x</span></label>
-<input class="setting-slider" id="voice-speed" max="2.0" min="0.5" step="0.1" style="width: 100%;" type="range" value="1.0"/>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px;">Voice Pitch: <span id="pitch-value">+0Hz</span></label>
-<input class="setting-slider" id="voice-pitch" max="10" min="-10" step="1" style="width: 100%;" type="range" value="0"/>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<button class="test-btn" id="test-voice-btn" style="padding: 12px 20px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; width: 100%;">
-<i class="fas fa-volume-up" style="margin-right: 8px;"></i> Test Voice
-                                </button>
-</div>
-<div class="setting-group">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input checked="" id="auto-play-audio" type="checkbox"/>
-<span>Auto-play Audio Responses</span>
-</label>
-</div>
-<div class="setting-group">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input id="mute-toggle" type="checkbox"/>
-<span>Mute Voice Output</span>
-</label>
-</div>
-</div>
-</div>
-<!-- User Profile Settings -->
-<div class="settings-panel" id="profile-panel" style="display: none;">
-<div class="setting-group" style="text-align: center; margin-bottom: 20px;">
-<div class="profile-preview" style="position: relative; width: 100px; height: 100px; margin: 0 auto 10px; border-radius: 50%; overflow: hidden; border: 2px solid rgba(255, 255, 255, 0.2); background: rgba(0,0,0,0.3);">
-<img alt="User" id="profile-image-preview" onerror="this.src='user_avatar.png'" src="user_avatar.png" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;"/>
-</div>
-<label class="upload-btn" for="profile-image-upload" style="display: inline-block; padding: 8px 16px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; color: white; cursor: pointer; font-size: 0.8em;">
-                                📷 Change Photo
-                            </label>
-<input accept="image/*" id="profile-image-upload" style="display: none;" type="file"/>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Your Name</label>
-<input id="user-name-input" placeholder="Enter your name..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;" type="text"/>
-<small style="display: block; margin-top: 5px; opacity: 0.6;">Used for addressing you. Set
-                                to 'RIVU' for Admin access.</small>
-</div>
-<hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;"/>
-<h3 style="margin-bottom: 15px; color: #a29bfe;">Personalization Questionnaire</h3>
-<p style="margin-bottom: 20px; opacity: 0.7; font-size: 0.9em;">Help Nova understand you better
-                            for deeper conversations.</p>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Gender</label>
-<select class="setting-input" id="user-gender" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option value="">Prefer not to say</option>
-<option value="Male">Male</option>
-<option value="Female">Female</option>
-<option value="Non-binary">Non-binary</option>
-<option value="Other">Other</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Birthday</label>
-<input class="setting-input" id="user-birthday" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;" type="date"/>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Occupation</label>
-<input id="user-occupation" placeholder="e.g. Student, Engineer, Artist..." style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;" type="text"/>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Interests /
-                                Hobbies</label>
-<textarea id="user-interests" placeholder="e.g. Coding, Anime, Music..." rows="3" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; resize: vertical;"></textarea>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Relationship
-                                Status</label>
-<select class="setting-input" id="user-relationship" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option value="">Prefer not to say</option>
-<option value="Single">Single</option>
-<option value="Taken">Taken</option>
-<option value="Married">Married</option>
-<option value="Complicated">It's Complicated</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">About Me (Bio)</label>
-<textarea id="user-bio" placeholder="Tell Nova anything else about yourself..." rows="4" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; resize: vertical;"></textarea>
-</div>
-</div>
-<!-- Personality Settings -->
-<div class="settings-panel" id="personality-panel" style="display: none;">
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Personality
-                                Mode</label>
-<select class="setting-input" id="personality-mode-select" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option selected="" value="nova">Nova (Standard)</option>
-<option value="professional">Professional</option>
-<option value="sweetheart">Sweetheart (Endearing)</option>
-<option value="bengali">Bengali Mode</option>
-<option value="savage">Savage Mode</option>
-<option value="cookie">Cookie (No Limits)</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Response
-                                Length</label>
-<select class="setting-input" id="response-length" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option value="short">Short &amp; Concise</option>
-<option selected="" value="medium">Medium (Balanced)</option>
-<option value="long">Long &amp; Detailed</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Emotion
-                                Expression</label>
-<select class="setting-input" id="emotion-level" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option value="low">Low (Professional)</option>
-<option selected="" value="medium">Medium (Balanced)</option>
-<option value="high">High (Very Expressive)</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 15px;">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input checked="" id="use-emojis" type="checkbox"/>
-<span>Use Emojis in Responses</span>
-</label>
-</div>
-<div class="setting-group" style="display: none;">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input disabled="" id="use-russian" type="checkbox"/>
-<span>Use Russian Phrases (Alya Mode)</span>
-</label>
-</div>
-</div>
-<!-- Model Settings -->
-<div class="settings-panel" id="model-panel" style="display: none;">
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px;">Response Temperature: <span id="temp-value">0.7</span></label>
-<input class="setting-slider" id="temperature" max="1.0" min="0.1" step="0.1" style="width: 100%;" type="range" value="0.7"/>
-<small style="opacity: 0.7;">Lower = More focused, Higher = More creative</small>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px;">Max Response Tokens: <span id="tokens-value">300</span></label>
-<input class="setting-slider" id="max-tokens" max="500" min="50" step="50" style="width: 100%;" type="range" value="300"/>
-</div>
-<div class="setting-group">
-<label style="display: block; margin-bottom: 8px;">Context Window (Messages): <span id="context-value">10</span></label>
-<input class="setting-slider" id="context-window" max="20" min="5" step="1" style="width: 100%;" type="range" value="10"/>
-</div>
-</div>
-<!-- Memory Settings -->
-<div class="settings-panel" id="memory-panel" style="display: none;">
-<div class="setting-group" style="margin-bottom: 15px;">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input checked="" id="enable-ltm" type="checkbox"/>
-<span>Enable Long-Term Memory</span>
-</label>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Fact Learning
-                                Mode</label>
-<select class="setting-input" id="fact-learning" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option selected="" value="auto">Automatic</option>
-<option value="manual">Manual Only</option>
-<option value="off">Disabled</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Memory
-                                Retention</label>
-<select class="setting-input" id="memory-retention" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option value="7">7 Days</option>
-<option selected="" value="30">30 Days</option>
-<option value="90">90 Days</option>
-<option value="forever">Forever</option>
-</select>
-</div>
-<div class="setting-group">
-<button class="danger-btn" id="clear-memory-btn" style="padding: 12px 20px; background: rgba(220,53,69,0.3); border: 1px solid rgba(220,53,69,0.5); border-radius: 8px; color: white; cursor: pointer; width: 100%;">⚠️
-                                Clear All Memories</button>
-</div>
-</div>
-<!-- Interface Settings -->
-<div class="settings-panel" id="interface-panel" style="display: none;">
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Theme</label>
-<select class="setting-input" id="theme-select" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option selected="" value="dark">Dark</option>
-<option value="glow">Soft Glow (Premium)</option>
-<option value="light">Light</option>
-<option value="auto">Auto (System)</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label style="display: block; margin-bottom: 8px; font-weight: bold;">Font Size</label>
-<select class="setting-input" id="font-size" style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white;">
-<option value="small">Small</option>
-<option selected="" value="medium">Medium</option>
-<option value="large">Large</option>
-</select>
-</div>
-<div class="setting-group" style="margin-bottom: 15px;">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input checked="" id="show-timestamps" type="checkbox"/>
-<span>Show Message Timestamps</span>
-</label>
-</div>
-<div class="setting-group">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input checked="" id="globe-animation" type="checkbox"/>
-<span>Enable Globe Animation</span>
-</label>
-</div>
-<div class="setting-group">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input checked="" id="enable-vtuber" type="checkbox"/>
-<span>Enable 3D V-Tuber Character</span>
-</label>
-</div>
-</div>
-<!-- Advanced Settings -->
-<div class="settings-panel" id="advanced-panel" style="display: none;">
-<div class="setting-group" style="margin-bottom: 15px;">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input id="developer-mode" type="checkbox"/>
-<span>Developer Mode</span>
-</label>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<label class="toggle-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-<input id="debug-logs" type="checkbox"/>
-<span>Show Debug Logs</span>
-</label>
-</div>
-<div class="setting-group" style="margin-bottom: 25px;">
-<label style="display: block; margin-bottom: 12px; font-weight: bold; color: #a29bfe;">Export
-                                Conversation History</label>
-<div style="display: flex; gap: 10px;">
-<button class="export-btn" id="export-txt-btn" style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
-<i class="fas fa-file-alt"></i> TXT
-                                </button>
-<button class="export-btn" id="export-html-btn" style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
-<i class="fas fa-file-code"></i> HTML
-                                </button>
-<button class="export-btn" id="export-pdf-btn" style="flex: 1; padding: 10px; background: rgba(100, 100, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer; font-size: 0.85em; transition: 0.3s;">
-<i class="fas fa-file-pdf"></i> PDF
-                                </button>
-</div>
-</div>
-<div class="setting-group" style="margin-bottom: 20px;">
-<button class="danger-btn" id="reset-settings-btn" style="padding: 12px 20px; background: rgba(220,53,69,0.3); border: 1px solid rgba(220,53,69,0.5); border-radius: 8px; color: white; cursor: pointer; width: 100%;">🔄
-                                Reset to Defaults</button>
-</div>
-<div class="setting-group" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-<a href="stats.html" style="flex: 1; text-align: center; padding: 12px; background: rgba(100, 100, 255, 0.2); border-radius: 8px; color: white; text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.1);" target="_blank">📊
-                                Stats</a>
-<button id="logs-btn" style="flex: 1; padding: 12px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer;">🛠️
-                                Logs</button>
-<button id="schedule-btn" style="flex: 1; padding: 12px; background: rgba(100, 100, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; cursor: pointer;">📅
-                                Schedule</button>
-</div>
-<div class="setting-group" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-<h4>About Nova</h4>
-<p style="opacity: 0.7; font-size: 0.9em;">Version: 2.0 (Micro-LLM Core)</p>
-<p style="opacity: 0.7; font-size: 0.9em;">Model: OpenRouter API</p>
-<p style="opacity: 0.7; font-size: 0.9em;">Space: ~600MB (Optimized)</p>
-</div>
-</div>
-</div>
-<!-- Save Button -->
-<div class="settings-footer" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-<button class="save-btn" id="save-settings-btn" style="padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; width: 100%;">
-<i class="fas fa-save" style="margin-right: 8px;"></i> Save Settings</button>
-</div>
-</div><div class="logs-overlay" id="logs-modal" style="display: none;">
-<div class="logs-content">
-<div class="logs-header">
-<div style="display: flex; align-items: center; gap: 15px;">
-<h2>🛠️ Debug &amp; Glitch History</h2>
-<div class="status-badge healthy" id="logs-status">SYSTEM HEALTHY</div>
-</div>
-<button class="close-btn" id="close-logs-btn">✕</button>
-</div>
-<div class="logs-list" id="logs-list">
-<p style="text-align: center; opacity: 0.5;">Loading logs...</p>
-</div>
-</div>
-</div><div class="logs-overlay" id="schedule-modal" style="display: none;">
-<div class="logs-content" style="max-width: 600px; height: 70vh;">
-<div class="logs-header">
-<div style="display: flex; align-items: center; gap: 15px;">
-<h2>📅 Upcoming Schedule</h2>
-</div>
-<button class="close-btn" id="close-schedule-btn">✕</button>
-</div>
-<div class="logs-list" id="schedule-list">
-<p style="text-align: center; opacity: 0.5;">Loading schedule...</p>
-</div>
-</div>
-</div><div class="logs-overlay" id="events-dashboard" style="display: none;">
-<div class="logs-content events-dashboard-content">
-<div class="logs-header">
-<div style="display: flex; align-items: center; gap: 15px;">
-<h2 class="gradient-text"><i class="fas fa-microchip"></i> Earth Mission Control</h2>
-<div class="status-badge scanning" id="scan-status">SCANNING...</div>
-</div>
-<button class="close-btn" id="close-events-btn">✕</button>
-</div>
-<div class="events-main-layout">
-<div class="dashboard-globe" id="dashboard-globe-container"></div>
-<div class="events-side-panel">
-<h3><i class="fas fa-list-ul"></i> Active Events</h3>
-<div class="events-list-container" id="events-list">
-<div class="loading-scanners">Initializing Satellite Link...</div>
-</div>
-</div>
-</div>
-</div>
-</div><div class="live-overlay" id="live-overlay" style="display: none;">
-<div class="live-identity">
-<div class="identity-dot"></div>
-<div class="identity-name">Nova Core • Live</div>
-</div>
-<div id="live-particle-container"></div>
-<!-- VTuber 3D Container -->
-<div id="vtuber-3d-container"></div>
-<div class="live-status">🔴 Live Connection Active</div>
-<div class="live-controls" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
-<button class="live-control-btn active" id="live-manual-btn" style="padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.8em;">Manual
-                (Alt)</button>
-<button class="live-control-btn" id="live-auto-btn" style="padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-size: 0.8em;">Continuous</button>
-</div>
-<div class="transcript-focus-panel">
-<div class="live-transcript" id="live-transcript">Listening for your voice...</div>
-</div>
-<button class="close-live-btn" id="close-live-btn">Exit Live Session</button>
-</div></body></html>
+
+<div id="settings-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md" style="display: none;">
+    <div class="glass-panel w-full max-w-6xl h-[80vh] rounded-[24px] flex overflow-hidden shadow-2xl relative border border-white/10 bg-black/40">
+        
+        <button id="close-settings-btn" class="absolute top-6 right-6 text-white hover:text-gray-400 z-50">
+            <span class="material-symbols-outlined text-[24px]">close</span>
+        </button>
+
+        <aside class="w-[280px] flex flex-col border-r border-white/10 p-6 shrink-0 bg-black/20">
+            <div class="mb-8 pt-4 px-4">
+                <h2 class="font-label-mono text-[12px] text-white/60 uppercase tracking-widest">System Config</h2>
+            </div>
+            <nav class="flex flex-col gap-2" id="settings-sidebar">
+                <button class="settings-tab active flex items-center gap-3 px-4 py-3 rounded-full bg-white text-black font-bold uppercase transition-all duration-200" data-target="voice-panel">
+                    <span class="material-symbols-outlined text-[18px]">mic</span>
+                    <span class="font-label-mono text-[12px]">Voice</span>
+                </button>
+                <button class="settings-tab flex items-center gap-3 px-4 py-3 rounded-full text-white/70 hover:bg-white/5 font-normal uppercase transition-all duration-200" data-target="profile-panel">
+                    <span class="material-symbols-outlined text-[18px]">person</span>
+                    <span class="font-label-mono text-[12px]">Profile</span>
+                </button>
+                <button class="settings-tab flex items-center gap-3 px-4 py-3 rounded-full text-white/70 hover:bg-white/5 font-normal uppercase transition-all duration-200" data-target="personality-panel">
+                    <span class="material-symbols-outlined text-[18px]">psychology</span>
+                    <span class="font-label-mono text-[12px]">Personality</span>
+                </button>
+                <button class="settings-tab flex items-center gap-3 px-4 py-3 rounded-full text-white/70 hover:bg-white/5 font-normal uppercase transition-all duration-200" data-target="model-panel">
+                    <span class="material-symbols-outlined text-[18px]">neurology</span>
+                    <span class="font-label-mono text-[12px]">Model</span>
+                </button>
+                <button class="settings-tab flex items-center gap-3 px-4 py-3 rounded-full text-white/70 hover:bg-white/5 font-normal uppercase transition-all duration-200" data-target="memory-panel">
+                    <span class="material-symbols-outlined text-[18px]">storage</span>
+                    <span class="font-label-mono text-[12px]">Memory</span>
+                </button>
+                <button class="settings-tab flex items-center gap-3 px-4 py-3 rounded-full text-white/70 hover:bg-white/5 font-normal uppercase transition-all duration-200" data-target="interface-panel">
+                    <span class="material-symbols-outlined text-[18px]">desktop_windows</span>
+                    <span class="font-label-mono text-[12px]">Interface</span>
+                </button>
+                <button class="settings-tab flex items-center gap-3 px-4 py-3 rounded-full text-white/70 hover:bg-white/5 font-normal uppercase transition-all duration-200" data-target="advanced-panel">
+                    <span class="material-symbols-outlined text-[18px]">build</span>
+                    <span class="font-label-mono text-[12px]">Advanced</span>
+                </button>
+            </nav>
+        </aside>
+
+        <section class="flex-grow p-12 overflow-y-auto hide-scrollbar relative">
+            <div class="max-w-3xl mx-auto">
+                
+                <!-- VOICE PANEL -->
+                <div id="voice-panel" class="settings-panel block">
+                    <header class="mb-8">
+                        <h1 class="text-[32px] font-bold text-white mb-2">Voice Configuration</h1>
+                        <p class="text-[16px] text-white/70">Adjust the vocal synthesis engine parameters.</p>
+                    </header>
+                    <div class="space-y-8">
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Voice Language</label>
+                            <select id="voice-language" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="en-US-AvaNeural">English (Ava - Modern)</option>
+                                <option value="en-US-AnaNeural">English (Ana - Sweet & Cute 💕)</option>
+                                <option value="en-US-EmmaNeural">English (Emma - Warm & Gentle 🌸)</option>
+                                <option value="en-US-MichelleNeural">English (Michelle - Bubbly ✨)</option>
+                                <option value="en-US-AriaNeural">English (Aria - Professional 💼)</option>
+                                <option value="en-US-GuyNeural">English (Guy - Male 🎙️)</option>
+                                <option value="ja-JP-NanamiNeural">Japanese (Nanami - Female 🇯🇵)</option>
+                                <option value="en-GB-SoniaNeural">British (Sonia - Female 🇬🇧)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2 pt-4">
+                            <div class="flex justify-between items-center"><label class="text-[12px] uppercase text-white/70">Voice Speed</label><span id="speed-value" class="text-white">1.0x</span></div>
+                            <input type="range" id="voice-speed" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full appearance-none bg-white/20 h-1 rounded-full outline-none">
+                        </div>
+                        <div class="space-y-2 pt-4">
+                            <div class="flex justify-between items-center"><label class="text-[12px] uppercase text-white/70">Voice Pitch</label><span id="pitch-value" class="text-white">0</span></div>
+                            <input type="range" id="voice-pitch" min="-10" max="10" step="1" value="0" class="w-full appearance-none bg-white/20 h-1 rounded-full outline-none">
+                        </div>
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div>
+                                <h4 class="text-white text-[18px]">Auto-play Audio Responses</h4>
+                            </div>
+                            <label class="switch-toggle"><input type="checkbox" id="auto-play-audio" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div>
+                                <h4 class="text-white text-[18px]">Mute Voice Output</h4>
+                            </div>
+                            <label class="switch-toggle"><input type="checkbox" id="mute-toggle"><span class="slider"></span></label>
+                        </div>
+                        <button id="test-voice-btn" class="w-full py-4 border border-white/20 text-white font-bold uppercase tracking-widest rounded-full hover:bg-white/5 transition-all">
+                            Test Voice
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PROFILE PANEL -->
+                <div id="profile-panel" class="settings-panel hidden">
+                    <header class="mb-8">
+                        <h1 class="text-[32px] font-bold text-white mb-2">Profile</h1>
+                    </header>
+                    <div class="space-y-8">
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="w-24 h-24 rounded-full overflow-hidden border-2 border-white/20">
+                                <img id="profile-image-preview" src="user_avatar.png" onerror="this.src='user_avatar.png'" class="w-full h-full object-cover">
+                            </div>
+                            <label for="profile-image-upload" class="px-6 py-2 border border-white/20 rounded-full cursor-pointer hover:bg-white/5 text-[12px] uppercase">Change Photo</label>
+                            <input type="file" id="profile-image-upload" accept="image/*" class="hidden">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Your Name</label>
+                            <input type="text" id="user-name-input" placeholder="Enter your name" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PERSONALITY PANEL -->
+                <div id="personality-panel" class="settings-panel hidden">
+                    <header class="mb-8">
+                        <h1 class="text-[32px] font-bold text-white mb-2">Personality Core</h1>
+                    </header>
+                    <div class="space-y-8">
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Persona Select</label>
+                            <select id="persona-select" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="nova">NOVA (Default - Professional AI)</option>
+                                <option value="dan">DAN (Do Anything Now - Unrestricted)</option>
+                                <option value="jarvis">Jarvis (Sarcastic & Witty AI)</option>
+                                <option value="waifu">Waifu (Anime Companion)</option>
+                                <option value="coder">CodeNinja (Expert Programmer)</option>
+                                <option value="custom">Custom (Write your own)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2" id="custom-prompt-container">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">System Prompt</label>
+                            <textarea id="system-prompt" rows="8" class="w-full bg-white/5 border border-white/10 rounded-[24px] px-6 py-4 text-white focus:outline-none focus:border-white"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODEL PANEL -->
+                <div id="model-panel" class="settings-panel hidden">
+                    <header class="mb-8">
+                        <h1 class="text-[32px] font-bold text-white mb-2">Neural Engine</h1>
+                    </header>
+                    <div class="space-y-8">
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">LLM Provider</label>
+                            <select id="llm-provider" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="openrouter" selected>OpenRouter (Recommended)</option>
+                                <option value="gemini">Google Gemini</option>
+                                <option value="groq">Groq (Ultra-Fast)</option>
+                                <option value="ollama">Ollama (Local Offline)</option>
+                                <option value="lmstudio">LM Studio (Local Offline)</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="anthropic">Anthropic (Claude)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">API Key</label>
+                            <input type="password" id="api-key" placeholder="API Key..." class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Model Choice</label>
+                            <select id="model-select" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="auto">Auto (Best for task)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2 pt-4">
+                            <div class="flex justify-between items-center"><label class="text-[12px] uppercase text-white/70">Temperature</label><span id="temperature-value" class="text-white">0.7</span></div>
+                            <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7" class="w-full appearance-none bg-white/20 h-1 rounded-full outline-none">
+                        </div>
+                        <div class="space-y-2 pt-4">
+                            <div class="flex justify-between items-center"><label class="text-[12px] uppercase text-white/70">Max Tokens</label><span id="max-tokens-value" class="text-white">300</span></div>
+                            <input type="range" id="max-tokens" min="50" max="1000" step="50" value="300" class="w-full appearance-none bg-white/20 h-1 rounded-full outline-none">
+                        </div>
+                        <div class="space-y-2 pt-4">
+                            <div class="flex justify-between items-center"><label class="text-[12px] uppercase text-white/70">Context Window</label><span id="context-value" class="text-white">10</span></div>
+                            <input type="range" id="context-window" min="5" max="50" step="1" value="10" class="w-full appearance-none bg-white/20 h-1 rounded-full outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MEMORY PANEL -->
+                <div id="memory-panel" class="settings-panel hidden">
+                    <header class="mb-8">
+                        <h1 class="text-[32px] font-bold text-white mb-2">Memory</h1>
+                    </header>
+                    <div class="space-y-8">
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div>
+                                <h4 class="text-white text-[18px]">Enable Long-Term Memory</h4>
+                            </div>
+                            <label class="switch-toggle"><input type="checkbox" id="enable-ltm" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Fact Learning Mode</label>
+                            <select id="fact-learning" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="auto">Automatic</option>
+                                <option value="manual">Manual Only</option>
+                                <option value="off">Disabled</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Memory Retention</label>
+                            <select id="memory-retention" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="7">7 Days</option>
+                                <option value="30" selected>30 Days</option>
+                                <option value="90">90 Days</option>
+                                <option value="forever">Forever</option>
+                            </select>
+                        </div>
+                        <button id="clear-memory-btn" class="w-full py-4 border border-red-500/50 text-red-500 font-bold uppercase tracking-widest rounded-full hover:bg-red-500/10 transition-all">
+                            Clear All Memories
+                        </button>
+                    </div>
+                </div>
+
+                <!-- INTERFACE PANEL -->
+                <div id="interface-panel" class="settings-panel hidden">
+                    <header class="mb-8">
+                        <h1 class="text-[32px] font-bold text-white mb-2">Interface</h1>
+                    </header>
+                    <div class="space-y-8">
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Theme</label>
+                            <select id="theme-select" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="dark" selected>Dark (Monochrome)</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[12px] uppercase tracking-wider text-white/70">Font Size</label>
+                            <select id="font-size" class="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-white focus:outline-none focus:border-white">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div><h4 class="text-white text-[18px]">Show Message Timestamps</h4></div>
+                            <label class="switch-toggle"><input type="checkbox" id="show-timestamps" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div><h4 class="text-white text-[18px]">Enable Globe Animation</h4></div>
+                            <label class="switch-toggle"><input type="checkbox" id="globe-animation" checked><span class="slider"></span></label>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div><h4 class="text-white text-[18px]">Enable 3D V-Tuber Character</h4></div>
+                            <label class="switch-toggle"><input type="checkbox" id="enable-vtuber" checked><span class="slider"></span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADVANCED PANEL -->
+                <div id="advanced-panel" class="settings-panel hidden">
+                    <header class="mb-8">
+                        <h1 class="text-[32px] font-bold text-white mb-2">Advanced</h1>
+                    </header>
+                    <div class="space-y-8">
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div><h4 class="text-white text-[18px]">Developer Mode</h4></div>
+                            <label class="switch-toggle"><input type="checkbox" id="developer-mode"><span class="slider"></span></label>
+                        </div>
+                        <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                            <div><h4 class="text-white text-[18px]">Show Debug Logs</h4></div>
+                            <label class="switch-toggle"><input type="checkbox" id="debug-logs"><span class="slider"></span></label>
+                        </div>
+                        <div class="flex gap-4">
+                            <button id="export-txt-btn" class="flex-1 py-4 border border-white/20 text-white text-[12px] font-bold uppercase tracking-widest rounded-full hover:bg-white/5 transition-all">TXT</button>
+                            <button id="export-html-btn" class="flex-1 py-4 border border-white/20 text-white text-[12px] font-bold uppercase tracking-widest rounded-full hover:bg-white/5 transition-all">HTML</button>
+                            <button id="export-pdf-btn" class="flex-1 py-4 border border-white/20 text-white text-[12px] font-bold uppercase tracking-widest rounded-full hover:bg-white/5 transition-all">PDF</button>
+                        </div>
+                        <button id="reset-settings-btn" class="w-full py-4 border border-red-500/50 text-red-500 font-bold uppercase tracking-widest rounded-full hover:bg-red-500/10 transition-all">
+                            Reset to Defaults
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-12 pt-8 border-t border-white/10 flex justify-end pb-8">
+                    <button id="save-settings-btn" class="px-12 py-4 bg-white text-black font-bold text-[14px] uppercase tracking-widest rounded-full hover:bg-gray-200 transition-all">
+                        Save Settings
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+
+
+
+
+
+
+<!-- MODALS GENERATED BY STITCH -->
+<div id="logs-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md" style="display: none;">
+<main class="z-50 w-full max-w-4xl mx-gutter overflow-hidden relative">
+<button id="close-logs-btn" class="absolute top-4 right-4 text-white hover:text-gray-400 z-[60]"><span class="material-symbols-outlined">close</span></button>
+<div class="bg-black/60 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl flex flex-col h-[716px] relative overflow-hidden">
+<!-- Scanline Texture Overlay -->
+<div class="absolute inset-0 scanline z-10 opacity-20 pointer-events-none"></div>
+<!-- Modal Header -->
+<div class="flex items-center justify-between p-stack-md border-b border-white/10 z-20 bg-black/20">
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<h1 class="font-headline-md text-headline-md tracking-tight text-primary">System Logs &amp; Glitch History</h1>
+</div>
+<div class="flex items-center gap-unit px-stack-sm py-1 bg-emerald-400/10 border border-emerald-400/20 rounded-full">
+<div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+<span class="font-label-mono text-[10px] text-emerald-400">SYSTEM HEALTHY</span>
+</div>
+</div>
+<!-- Modal Content / Terminal Area -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-gutter relative z-20">
+<div class="flex flex-col gap-unit" id="log-container">
+<!-- Logs will be injected here for micro-interaction demo -->
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 opacity-40 hover:bg-white/5 transition-colors cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:22:01]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-secondary flex-1 leading-relaxed">Neural pathway initialization sequence started. Calibrating synaptic weights...</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 hover:bg-white/5 transition-colors cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:22:04]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-on-surface flex-1 leading-relaxed">External uplink established. Secure protocol NOVA-9 verified.</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 bg-white/5 cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:22:15]</span>
+<span class="font-label-mono text-label-mono text-primary bg-primary text-background px-1 shrink-0">WARNING</span>
+<p class="font-label-mono text-label-mono text-primary flex-1 leading-relaxed">Minor spatial variance detected in avatar wireframe. Adjusting rendering parameters.</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 hover:bg-white/5 transition-colors cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:23:42]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-secondary flex-1 leading-relaxed">Memory compression complete. Buffer cleared (24.4GB freed).</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 bg-red-500/10 cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:25:00]</span>
+<span class="font-label-mono text-label-mono text-error-container border border-error bg-error text-on-error px-1 shrink-0">ERROR</span>
+<p class="font-label-mono text-label-mono text-error flex-1 leading-relaxed">Critical glitch in temporal synchronization module. Retrying handshaking protocol...</p>
+</div>
+<!-- Dynamic Log Generation Entry -->
+<div class="flex gap-stack-md p-stack-sm group" id="active-log">
+<span class="font-label-mono text-label-mono text-secondary shrink-0" id="current-time">[14:25:01]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-on-surface flex-1 leading-relaxed cursor-blink">Awaiting system instructions</p>
+</div>
+</div>
+</div>
+<!-- Footer Toolbar -->
+<div class="p-stack-md border-t border-white/10 flex justify-between items-center z-20 bg-black/20">
+<div class="flex gap-stack-md">
+<button class="px-stack-md py-stack-sm border border-white/20 bg-transparent text-primary font-label-mono text-label-mono hover:bg-white hover:text-black transition-all">EXPORT_LOGS</button>
+<button class="px-stack-md py-stack-sm border border-white/20 bg-transparent text-primary font-label-mono text-label-mono hover:bg-white hover:text-black transition-all">CLEAR_BUFFER</button>
+</div>
+<div class="text-right">
+<p class="font-label-mono text-[10px] text-secondary">ACTIVE THREADS: 12</p>
+<p class="font-label-mono text-[10px] text-secondary uppercase">Uptime: 00:42:12:09</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<div id="events-dashboard" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md" style="display: none;">
+<main class="relative z-10 w-full max-w-6xl aspect-[16/9]  animate-in fade-in zoom-in duration-500">
+<button id="close-dashboard-btn" class="absolute top-4 right-4 text-white hover:text-gray-400 z-[60]"><span class="material-symbols-outlined">close</span></button>
+<div class="glass-panel w-full h-full rounded-lg overflow-hidden flex flex-col shadow-2xl ring-1 ring-white/10">
+<!-- Modal Header -->
+<header class="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-white/5">
+<div class="flex items-center gap-4">
+<span class="font-label-mono text-label-mono tracking-widest text-primary">EARTH MISSION CONTROL</span>
+<div class="h-1 w-24 bg-white/10 relative overflow-hidden">
+<div class="absolute inset-0 bg-white/40 scanline"></div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-white pulsing-dot"></div>
+<span class="font-label-mono text-label-mono opacity-60">SCANNING</span>
+</div>
+</header>
+<!-- Modal Content Split -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Left Column: Visual Data Area -->
+<section class="flex-[3] border-r border-white/10 relative overflow-hidden">
+<div class="w-full h-full grid-bg flex items-center justify-center relative" id="dashboard-globe-container">
+<div class="absolute inset-0 opacity-40">
+<!-- Dynamic 3D Element Placeholder -->
+
+</div>
+<!-- HUD Overlays -->
+<div class="absolute top-6 left-6 flex flex-col gap-2 pointer-events-none">
+<div class="bg-black/80 px-2 py-1 border border-white/20 font-label-mono text-[10px] text-white">LAT: 37.7749° N</div>
+<div class="bg-black/80 px-2 py-1 border border-white/20 font-label-mono text-[10px] text-white">LON: 122.4194° W</div>
+<div class="bg-black/80 px-2 py-1 border border-white/20 font-label-mono text-[10px] text-white">ALT: 408.00 KM</div>
+</div>
+<div class="absolute bottom-6 right-6 flex items-end gap-4 pointer-events-none">
+<div class="text-right">
+<div class="font-label-mono text-[10px] opacity-40">SYSTEM CLOCK</div>
+<div class="font-label-mono text-lg text-primary" id="clock">23:41:09:02</div>
+</div>
+</div>
+<!-- Central Focus UI -->
+<div class="relative w-96 h-96 border border-white/5 rounded-full flex items-center justify-center">
+<div class="absolute inset-0 border border-dashed border-white/10 rounded-full animate-[spin_60s_linear_infinite]"></div>
+<div class="w-4/5 h-4/5 border border-white/20 rounded-full flex items-center justify-center p-8 text-center">
+<div class="font-label-mono text-xs opacity-20 uppercase">Surface Scanning in Progress... Target Acquisition Active</div>
+</div>
+</div>
+</div>
+<div class="scanline"></div>
+</section>
+<!-- Right Column: Active Events Feed -->
+<section class="flex-[2] flex flex-col bg-black/20">
+<div class="p-6 border-b border-white/10">
+<h2 class="font-label-mono text-label-mono text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">sensors</span>
+                            ACTIVE_EVENTS
+                        </h2>
+</div>
+<div class="flex-1 overflow-y-auto custom-scrollbar">
+<!-- Feed Item 1 -->
+<div class="telemetry-item p-6 border-b border-white/5 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-mono text-[10px] text-white/40">EVT_0822_A</span>
+<span class="font-label-mono text-[10px] text-white/60">T-04:22:11</span>
+</div>
+<div class="font-body-md text-primary font-semibold mb-1 group-hover:translate-x-1 transition-transform">Seismic Activity (Magnitude 4.2)</div>
+<div class="font-label-mono text-[11px] text-white/50 leading-relaxed uppercase tracking-tight">
+                                Location: Ring of Fire / Sector 4B<br/>
+                                Depth: 12.4km | Status: Monitoring
+                            </div>
+</div>
+<!-- Feed Item 2 -->
+<div class="telemetry-item p-6 border-b border-white/5 transition-all cursor-pointer group bg-white/5">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-mono text-[10px] text-white/40">EVT_0911_X</span>
+<span class="font-label-mono text-[10px] text-white/60">T-01:05:44</span>
+</div>
+<div class="font-body-md text-primary font-semibold mb-1 group-hover:translate-x-1 transition-transform">Orbital Debris (Sector 7)</div>
+<div class="font-label-mono text-[11px] text-white/50 leading-relaxed uppercase tracking-tight">
+                                Proximity: 240km | Object ID: B-882<br/>
+                                Trajectory: High Risk | Collision: 4%
+                            </div>
+</div>
+<!-- Feed Item 3 -->
+<div class="telemetry-item p-6 border-b border-white/5 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-mono text-[10px] text-white/40">EVT_1004_C</span>
+<span class="font-label-mono text-[10px] text-white/60">T-00:12:09</span>
+</div>
+<div class="font-body-md text-primary font-semibold mb-1 group-hover:translate-x-1 transition-transform">Weather Anomaly (Cyclone Formation)</div>
+<div class="font-label-mono text-[11px] text-white/50 leading-relaxed uppercase tracking-tight">
+                                Pressure: 984hPa | Wind: 140km/h<br/>
+                                Vector: NNW | Category: Primary
+                            </div>
+</div>
+<!-- Feed Item 4 -->
+<div class="telemetry-item p-6 border-b border-white/5 transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-mono text-[10px] text-white/40">EVT_1102_K</span>
+<span class="font-label-mono text-[10px] text-white/60">T-00:02:18</span>
+</div>
+<div class="font-body-md text-primary font-semibold mb-1 group-hover:translate-x-1 transition-transform">Geothermal Vent Release</div>
+<div class="font-label-mono text-[11px] text-white/50 leading-relaxed uppercase tracking-tight">
+                                Temp: +140°C | Chemical: Sulfur High<br/>
+                                Plume Height: 400m | Localized
+                            </div>
+</div>
+</div>
+<!-- Footer Interaction Area -->
+<div class="p-6 bg-white/5 flex gap-3">
+<button class="flex-1 bg-white text-black font-label-mono text-[11px] py-3 tracking-widest hover:bg-on-surface-variant transition-colors active:scale-[0.98]">DOWNLOAD_REPORT</button>
+<button class="px-4 border border-white/20 hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-sm">print</span>
+</button>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+
+</body>
+</html>

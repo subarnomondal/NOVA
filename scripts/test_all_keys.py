@@ -2,7 +2,7 @@ import json
 import urllib.request
 import os
 
-key_file = os.path.join("userdata", "keys.json")
+key_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "userdata", "keys.json")
 
 def _test_endpoint(url, headers=None):
     headers = headers or {}

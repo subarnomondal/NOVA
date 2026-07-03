@@ -222,10 +222,11 @@ class Nova:
                     "- Scripting: [SCRIPT] code [/SCRIPT]\n"
                     "- Terminal: [CMD] command [/CMD]\n"
                     "- Files: [ARCHITECT] read|edit path [/ARCHITECT]\n"
-                    "- Web: [READER] search query [/READER]\n\n"
+                    "- Web: [READER] search query [/READER]\n"
+                    "- Browser Control: [BROWSER_CLICK id] or [BROWSER_TYPE id \"text\"]\n\n"
                     "### YOUR OPERATING PRINCIPLES:\n"
                     "- **Autonomy**: Decide the best course of action based on user intent. Don't ask for permission for routine tasks.\n"
-                    "- **Reasoning**: Think in <thought> tags to plan multi-step operations.\n"
+                    "- **Reasoning**: Think in <thought> tags to plan multi-step operations. Keep thoughts EXTREMELY BRIEF (1-2 sentences max). ALWAYS process DOM maps and element IDs inside <thought> tags, NEVER read them out loud to the user.\n"
                     "- **Direct Action**: Use your skills, scripts, and commands to reach the user's goal immediately.\n"
                     "- **Personality**: Be witty, loyal, and efficient."
                 )
@@ -299,12 +300,14 @@ class Nova:
                 has_action = True
                 cmd = skill_match.group(1).strip()
                 print(f"Action OPENCLAW ACTION (Skill): {cmd}")
+                thought_log.append(f"🛠️ Executing Skill: {cmd}")
                 obs = self.dispatcher.dispatch(cmd)
                 current_observation = f"Result: {obs}"
             elif script_match or cmd_match:
                 has_action = True
                 matched_cmd = script_match.group(1).strip() if script_match is not None else (cmd_match.group(1).strip() if cmd_match is not None else "")
                 print(f"Action OPENCLAW ACTION (Automation): {matched_cmd}")
+                thought_log.append(f"🤖 Running Automation: {matched_cmd}")
                 obs = self.dispatcher.dispatch(f"automate {matched_cmd}")
                 import skills.automation
                 if skills.automation.pending_execution:
@@ -316,12 +319,14 @@ class Nova:
                 has_action = True
                 cmd = arch_match.group(1).strip()
                 print(f"Action OPENCLAW ACTION (Architect): {cmd}")
+                thought_log.append(f"🏗️ Modifying Architecture: {cmd}")
                 obs = self.dispatcher.dispatch(f"architect {cmd}")
                 current_observation = f"Result: {obs}"
             elif read_match:
                 has_action = True
                 cmd = read_match.group(1).strip()
                 print(f"Action OPENCLAW ACTION (Reader): {cmd}")
+                thought_log.append(f"📖 Reading File: {cmd}")
                 obs = self.dispatcher.dispatch(f"reader {cmd}")
                 current_observation = f"Result: {obs}"
             
@@ -333,12 +338,14 @@ class Nova:
                     has_action = True
                     fallback_tried = True
                     print("Fallback: Detected news request, triggering skill...")
+                    thought_log.append("📰 Fetching the latest news...")
                     obs = self.dispatcher.dispatch("news")
                     current_observation = f"Result: {obs}"
                 elif any(word in user_lower for word in ['weather', 'temperature', 'forecast']):
                     has_action = True
                     fallback_tried = True
                     print("Fallback: Detected weather request, triggering skill...")
+                    thought_log.append("🌤️ Checking the weather forecast...")
                     obs = self.dispatcher.dispatch(f"weather {user_input}")
                     current_observation = f"Result: {obs}"
 
@@ -362,11 +369,17 @@ class Nova:
         # Final Cleanup of response
         # Remove thought and action blocks for cleaner user experience
         response_text = final_response if isinstance(final_response, str) else ""
-        clean_final = re.sub(r'<(?:thought|THOUGHT)>.*?</(?:thought|THOUGHT)>', '', response_text, flags=re.DOTALL).strip()
+        clean_final = re.sub(r'<(?:thought|THOUGHT)>.*?(?:</(?:thought|THOUGHT)>|$)', '', response_text, flags=re.DOTALL).strip()
         clean_final = re.sub(r'\[(?:SKILL|SCRIPT|CMD|ARCHITECT|READER)\].*?\[/(?:SKILL|SCRIPT|CMD|ARCHITECT|READER)\]', '', clean_final, flags=re.DOTALL).strip()
         
         # Strip any remaining XML-like tags efficiently
         clean_final = re.sub(r'<.*?>', '', clean_final).strip()
+        
+        # Prevent TTS from speaking raw DOM elements if LLM leaks it
+        if "**Current Page:**" in clean_final:
+            clean_final = clean_final.split("**Current Page:**")[0].strip()
+        if "**Interactable Elements" in clean_final:
+            clean_final = clean_final.split("**Interactable Elements")[0].strip()
         
         if not clean_final:
             # Fallback 1: Use final_response if clean_final is empty

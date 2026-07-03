@@ -59,6 +59,7 @@ dist_protected/
 protected/
 
 # Logs & Debug
+logs/
 *.log
 nova_errors.log
 pyarmor.bug.log

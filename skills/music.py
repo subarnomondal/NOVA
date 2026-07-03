@@ -139,7 +139,11 @@ def cmd_trending_indian(args):
     
     try:
         from ytmusicapi import YTMusic
-        yt = YTMusic()
+        auth_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "userdata", "config", "headers_auth.json")
+        if os.path.exists(auth_file):
+            yt = YTMusic(auth_file)
+        else:
+            yt = YTMusic()
         explore = yt.get_charts(country='IN')
         
         songs = explore.get('songs', {}).get('items', [])
@@ -225,7 +229,11 @@ def cmd_global_charts(args):
     
     try:
         from ytmusicapi import YTMusic
-        yt = YTMusic()
+        auth_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "userdata", "config", "headers_auth.json")
+        if os.path.exists(auth_file):
+            yt = YTMusic(auth_file)
+        else:
+            yt = YTMusic()
         explore = yt.get_charts(country='US') # Represents global/billboard
         
         songs = explore.get('songs', {}).get('items', [])
@@ -272,9 +280,12 @@ def cmd_download_song(args):
                     f"ytsearch1:{query} audio", 
                     "-x", 
                     "--audio-format", "mp3", 
-                    "--audio-quality", "0", 
-                    "-o", out_template
+                    "--audio-quality", "0"
                 ]
+                cookie_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "userdata", "config", "cookies.txt")
+                if os.path.exists(cookie_file):
+                    dl_cmd.extend(["--cookies", cookie_file])
+                dl_cmd.extend(["-o", out_template])
                 
                 # Hidden terminal execution
                 subprocess.run(dl_cmd, creationflags=subprocess.CREATE_NO_WINDOW if platform.system() == 'Windows' else 0)

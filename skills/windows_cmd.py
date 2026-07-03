@@ -11,6 +11,9 @@ import platform
 import requests
 from datetime import datetime
 
+# State dictionary for tracking confirmations
+pending_actions = {}
+
 def cmd_system_info(args):
     """Usage: system info, pc details"""
     try:
@@ -28,16 +31,12 @@ def cmd_system_info(args):
             except Exception:
                 pass
 
-        response = f"### ️ Windows System Report\n\n"
-        response += f"**OS:** {uname.system} {uname.release} ({uname.version})\n"
-        response += f"**Processor:** {uname.processor}\n"
-        response += f"**System Uptime:** Since {boot_time}\n"
-        response += f"\n** Disk Usage:**\n{disk_usage if disk_usage else 'No fixed drives detected.'}\n\n"
-        response += "*smiles* Your system is looking healthy! Let me know if you need any maintenance. ✨"
-        
-        return response
+        response = f"**System:** Windows {uname.release} | **CPU:** {uname.processor.split(' ')[0]} | **Uptime:** Since {boot_time}\n"
+        if disk_usage:
+            response += f"**Disks:**\n{disk_usage}"
+        return response.strip()
     except Exception as e:
-        return f"I had trouble gathering system info: {e}"
+        return f"Error gathering system info: {e}"
 
 def cmd_network_status(args):
     """Usage: network status, ip info, check internet"""
@@ -51,13 +50,8 @@ def cmd_network_status(args):
         except Exception:
             public_ip = "Unavailable"
             
-        response = f"###  Network Diagnostics\n\n"
-        response += f"**Hostname:** {hostname}\n"
-        response += f"**Local IP:** {local_ip}\n"
-        response += f"**Public IP:** {public_ip}\n"
-        response += f"\n**Connection:** {'✅ Online' if public_ip != 'Unavailable' else '❌ Offline'}\n\n"
-        response += "*nods* Everything seems to be flowing correctly. "
-        return response
+        status = '✅ Online' if public_ip != 'Unavailable' else '❌ Offline'
+        return f"**Network:** {status} | **Local IP:** {local_ip} | **Public IP:** {public_ip}"
     except Exception as e:
         return f"Network check failed: {e}"
 
@@ -72,16 +66,12 @@ def cmd_process_list(args):
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 pass
         
-        processes = sorted(processes, key=lambda x: x['memory_percent'], reverse=True)[:10]
+        processes = sorted(processes, key=lambda x: x['memory_percent'], reverse=True)[:5]
         
-        response = "###  Resource Intensive Processes\n\n"
-        response += "| PID | Process Name | RAM % |\n"
-        response += "| :--- | :--- | :--- |\n"
+        response = "**Top 5 Resource Intensive Processes:**\n"
         for p in processes:
-            response += f"| {p['pid']} | {p['name']} | {p['memory_percent']:.1f}% |\n"
-        
-        response += "\n*smiles* Need me to terminate any of these for you? Just say 'kill process name'."
-        return response
+            response += f"- **{p['name']}** (PID: {p['pid']}, RAM: {p['memory_percent']:.1f}%)\n"
+        return response.strip()
     except Exception as e:
         return f"Process check failed: {e}"
 
@@ -91,6 +81,13 @@ def cmd_kill_process(args):
     if not name:
         return "Which process should I terminate? Please be careful! ⚠️"
         
+    action_key = f"kill_{name}"
+    if action_key not in pending_actions:
+        pending_actions[action_key] = True
+        return f"⚠️ CONFIRMATION REQUIRED: Are you sure you want to terminate '{name}'? Please ask me to do it again to confirm."
+    
+    del pending_actions[action_key]
+        
     try:
         terminated = 0
         for proc in psutil.process_iter(['name']):
@@ -99,27 +96,37 @@ def cmd_kill_process(args):
                 terminated += 1
         
         if terminated > 0:
-            return f"*nods* I've terminated {terminated} instances of '{name}'. System breathing room restored! ️"
+            return f"✅ Terminated {terminated} instances of '{name}'."
         else:
-            return f"I couldn't find any running process with the name '{name}'. "
+            return f"❌ Couldn't find process '{name}'."
     except Exception as e:
-        return f"I failed to kill the process: {e}"
+        return f"Failed to kill process: {e}"
 
 def cmd_flush_dns(args):
     """Usage: flush dns, fix network"""
+    if "flush_dns" not in pending_actions:
+        pending_actions["flush_dns"] = True
+        return "⚠️ CONFIRMATION REQUIRED: Are you sure you want to flush the DNS cache? Ask me again to confirm."
+        
+    del pending_actions["flush_dns"]
     try:
         print("[System] Flushing DNS...")
         subprocess.run(["ipconfig", "/flushdns"], capture_output=True)
-        return "*smiles* DNS cache has been flushed! This might help with your connection issues. ✨"
+        return "✅ DNS cache flushed."
     except Exception as e:
         return f"Failed to flush DNS: {e}"
 
 def cmd_disk_cleanup(args):
     """Usage: disk cleanup, clean drives"""
+    if "disk_cleanup" not in pending_actions:
+        pending_actions["disk_cleanup"] = True
+        return "⚠️ CONFIRMATION REQUIRED: Are you sure you want to launch Disk Cleanup? Ask me again to confirm."
+        
+    del pending_actions["disk_cleanup"]
     try:
         # This opens the Windows Disk Cleanup utility
         subprocess.Popen(["cleanmgr.exe", "/d", "C"])
-        return "I've launched the Windows Disk Cleanup utility for you. *smiles* It's good to keep things tidy! "
+        return "✅ Launched Disk Cleanup utility."
     except Exception as e:
         return f"Couldn't launch cleanmgr: {e}"
 

@@ -1,5 +1,23 @@
 # NOVA Project — Update Report
 
+> **Session Date:** 2026-07-03
+> **Total Files Modified:** 12+
+> **Focus:** Project Reorganization and Clean-up
+
+---
+
+## 1. File Reorganization
+
+**Status:** Complete
+
+### What Changed
+- **Scripts:** Moved all utility and test scripts (`test_keys.py`, `setup_ytmusic.py`, `debug_imports.py`, etc.) from the root directory into `scripts/`.
+- **Logs:** Moved `launch_log.txt` and `pyarmor.bug.log` into a dedicated `logs/` directory.
+- **Config:** Moved `cookies.txt`, `headers_auth.json`, and credentials backups into `userdata/config/`. Updated the `music.py` and `browser_agent.py` skills to read these configuration files from their new paths.
+- **Screenshots:** Set up `userdata/screenshots/` for saving manual screenshots, while keeping "screen view" (vision) screenshots in `userdata/temp/vision/` for automatic deletion after processing.
+
+---
+
 > **Session Date:** 2026-07-02
 > **Total Files Modified:** 6
 > **Skills Fixed:** 1 (browser_agent)

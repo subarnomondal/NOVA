@@ -108,7 +108,7 @@ class LLMManager:
 
 
 
-    def add_to_memory(self, user_input, assistant_response):
+    def add_to_memory(self, user_input, assistant_response, raw_user_input=None):
         """Add exchange to conversation memory and persistent log."""
         self.conversation_memory.append({
             "user": user_input,
@@ -117,8 +117,8 @@ class LLMManager:
         if len(self.conversation_memory) > self.max_memory:
             self.conversation_memory.pop(0)
             
-        # Save to disk via history manager
-        chat_history.save_chat(user_input, assistant_response)
+        # Save to disk via history manager (use raw input if available)
+        chat_history.save_chat(raw_user_input if raw_user_input else user_input, assistant_response)
     
     def get_temporal_context(self, user_profile=None):
         """Build temporal and profile context."""
@@ -452,7 +452,7 @@ class LLMManager:
             print(f"⚠️ Ollama Error: {e}")
             return None
 
-    def generate(self, user_input, intent=None, max_tokens=250, temperature=0.7, system_prompt=None, raw_gen=False, provider=None, history=None, include_tags=False, force_advanced=False, image_path=None, tools=None):
+    def generate(self, user_input, intent=None, max_tokens=250, temperature=0.7, system_prompt=None, raw_gen=False, provider=None, history=None, include_tags=False, force_advanced=False, image_path=None, tools=None, raw_user_input=None):
         """Generate response using the OpenRouter or Ollama API."""
         
         # Multimodal handling: user_input becomes a dict if image is present
@@ -523,38 +523,29 @@ class LLMManager:
                 
                 # Provider Routing: OpenRouter -> Groq -> Gemini -> Ollama
                 if not raw_gen:
-                    # 1. Try OpenRouter first (Verified working free swarm)
-                    if provider == "free" or not provider:
-                        print(" Routing to OpenRouter (Verified Free Swarm)...")
-                        try:
-                            resp = self._generate_openrouter(actual_input, full_system_prompt, history=history, tools=tools)
-                            if resp:
-                                if tools and isinstance(resp, dict):
-                                    return resp
-                                return self._process_response_text(resp, text_for_emotion, include_tags)
+                    import os
+                    # 1. Groq
+                    if provider == "groq" or (not provider and "groq" in (os.getenv("PREFERRED_PROVIDER", "openrouter").lower())):
+                        print("⚡ Routing to Groq (Llama-3)...")
+                        groq_resp = self._generate_groq(actual_input, full_system_prompt, tools=tools)
+                        if groq_resp:
+                            return self._process_response_text(groq_resp, user_input, include_tags, raw_user_input)
+                    
+                    # 2. OpenRouter
+                    if provider == "openrouter" or not provider:
+                        print(f"🌐 Routing to OpenRouter (Tools={'Yes' if tools else 'No'})...")
+                        openrouter_resp = self._generate_openrouter(actual_input, full_system_prompt, history=history, tools=tools)
+                        if openrouter_resp:
+                            if tools and isinstance(openrouter_resp, dict):
+                                return openrouter_resp
+                            return self._process_response_text(openrouter_resp, user_input, include_tags, raw_user_input)
 
-                        except Exception as e:
-                            print(f"⚠️ OpenRouter failed: {e}")
-
-                    # 2. Try Groq (Ultra-Fast but check keys)
-                    if provider == "groq" or (not provider and not self.last_provider == "OpenRouter"):
-                        print("⚡ Routing to Groq (Ultra-Fast)...")
-                        try:
-                            resp = self._generate_groq(user_input, full_system_prompt, history=history)
-                            if resp:
-                                return self._process_response_text(resp, user_input, include_tags)
-                        except Exception as e:
-                            print(f"⚠️ Groq failed: {e}")
-
-                    # 2. Fallback to Ollama (Standard local-only)
-                    # (Gemini fallback removed by user request)
-
-                # OLLAMA PROVIDER (Fallback)
-                if provider == "ollama" or (not provider and os.getenv("USE_OLLAMA") == "true"):
-                    print(" Routing to Ollama...")
-                    ollama_resp = self._generate_ollama(user_input, full_system_prompt)
-                    if ollama_resp:
-                        return self._process_response_text(ollama_resp, user_input, include_tags)
+                    # 3. Ollama
+                    if provider == "ollama" or (not provider and os.getenv("USE_OLLAMA") == "true"):
+                        print("🦙 Routing to Ollama...")
+                        ollama_resp = self._generate_ollama(user_input, full_system_prompt)
+                        if ollama_resp:
+                            return self._process_response_text(ollama_resp, user_input, include_tags, raw_user_input)
 
                 if self.last_error_code == 429:
                     return "My brain is a bit overwhelmed right now (Rate Limit). Please try again in a few seconds!"
@@ -574,10 +565,10 @@ class LLMManager:
         return True
 
 
-    def _process_response_text(self, response_text, user_input, include_tags):
+    def _process_response_text(self, response_text, user_input, include_tags, raw_user_input=None):
         """Helper to filter, store response text, and perform autonomous learning."""
         if include_tags:
-            self.add_to_memory(user_input, response_text)
+            self.add_to_memory(user_input, response_text, raw_user_input=raw_user_input)
             return response_text
 
         filtered = self.filter_response(response_text)
@@ -588,7 +579,7 @@ class LLMManager:
             
             # Humanize the final text to remove 'model' feel
             humanized = self.personality_manager.humanize_text(filtered)
-            self.add_to_memory(user_input, humanized)
+            self.add_to_memory(user_input, humanized, raw_user_input=raw_user_input)
             
             # --- AUTONOMOUS LEARNING ---
             # Extract facts from the exchange in the background

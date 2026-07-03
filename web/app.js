@@ -540,28 +540,38 @@ function initSettings() {
             }
         });
 
-        // Tab Switching — use CSS classes only, no inline overrides
+        // Tab Switching for new B&W Settings Modal
         settingsTabs.forEach(tab => {
             tab.addEventListener('click', () => {
+                // Reset all tabs
                 settingsTabs.forEach(t => {
-                    t.classList.remove('active');
-                    t.style.background = ''; // Clear any inline override
+                    t.classList.remove('active', 'bg-white', 'text-black', 'font-bold');
+                    t.classList.add('text-white/70', 'font-normal');
+                    t.style.background = ''; 
                 });
+                
+                // Hide all panels
                 settingsPanels.forEach(p => {
-                    p.classList.remove('active');
+                    p.classList.remove('active', 'block');
+                    p.classList.add('hidden');
                     p.style.display = 'none';
                 });
 
-                tab.classList.add('active');
+                // Activate clicked tab
+                tab.classList.remove('text-white/70', 'font-normal');
+                tab.classList.add('active', 'bg-white', 'text-black', 'font-bold');
 
-                const targetId = tab.getAttribute('data-tab') + '-panel';
-                const targetPanel = document.getElementById(targetId);
+                // Show target panel (support both data-tab and data-target)
+                const targetAttr = tab.getAttribute('data-target') || (tab.getAttribute('data-tab') + '-panel');
+                const targetPanel = document.getElementById(targetAttr);
+                
                 if (targetPanel) {
-                    targetPanel.classList.add('active');
+                    targetPanel.classList.remove('hidden');
+                    targetPanel.classList.add('active', 'block');
                     targetPanel.style.display = 'block';
                     
                     // If switching to skills tab, load them
-                    if (targetId === 'skills-panel') {
+                    if (targetAttr === 'skills-panel') {
                         loadSkills();
                     }
                 }
@@ -3139,3 +3149,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
+// Generated Modals Logic
+(function() {
+    const logsBtn = document.getElementById('logs-btn');
+    const logsModal = document.getElementById('logs-modal');
+    const closeLogsBtn = document.getElementById('close-logs-btn');
+
+    const dashboardBtn = document.getElementById('dashboard-btn');
+    const dashboardModal = document.getElementById('events-dashboard');
+    const closeDashboardBtn = document.getElementById('close-dashboard-btn');
+
+    if (logsBtn && logsModal) {
+        logsBtn.addEventListener('click', () => {
+            logsModal.style.display = 'block';
+        });
+    }
+    if (closeLogsBtn && logsModal) {
+        closeLogsBtn.addEventListener('click', () => {
+            logsModal.style.display = 'none';
+        });
+    }
+    
+    if (dashboardBtn && dashboardModal) {
+        dashboardBtn.addEventListener('click', () => {
+            dashboardModal.style.display = 'block';
+        });
+    }
+    if (closeDashboardBtn && dashboardModal) {
+        closeDashboardBtn.addEventListener('click', () => {
+            dashboardModal.style.display = 'none';
+        });
+    }
+})();
+
+
+// Modal Logic for Dashboard and Logs
+document.addEventListener('DOMContentLoaded', () => {
+    const dashboardBtn = document.getElementById('dashboard-btn');
+    const logsBtn = document.getElementById('logs-btn');
+    const closeDashboardBtn = document.getElementById('close-dashboard-btn');
+    const closeLogsBtn = document.getElementById('close-logs-btn');
+    const dashboardModal = document.getElementById('events-dashboard');
+    const logsModal = document.getElementById('logs-modal');
+
+    if(dashboardBtn && dashboardModal) {
+        dashboardBtn.addEventListener('click', () => {
+            dashboardModal.style.display = 'flex';
+        });
+    }
+    if(closeDashboardBtn && dashboardModal) {
+        closeDashboardBtn.addEventListener('click', () => {
+            dashboardModal.style.display = 'none';
+        });
+    }
+
+    if(logsBtn && logsModal) {
+        logsBtn.addEventListener('click', () => {
+            logsModal.style.display = 'flex';
+        });
+    }
+    if(closeLogsBtn && logsModal) {
+        closeLogsBtn.addEventListener('click', () => {
+            logsModal.style.display = 'none';
+        });
+    }
+});
+

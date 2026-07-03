@@ -2849,3 +2849,9 @@ input::placeholder {
         ::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.2);
         }
+
+/* Enforce text selection in chat */
+.chat-msg, .glass-panel, .msg-content, p {
+    user-select: text !important;
+    pointer-events: auto !important;
+}

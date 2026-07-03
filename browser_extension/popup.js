@@ -253,7 +253,66 @@ async function executeBrowserAction(data) {
                 addMessage("I couldn't read the page content. Make sure you're on a valid website.", 'nova');
             }
         });
+    } else if (data.browser_action === "get_dom_map") {
+        ext.runtime.sendMessage({ action: "get_dom_map" }, async (response) => {
+            if (response && response.data) {
+                addSystemMsg(`Mapped the page DOM elements.`);
+                // Automatically send it back to Nova context
+                isProcessing = true;
+                sendBtn.disabled = true;
+                showThinking();
+                try {
+                    const res = await fetch(`${API_URL}/command`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            command: "Here is the mapped DOM:\n" + response.data + "\n\nWhat is the next action?",
+                            language: 'en',
+                            source: 'browser_extension'
+                        })
+                    });
+                    const resData = await res.json();
+                    hideThinking();
+            if (resData.response) {
+                // Parse BROWSER_CLICK and BROWSER_TYPE tags from LLM response
+                let respText = resData.response;
+                
+                let clickMatch = respText.match(/\[BROWSER_CLICK\s+(\d+)\]/i);
+                let typeMatch = respText.match(/\[BROWSER_TYPE\s+(\d+)\s+"(.*?)"\]/i);
+                
+                if (clickMatch) {
+                    respText = respText.replace(clickMatch[0], "").trim();
+                    executeBrowserAction({ browser_action: "click_element", nova_id: parseInt(clickMatch[1]) });
+                } else if (typeMatch) {
+                    respText = respText.replace(typeMatch[0], "").trim();
+                    executeBrowserAction({ browser_action: "type_element", nova_id: parseInt(typeMatch[1]), value: typeMatch[2] });
+                }
+
+                if (respText) addMessage(respText, 'nova');
+                        if (resData.thoughts && resData.thoughts.length > 0) renderThoughts(resData.thoughts, resData.llm_model);
+                        if (resData.data && resData.data.browser_action) executeBrowserAction(resData.data);
+                    }
+                } catch(e) {
+                    hideThinking();
+                    addSystemMsg('Error in autonomous loop.');
+                } finally {
+                    isProcessing = false;
+                    sendBtn.disabled = false;
+                }
+            }
+        });
+    } else if (data.browser_action === "click_element" || data.browser_action === "type_element") {
+        ext.runtime.sendMessage({ action: data.browser_action, nova_id: data.nova_id, value: data.value }, (response) => {
+            if (response && response.data && response.data.success) {
+                addSystemMsg(response.data.message);
+                // Continue loop
+                executeBrowserAction({ browser_action: "get_dom_map" });
+            } else {
+                addSystemMsg("Failed to execute action.");
+            }
+        });
     }
+
 }
 
 // =====================

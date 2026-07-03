@@ -29,6 +29,8 @@ def cmd_switch_personality(args):
         target_mode = "nova"
     elif "professional" in text or "work" in text:
         target_mode = "professional"
+    elif "expressive" in text or "emotion" in text or "human" in text or "punch" in text:
+        target_mode = "expressive"
         
     if target_mode:
         if pm.set_mode(target_mode):
