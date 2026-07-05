@@ -118,15 +118,18 @@ function addLine(text, type = 'system-msg', tokens = 0, extraData = null) {
     const div = document.createElement('div');
 
     if (type === 'nova-msg' || type === 'system-msg') {
-        div.className = 'fade-in-up flex flex-col gap-3 max-w-[85%]';
+        div.className = 'flex flex-col items-start animate-in slide-in-from-left duration-700 w-full mb-6';
         div.innerHTML = `
-            <span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest flex items-center gap-2">
-                <span class="w-1.5 h-1.5 bg-primary/80 rounded-full pulse-dot"></span>
-                NOVA_AI // ${type === 'system-msg' ? 'SYSTEM' : 'RESPONSE'}
-            </span>
-            <div class="glass-panel p-lg rounded-lg rounded-tl-none border border-white/5 shadow-xl bg-surface-container-lowest/40">
-                <div class="font-body-md text-on-surface/90 leading-relaxed text-[15px]">${text}</div>
+            <div class="flex items-center gap-2 mb-2">
+                <div class="w-6 h-6 rounded-full border border-secondary-container flex items-center justify-center bg-secondary-container/10">
+                    <span class="material-symbols-outlined text-secondary text-[14px]">hub</span>
+                </div>
+                <span class="font-label-sm text-secondary tracking-wider">${type === 'system-msg' ? 'SYSTEM' : 'NOVA CORE'}</span>
             </div>
+            <div class="glass-panel nova-bubble max-w-[90%] p-4 rounded-xl rounded-tl-none border border-secondary-container/20">
+                <div class="font-body-md leading-relaxed text-left text-primary text-[15px]">${text}</div>
+            </div>
+            <span class="text-[10px] font-mono-data text-outline mt-2 ml-1">RCV // AI</span>
         `;
         
         // Handle specialized data rendering inside the bubble
@@ -149,14 +152,14 @@ function addLine(text, type = 'system-msg', tokens = 0, extraData = null) {
             setTimeout(() => { isSpeaking = false; }, duration);
         }
     } else {
-        div.className = 'fade-in-up flex flex-col gap-3 items-end ml-auto max-w-[85%]';
+        div.className = 'flex flex-col items-end animate-in slide-in-from-right duration-500 w-full mb-6';
         // Sanitize text if needed, but innerHTML is fine for now if text is safe
         // we'll just use textContent by creating a P element
         div.innerHTML = `
-            <span class="font-label-caps text-[10px] text-on-surface-variant/50 tracking-widest">OPERATOR_01</span>
-            <div class="glass-panel p-md rounded-lg rounded-tr-none border border-white/10">
-                <p class="font-body-md text-primary/90 text-[15px] msg-content"></p>
+            <div class="glass-panel user-bubble max-w-[85%] p-4 rounded-xl rounded-tr-none text-on-surface">
+                <p class="font-body-md leading-relaxed text-right msg-content"></p>
             </div>
+            <span class="text-[10px] font-mono-data text-outline mt-2 mr-1">SENT // USER_01</span>
         `;
         div.querySelector('.msg-content').textContent = text;
     }
@@ -768,14 +771,14 @@ function initSettings() {
         }
 
         if (closeLogsBtn) {
-            closeLogsBtn.addEventListener('click', () => {
+            closeLogsBtn?.addEventListener('click', () => {
                 const modal = document.getElementById('logs-modal');
                 if (modal) modal.style.display = 'none';
             });
         }
 
         if (closeScheduleBtn) {
-            closeScheduleBtn.addEventListener('click', () => {
+            closeScheduleBtn?.addEventListener('click', () => {
                 const modal = document.getElementById('schedule-modal');
                 if (modal) modal.style.display = 'none';
             });
@@ -809,7 +812,7 @@ function initSettings() {
         }
 
         // Save Settings
-        saveSettingsBtn.addEventListener('click', async () => {
+        saveSettingsBtn?.addEventListener('click', async () => {
             const settings = {
                 voice: {
                     model: document.getElementById('voice-language').value,
@@ -2080,7 +2083,7 @@ if (logsBtn && logsModal && closeLogsBtn) {
         }
     });
 
-    closeLogsBtn.addEventListener('click', () => {
+    closeLogsBtn?.addEventListener('click', () => {
         logsModal.style.display = 'none';
     });
 
@@ -2101,7 +2104,7 @@ if (logsBtn && logsModal && closeLogsBtn) {
     }
 
     // Close on outside click
-    logsModal.addEventListener('click', (e) => {
+    logsModal?.addEventListener('click', (e) => {
         if (e.target === logsModal) logsModal.style.display = 'none';
     });
 }
@@ -2118,7 +2121,7 @@ if (scheduleBtn && scheduleModal) {
         fetchSchedule();
     });
 
-    closeScheduleBtn.addEventListener('click', () => {
+    closeScheduleBtn?.addEventListener('click', () => {
         scheduleModal.style.display = 'none';
     });
 
@@ -2497,7 +2500,7 @@ function initAdminDashboard() {
     if (!adminDashboard) return;
 
     // Login logic
-    loginBtn.addEventListener('click', () => {
+    loginBtn?.addEventListener('click', () => {
         if (passInput.value === ADMIN_PASS) {
             console.log("🔓 Admin Access Authorized");
             authScreen.classList.add('hidden');
@@ -2515,11 +2518,11 @@ function initAdminDashboard() {
         if (e.key === 'Enter') loginBtn.click();
     });
 
-    closeBtn.addEventListener('click', () => {
+    closeBtn?.addEventListener('click', () => {
         toggleAdminDashboard(false);
     });
 
-    runSuiteBtn.addEventListener('click', async () => {
+    runSuiteBtn?.addEventListener('click', async () => {
         const list = document.getElementById('admin-logs-list');
         list.innerHTML = ""; // Clear for new run
         addAdminLog("INITIATING CORE SYSTEM DIAGNOSTICS...", "system");
@@ -2546,7 +2549,7 @@ function initAdminDashboard() {
         runSuiteBtn.disabled = false;
     });
 
-    clearLogsBtn.addEventListener('click', () => {
+    clearLogsBtn?.addEventListener('click', () => {
         logsList.innerHTML = '<div class="log-item system">Safe environment established...</div>';
     });
 
@@ -2606,7 +2609,7 @@ function initAdminDashboard() {
         });
 
         // Allow Enter key to trigger test
-        emuInput.addEventListener('keypress', (e) => {
+        emuInput?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') emuBtn.click();
         });
     }
@@ -3037,7 +3040,7 @@ async function loadChatHistory() {
 // Global Init Call
 window.addEventListener('load', () => {
     // Existing Three.js/UI inits would be triggered here if not already
-    loadChatHistory();
+    // loadChatHistory(); // Disabled so we start with a fresh chat UI each time
 });
 
 function updateEventsList(events) {
@@ -3167,7 +3170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     if (closeLogsBtn && logsModal) {
-        closeLogsBtn.addEventListener('click', () => {
+        closeLogsBtn?.addEventListener('click', () => {
             logsModal.style.display = 'none';
         });
     }
@@ -3211,7 +3214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     if(closeLogsBtn && logsModal) {
-        closeLogsBtn.addEventListener('click', () => {
+        closeLogsBtn?.addEventListener('click', () => {
             logsModal.style.display = 'none';
         });
     }

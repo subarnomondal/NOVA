@@ -6,6 +6,7 @@ class ChatHistory:
     def __init__(self, history_file=os.path.join("userdata", "chat_history.json")):
         self.history_file = history_file
         self.history = self.load_history()
+        self.session_history = []  # Fresh context on every startup
 
     def load_history(self):
         """Load history from JSON file and purge data older than 7 days."""
@@ -37,6 +38,12 @@ class ChatHistory:
     def save_chat(self, user_input, assistant_response):
         """Save a new chat exchange to the log (using LLM background summarization)."""
         import threading
+        
+        # Add to the fresh session history immediately so the LLM remembers the exact current conversation
+        self.session_history.append({
+            "user": user_input,
+            "assistant": assistant_response
+        })
         
         def _save_task():
             try:
@@ -101,7 +108,7 @@ class ChatHistory:
     def get_recent_context(self, limit=10):
         """Get the last N items in a format for the LLM."""
         context = ""
-        for exchange in self.history[-limit:]:
+        for exchange in self.session_history[-limit:]:
             context += f"User: {exchange['user']}\n"
             context += f"Nova: {exchange['assistant']}\n"
         return context

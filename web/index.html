@@ -396,95 +396,189 @@ tailwind.config = {
 <!-- Three.js Background Scene -->
 <div id="character-scene"></div>
 
-<header class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter py-stack-md bg-transparent border-b border-white/5">
-<div class="text-headline-md font-headline-md tracking-tighter text-primary">NOVA</div>
-<div class="flex items-center gap-stack-md">
-<div class="font-label-mono text-label-mono text-white/40 uppercase tracking-widest px-stack-sm py-1 border border-white/10 rounded">
-                Live Session: Nova-01
+<!-- MAIN AETHER AI LAYOUT -->
+<div class="flex h-screen w-screen relative z-10 text-on-surface bg-transparent pointer-events-none">
+    <!-- LEFT SIDEBAR -->
+    <aside class="w-72 flex flex-col border-r border-white/5 bg-[#0a0a0b]/60 backdrop-blur-xl shrink-0 pointer-events-auto">
+        <!-- Logo Area -->
+        <div class="flex items-center gap-4 p-6 mt-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[#2a2a35] to-[#1c1c24] flex items-center justify-center border border-white/5 shadow-lg">
+                <span class="material-symbols-outlined text-white text-[24px]">psychology</span>
             </div>
-<button id="settings-btn" class="p-2 text-on-surface-variant hover:bg-white/5 transition-colors rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined">settings</span>
-</button>
-<button id="logs-btn" class="p-2 text-on-surface-variant hover:bg-white/5 transition-colors rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined">memory</span>
-</button>
-<button id="dashboard-btn" class="p-2 text-on-surface-variant hover:bg-white/5 transition-colors rounded-full flex items-center justify-center">
-<span class="material-symbols-outlined">dashboard</span>
-</button>
-</div>
-</header>
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-wide">NOVA</h1>
+                <p class="text-xs text-emerald-400 font-label-mono tracking-widest uppercase">System Online</p>
+            </div>
+        </div>
 
-<main class="relative z-10 flex flex-col items-center justify-end h-full w-full pb-32 pt-24 px-gutter">
-<!-- Chat Feed -->
-<div id="chat-feed" class="w-full max-w-3xl flex flex-col gap-stack-lg overflow-y-auto no-scrollbar scroll-smooth">
-<!-- System Message -->
-<div class="message-fade flex flex-col gap-stack-sm items-start max-w-[85%] self-start" style="animation-delay: 0.2s;">
-<div class="flex items-center gap-2 mb-1">
-<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-<span class="font-label-mono text-label-mono text-white/50">SYSTEM // NOVA</span>
-</div>
-<div class="glass-panel px-gutter py-stack-md rounded-xl text-body-lg text-primary leading-relaxed shadow-2xl">
-                    Neural initialization complete. I am monitoring live spectral data. How shall we proceed?
+        <!-- New Instance Btn -->
+        <div class="px-6 mb-6">
+            <button class="w-full py-3 rounded-xl bg-gradient-to-r from-[#9b85ff] to-[#3a75ff] text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(155,133,255,0.4)]">
+                <span class="material-symbols-outlined text-[20px]">add</span> New Instance
+            </button>
+        </div>
+
+        <!-- Nav -->
+        <nav class="flex-1 px-4 flex flex-col gap-2 overflow-y-auto no-scrollbar">
+            <button class="flex items-center gap-4 px-4 py-4 rounded-xl bg-white/5 border border-white/5 text-white shadow-sm transition-all" id="nav-nova-core">
+                <span class="material-symbols-outlined text-[#9b85ff]">psychology</span>
+                <span class="font-label-mono text-sm uppercase tracking-wider font-semibold">Nova Core</span>
+            </button>
+            <button class="flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-all" id="nav-live-talk">
+                <span class="material-symbols-outlined text-[20px]">graphic_eq</span>
+                <span class="font-label-mono text-sm uppercase tracking-wider">Nova Live Talk</span>
+            </button>
+            <button class="flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-all" id="nav-terminal" onclick="document.getElementById('terminal-modal').style.display='flex'; document.getElementById('terminal-input').focus();">
+                <span class="material-symbols-outlined text-[20px]">terminal</span>
+                <span class="font-label-mono text-sm uppercase tracking-wider">Terminal</span>
+            </button>
+            <button class="flex items-center gap-4 px-4 py-4 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-all" id="nav-history" onclick="document.getElementById('logs-modal').style.display='flex'">
+                <span class="material-symbols-outlined text-[20px]">history</span>
+                <span class="font-label-mono text-sm uppercase tracking-wider">History</span>
+            </button>
+        </nav>
+
+        <!-- Bottom Nav -->
+        <div class="px-4 pb-6 pt-4 border-t border-white/5 flex flex-col gap-2">
+            <button id="settings-btn" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-all">
+                <span class="material-symbols-outlined text-[20px]">settings</span>
+                <span class="font-label-mono text-sm uppercase tracking-wider">Settings</span>
+            </button>
+            <button id="logs-btn" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/5 text-white/60 hover:text-white transition-all">
+                <span class="material-symbols-outlined text-[20px]">help</span>
+                <span class="font-label-mono text-sm uppercase tracking-wider">Support</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CHAT AREA -->
+    <main class="flex-1 flex flex-col relative bg-transparent overflow-hidden pointer-events-auto">
+        <!-- Header -->
+        <header class="h-20 flex justify-between items-center px-8 border-b border-white/5 bg-[#0a0a0b]/40 backdrop-blur-md shrink-0 relative z-20">
+            <h2 class="text-2xl font-bold text-[#ddb7ff]">System Node 01</h2>
+            <div class="flex items-center gap-6 text-white/60">
+                <span class="material-symbols-outlined hover:text-white cursor-pointer transition-colors text-[20px]" id="dashboard-btn">sensors</span>
+                <span class="material-symbols-outlined hover:text-white cursor-pointer transition-colors text-[20px]">memory</span>
+                <span class="material-symbols-outlined hover:text-white cursor-pointer transition-colors text-[20px]">notifications_active</span>
+                <div class="w-8 h-8 rounded-full border border-[#9b85ff] bg-black/50 overflow-hidden cursor-pointer hover:scale-105 transition-transform" id="avatar-container">
+                     <img src="user_avatar.png" onerror="this.style.display='none'" class="w-full h-full object-cover">
                 </div>
-</div>
-<!-- User Message -->
-<div class="message-fade flex flex-col gap-stack-sm items-end max-w-[85%] self-end" style="animation-delay: 0.8s;">
-<span class="font-label-mono text-label-mono text-white/30 mr-2 uppercase">Authorized User</span>
-<div class="bg-primary text-background px-gutter py-stack-md rounded-xl text-body-lg font-medium shadow-xl">
-                    Analyze the current atmospheric density markers.
+            </div>
+        </header>
+        
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col relative overflow-hidden">
+            <div class="absolute top-10 left-1/2 -translate-x-1/2 border border-white/5 bg-white/5 px-4 py-1.5 rounded-full z-10 backdrop-blur-sm shadow-lg">
+                <span class="font-label-mono text-[10px] text-white/50 tracking-[0.2em] uppercase">Session Initialized</span>
+            </div>
+
+            <!-- Feed -->
+            <div id="chat-feed" class="flex-1 overflow-y-auto no-scrollbar scroll-smooth p-8 pb-32 flex flex-col gap-6">
+                <!-- Chat messages will be injected here by app.js -->
+                <!-- System Message -->
+                <div class="message-fade flex flex-col gap-2 items-start max-w-[85%] self-start">
+                    <div class="flex items-center gap-2 mb-1">
+                        <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" style="box-shadow: 0 0 8px rgba(52,211,153,0.6);"></div>
+                        <span class="font-label-mono text-[10px] text-white/50 uppercase tracking-widest">System // NOVA</span>
+                    </div>
+                    <div class="border border-white/5 bg-white/5 px-6 py-4 rounded-2xl text-[15px] text-white/90 leading-relaxed shadow-lg backdrop-blur-md">
+                        Neural initialization complete. I am monitoring live spectral data. How shall we proceed?
+                    </div>
                 </div>
-</div>
-<!-- System Message -->
-<div class="message-fade flex flex-col gap-stack-sm items-start max-w-[85%] self-start" style="animation-delay: 1.4s;">
-<div class="flex items-center gap-2 mb-1">
-<div class="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-<span class="font-label-mono text-label-mono text-white/50">SYSTEM // ANALYSIS</span>
-</div>
-<div class="glass-panel px-gutter py-stack-md rounded-xl text-body-lg text-primary leading-relaxed shadow-2xl">
-                    Atmospheric density is stable at <span class="font-label-mono text-white underline decoration-white/20 underline-offset-4">1.225 kg/m³</span>. No anomalies detected in the current quadrant.
+            </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-20">
+            <div class="max-w-4xl mx-auto">
+                <div class="relative flex items-center bg-[#17171d]/80 backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden shadow-2xl focus-within:border-[#9b85ff]/50 transition-colors">
+                    <input id="user-input" type="text" class="flex-grow bg-transparent border-none text-white px-6 py-5 focus:ring-0 placeholder:text-white/30 text-lg" placeholder="Ask NOVA anything...">
+                    <div class="flex items-center pr-4 gap-3">
+                        <button class="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-colors rounded-full hover:bg-white/5">
+                            <span class="material-symbols-outlined text-[22px]">attach_file</span>
+                        </button>
+                        <button class="w-10 h-10 flex items-center justify-center text-white/40 hover:text-white transition-colors rounded-full hover:bg-white/5">
+                            <span class="material-symbols-outlined text-[22px]">mic</span>
+                        </button>
+                        <button class="w-12 h-12 flex items-center justify-center bg-white/5 border border-white/10 text-white rounded-full hover:bg-white/10 transition-colors ml-2" id="send-btn">
+                            <span class="material-symbols-outlined text-[24px]">arrow_upward</span>
+                        </button>
+                    </div>
                 </div>
-<!-- Technical Detail Sub-card -->
-<div class="glass-panel mt-2 p-stack-md rounded-lg flex gap-stack-lg border-white/5">
-<div class="flex flex-col">
-<span class="font-label-mono text-[10px] text-white/40 uppercase">Vapor Index</span>
-<span class="font-label-mono text-body-md text-primary">0.042%</span>
+                <div class="text-center mt-4">
+                    <span class="font-label-mono text-[10px] text-white/20 tracking-[0.2em] uppercase">NOVA CORE ENGINE V4.2.1 OPERATIONAL</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="w-80 flex flex-col border-l border-white/5 bg-[#0a0a0b]/60 backdrop-blur-xl shrink-0 p-6 gap-6 pointer-events-auto">
+        <div class="flex items-center justify-between">
+            <h3 class="font-label-mono text-xs text-white/50 tracking-[0.2em] uppercase font-bold">Live Telemetry</h3>
+            <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" style="box-shadow: 0 0 10px rgba(52,211,153,0.5);"></div>
+        </div>
+
+        <!-- Core Load -->
+        <div class="border border-white/5 bg-white/5 rounded-2xl p-5 shadow-lg relative overflow-hidden group">
+            <div class="flex justify-between items-end mb-6">
+                <span class="text-white/60 font-label-mono text-sm">Core Load</span>
+                <span class="text-white font-bold text-xl">64%</span>
+            </div>
+            <!-- Fake Bar Chart -->
+            <div class="flex items-end justify-between h-16 gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[30%] opacity-50 shadow-[0_0_10px_rgba(155,133,255,0.3)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[40%] opacity-60 shadow-[0_0_10px_rgba(155,133,255,0.4)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[20%] opacity-40 shadow-[0_0_10px_rgba(155,133,255,0.2)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[50%] opacity-70 shadow-[0_0_10px_rgba(155,133,255,0.5)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[80%] opacity-90 shadow-[0_0_10px_rgba(155,133,255,0.8)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[45%] opacity-60 shadow-[0_0_10px_rgba(155,133,255,0.4)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[70%] opacity-80 shadow-[0_0_10px_rgba(155,133,255,0.6)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[30%] opacity-50 shadow-[0_0_10px_rgba(155,133,255,0.3)]"></div>
+                <div class="w-full bg-[#9b85ff] rounded-t-sm h-[55%] opacity-70 shadow-[0_0_10px_rgba(155,133,255,0.5)]"></div>
+            </div>
+        </div>
+
+        <!-- Memory -->
+        <div class="border border-white/5 bg-white/5 rounded-2xl p-5 shadow-lg relative overflow-hidden">
+            <div class="flex justify-between items-end mb-4">
+                <span class="text-white/60 font-label-mono text-sm">Memory</span>
+                <span class="text-[#8ca6f9] font-bold text-xl drop-shadow-[0_0_5px_rgba(140,166,249,0.5)]">12.4 TB</span>
+            </div>
+            <div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div class="h-full bg-[#8ca6f9] w-[75%] rounded-full shadow-[0_0_10px_rgba(140,166,249,0.8)]"></div>
+            </div>
+            <div class="flex justify-between items-center mt-2">
+                <span class="font-label-mono text-[9px] text-white/30 uppercase">0</span>
+                <span class="font-label-mono text-[9px] text-white/30 uppercase">16 TB MAX</span>
+            </div>
+        </div>
+
+
+        <!-- Thought Process (Replaces Reasoning Engine) -->
+        <div class="mt-4 flex flex-col gap-4 flex-1">
+            <h3 class="font-label-mono text-xs text-[#9b85ff] tracking-[0.2em] uppercase flex items-center gap-2 font-bold">
+                <span class="material-symbols-outlined text-[16px]">psychology</span> Thought Process
+                <span class="flex h-3 w-3 relative ml-auto">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#9b85ff] opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-[#9b85ff]"></span>
+                </span>
+            </h3>
+            <div class="border border-white/5 bg-black/40 rounded-2xl p-4 flex-1 font-label-mono text-[11px] leading-relaxed overflow-hidden relative shadow-inner">
+                <div class="text-[#8ca6f9] mb-2">> Parsing contextual intent vector...</div>
+                <div class="text-[#8ca6f9] mb-2">> [OK] Vector alignment 99.4%</div>
+                <div class="text-[#8ca6f9]/80 mb-2">> Synthesizing emotional response</div>
+                <div class="text-white/60 flex items-center gap-2">
+                    > Awaiting input <span class="w-1.5 h-3 bg-white/50 animate-pulse inline-block"></span>
+                </div>
+                
+                <!-- Scanline effect overlay -->
+                <div class="absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0) 100%); background-size: 100% 4px;"></div>
+            </div>
+        </div>
+    </aside>
 </div>
-<div class="flex flex-col">
-<span class="font-label-mono text-[10px] text-white/40 uppercase">Ion Charge</span>
-<span class="font-label-mono text-body-md text-primary">Neutral</span>
-</div>
-<div class="flex flex-col">
-<span class="font-label-mono text-[10px] text-white/40 uppercase">O3 Saturation</span>
-<span class="font-label-mono text-body-md text-primary">0.07 ppm</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Input Bar: Floating at Bottom -->
-<div class="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-2xl px-gutter z-50">
-<div class="glass-input rounded-full p-2 flex items-center gap-stack-sm shadow-2xl group focus-within:border-white/40 transition-all duration-300">
-<button class="w-12 h-12 flex items-center justify-center text-white/40 hover:text-white transition-colors">
-<span class="material-symbols-outlined text-[28px]">mic</span>
-</button>
-<input id="user-input" class="flex-grow bg-transparent border-none text-body-md text-primary px-4 py-2 focus:ring-0 placeholder:text-white/30" placeholder="Ask NOVA anything..." type="text"/>
-<button class="bg-white text-background w-12 h-12 flex items-center justify-center rounded-full hover:scale-105 active:scale-95 transition-all shadow-lg">
-<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1, 'wght' 600;">arrow_upward</span>
-</button>
-</div>
-<!-- Quick Action Tokens -->
-<div class="flex justify-center gap-stack-sm mt-4">
-<button class="font-label-mono text-[10px] text-white/30 hover:text-white/60 transition-colors uppercase border border-white/10 rounded-full px-3 py-1 bg-white/5">
-                    Run Calibration
-                </button>
-<button class="font-label-mono text-[10px] text-white/30 hover:text-white/60 transition-colors uppercase border border-white/10 rounded-full px-3 py-1 bg-white/5">
-                    Thermal Map
-                </button>
-<button class="font-label-mono text-[10px] text-white/30 hover:text-white/60 transition-colors uppercase border border-white/10 rounded-full px-3 py-1 bg-white/5">
-                    Log Data
-                </button>
-</div>
-</div>
-</main>
+
 
 <script>
         // Three.js Character Scene Setup
@@ -894,6 +988,28 @@ tailwind.config = {
 
 
 
+<!-- TERMINAL MODAL -->
+<div id="terminal-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md" style="display: none;">
+<main class="z-50 w-full max-w-4xl mx-gutter overflow-hidden relative">
+<button onclick="document.getElementById('terminal-modal').style.display='none'" class="absolute top-4 right-4 text-white hover:text-gray-400 z-[60]"><span class="material-symbols-outlined">close</span></button>
+<div class="bg-black/80 backdrop-blur-2xl border border-[#9b85ff]/30 rounded-xl shadow-[0_0_30px_rgba(155,133,255,0.2)] flex flex-col h-[600px] relative overflow-hidden font-mono">
+<div class="flex items-center p-4 border-b border-white/10 z-20 bg-black/40">
+<span class="material-symbols-outlined text-[#9b85ff] mr-2">terminal</span>
+<h1 class="text-[#9b85ff] font-bold">NOVA_TERMINAL_INTERFACE // root@sys</h1>
+</div>
+<div class="flex-1 overflow-y-auto p-4 text-[#9b85ff]/80 text-sm leading-relaxed" id="terminal-output">
+  <div>NOVA OS Terminal v4.2.1 Operational.</div>
+  <div>Establishing secure tunnel... [OK]</div>
+  <div>Type a command to interact with the system core.</div>
+</div>
+<div class="border-t border-white/10 p-4 flex items-center bg-black/60 shadow-inner">
+  <span class="text-[#9b85ff] mr-3 font-bold">$&nbsp;</span>
+  <input type="text" id="terminal-input" class="flex-1 bg-transparent border-none outline-none text-[#9b85ff] placeholder-[#9b85ff]/30" autocomplete="off" placeholder="Enter command..." onkeydown="if(event.key === 'Enter') { const out = document.getElementById('terminal-output'); out.innerHTML += `<div><span class='text-white font-bold'>$ ${this.value}</span></div><div class='mb-2 text-white/60'>Command unrecognized. Terminal is in restricted mode.</div>`; this.value=''; out.scrollTop = out.scrollHeight; }">
+</div>
+</div>
+</main>
+</div>
+
 <!-- MODALS GENERATED BY STITCH -->
 <div id="logs-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md" style="display: none;">
 <main class="z-50 w-full max-w-4xl mx-gutter overflow-hidden relative">
@@ -1082,6 +1198,166 @@ tailwind.config = {
 </div>
 </main>
 </div>
+
+
+<!-- INJECTED MODALS -->
+<div id="logs-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+    <div class="glass-panel w-full max-w-4xl h-[80vh] rounded-[24px] flex flex-col overflow-hidden shadow-2xl relative border border-white/10 bg-surface/80 p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-headline-sm font-bold text-primary">Chat History</h2>
+            <button id="close-logs-modal-btn" class="material-symbols-outlined text-on-surface hover:text-error transition-colors">close</button>
+        </div>
+        <div class="flex-1 overflow-y-auto pr-2" id="logs-content">
+            <p class="text-on-surface-variant opacity-70">Loading history logs...</p>
+        </div>
+    </div>
+</div>
+
+<div id="settings-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md hidden">
+    <div class="glass-panel w-full max-w-2xl rounded-[24px] flex flex-col overflow-hidden shadow-2xl relative border border-white/10 bg-surface/80 p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-headline-sm font-bold text-primary">System Settings</h2>
+            <button id="close-settings-modal-btn" class="material-symbols-outlined text-on-surface hover:text-error transition-colors">close</button>
+        </div>
+        <div class="flex-1 flex flex-col gap-4">
+            <div>
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Theme</label>
+                <select class="w-full bg-surface-container rounded-lg p-2 border border-white/5 text-on-surface">
+                    <option>Dark Mode</option>
+                    <option>Light Mode</option>
+                    <option>System Default</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Notifications</label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked class="rounded border-white/20 bg-surface-container text-primary focus:ring-primary focus:ring-offset-surface">
+                    <span class="text-on-surface text-sm">Enable sound alerts</span>
+                </label>
+            </div>
+            <button class="mt-4 bg-primary text-on-primary font-medium py-2 rounded-lg hover:bg-primary/90 transition-colors">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<div id="live-overlay" class="fixed inset-0 z-[90] flex items-center justify-center bg-black/95 hidden flex-col">
+    <div class="w-32 h-32 rounded-full border-4 border-primary/30 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite] absolute"></div>
+    <div class="w-24 h-24 rounded-full border-4 border-primary/60 animate-pulse absolute"></div>
+    <div class="material-symbols-outlined text-6xl text-primary z-10 animate-bounce">mic</div>
+    <p class="text-primary mt-8 font-headline-sm tracking-widest z-10 uppercase animate-pulse">Live Mode Active</p>
+    <button id="close-live-btn" class="mt-12 px-6 py-2 rounded-full border border-error text-error hover:bg-error hover:text-on-error transition-colors z-10">End Session</button>
+</div>
+<!-- END INJECTED MODALS -->
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Avatar Logic
+        const avatarContainer = document.getElementById('avatar-container');
+        const avatarBtn = document.getElementById('avatar-btn');
+        const avatarDropdown = document.getElementById('avatar-dropdown');
+        
+        if (avatarBtn && avatarDropdown) {
+            avatarBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                avatarDropdown.classList.toggle('hidden');
+                avatarDropdown.classList.toggle('flex');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!avatarContainer.contains(e.target)) {
+                    avatarDropdown.classList.add('hidden');
+                    avatarDropdown.classList.remove('flex');
+                }
+            });
+        }
+        
+        // Sidebar Links Logic
+        const sidebarChatBtn = document.getElementById('sidebar-chat-btn');
+        const sidebarHistoryBtn = document.getElementById('sidebar-history-btn');
+        const sidebarLiveBtn = document.getElementById('sidebar-live-btn');
+        const sidebarToolsBtn = document.getElementById('sidebar-tools-btn');
+        const sidebarSettingsBtn = document.getElementById('sidebar-settings-btn');
+        
+        const logsModal = document.getElementById('logs-modal');
+        const settingsModal = document.getElementById('settings-modal');
+        const liveOverlay = document.getElementById('live-overlay');
+        
+        const closeLogsBtn = document.getElementById('close-logs-modal-btn');
+        const closeSettingsBtn = document.getElementById('close-settings-modal-btn');
+        const closeLiveBtn = document.getElementById('close-live-btn');
+        
+        function hideAll() {
+            if (logsModal) logsModal.classList.add('hidden');
+            if (settingsModal) settingsModal.classList.add('hidden');
+            if (liveOverlay) liveOverlay.classList.add('hidden');
+        }
+        
+        if (sidebarChatBtn) {
+            sidebarChatBtn.parentElement.parentElement.addEventListener('click', () => {
+                hideAll();
+            });
+        }
+        
+        if (sidebarHistoryBtn) {
+            sidebarHistoryBtn.parentElement.parentElement.addEventListener('click', () => {
+                hideAll();
+                if (logsModal) logsModal.classList.remove('hidden');
+            });
+        }
+        
+        if (sidebarLiveBtn) {
+            sidebarLiveBtn.parentElement.parentElement.addEventListener('click', () => {
+                hideAll();
+                if (liveOverlay) liveOverlay.classList.remove('hidden');
+            });
+        }
+        
+        if (sidebarSettingsBtn) {
+            sidebarSettingsBtn.parentElement.parentElement.addEventListener('click', () => {
+                hideAll();
+                if (settingsModal) settingsModal.classList.remove('hidden');
+            });
+        }
+        
+        if (sidebarToolsBtn) {
+            sidebarToolsBtn.parentElement.parentElement.addEventListener('click', () => {
+                // Focus on the right sidebar
+                document.getElementById('tool-web-browser').scrollIntoView({behavior: 'smooth', block: 'center'});
+            });
+        }
+        
+        // Close Buttons
+        if (closeLogsBtn) closeLogsBtn.addEventListener('click', hideAll);
+        if (closeSettingsBtn) closeSettingsBtn.addEventListener('click', hideAll);
+        if (closeLiveBtn) closeLiveBtn.addEventListener('click', hideAll);
+        
+        // Right Sidebar Tools Logic
+        const toolWeb = document.getElementById('tool-web-browser');
+        const toolCode = document.getElementById('tool-code-interpreter');
+        const toolData = document.getElementById('tool-data-analysis');
+        
+        function addToolClick(el) {
+            if (!el) return;
+            // The container is two levels up
+            const container = el.parentElement.parentElement;
+            container.addEventListener('click', () => {
+                const originalText = el.innerText;
+                el.innerText = 'Initializing...';
+                el.classList.add('animate-pulse');
+                setTimeout(() => {
+                    el.innerText = originalText + ' (Active)';
+                    el.classList.remove('animate-pulse');
+                    el.classList.add('text-primary');
+                }, 1000);
+            });
+        }
+        
+        addToolClick(toolWeb);
+        addToolClick(toolCode);
+        addToolClick(toolData);
+    });
+</script>
 
 </body>
 </html>

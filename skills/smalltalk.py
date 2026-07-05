@@ -40,10 +40,35 @@ def cmd_switch_personality(args):
     
     return f"I don't know that mode. Available: {', '.join(available)}"
 
+last_told_joke = None
+
 def cmd_joke(args):
     """Usage: tell me a joke"""
-    prompt = "Tell me a joke. Make it specific to your current personality setup."
-    return generate_response(prompt, "joke", 0.9) or "I can't think of a joke right now."
+    global last_told_joke
+    import json, os, random
+    joke_text = "Why did the AI go to school? To improve its learning algorithms! *giggles*"
+    try:
+        joke_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'userdata', 'jokes.json')
+        if os.path.exists(joke_path):
+            with open(joke_path, 'r', encoding='utf-8') as f:
+                jokes = json.load(f)
+                if jokes:
+                    joke_text = random.choice(jokes)
+    except Exception as e:
+        print(f"Error loading jokes: {e}")
+
+    last_told_joke = joke_text
+    # Return the exact joke directly to prevent the LLM from overriding it with the same trained joke
+    return f"Here's one for you: \n\n{joke_text}"
+
+def cmd_explain_joke(args):
+    """Usage: i don't get it"""
+    global last_told_joke
+    if not last_told_joke:
+        return generate_response("The user asked to explain a joke, but you haven't told one yet. Let them know playfully.", "explain", 0.7) or "I haven't told any jokes yet!"
+    
+    prompt = f"You recently told this joke: '{last_told_joke}'. The user didn't get it and asked you to explain it. Explain the joke to them like a helpful, friendly AI companion."
+    return generate_response(prompt, "explain", 0.8) or "It's just a silly joke, don't worry about it!"
 
 def cmd_funfact(args):
     """Usage: tell me a fun fact"""
@@ -151,6 +176,12 @@ def register(dispatcher):
     
     dispatcher.register("joke", cmd_joke)
     dispatcher.register("tell me a joke", cmd_joke)
+    
+    dispatcher.register("explain joke", cmd_explain_joke)
+    dispatcher.register("i dont get it", cmd_explain_joke)
+    dispatcher.register("i don't get it", cmd_explain_joke)
+    dispatcher.register("what does that mean", cmd_explain_joke)
+    dispatcher.register("explain that", cmd_explain_joke)
     
     dispatcher.register("fact", cmd_funfact)
     dispatcher.register("fun fact", cmd_funfact)

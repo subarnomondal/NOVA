@@ -75,12 +75,25 @@ class InstantReplyGenerator:
     
     def _fallback_response(self, intent):
         """Static fallback if LLM fails."""
+        joke_text = "Why did the AI go to school? To improve its learning algorithms! *giggles*"
+        if intent == "joke":
+            try:
+                import json, os, random
+                joke_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'userdata', 'jokes.json')
+                if os.path.exists(joke_path):
+                    with open(joke_path, 'r', encoding='utf-8') as f:
+                        jokes = json.load(f)
+                        if jokes:
+                            joke_text = random.choice(jokes)
+            except Exception:
+                pass
+
         fallbacks = {
             "greeting": "Hey there! What can I do for you? ✨",
             "thanks": "You're welcome! *smiles*",
             "apology": "It's fine. Don't worry about it. ",
             "affection": "*blushes* W-What are you saying all of a sudden?!",
-            "joke": "Why did the AI go to school? To improve its learning algorithms! *giggles*",
+            "joke": joke_text,
             "compliment": "*blushes* T-Thank you... That's very kind of you to say. ",
             "goodbye": "Bye for now! I'll be here when you need me. ✨",
             "how_are_you": "I'm doing well! Thanks for asking. How about you? ",
