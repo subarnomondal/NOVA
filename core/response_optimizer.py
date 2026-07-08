@@ -124,15 +124,51 @@ class ResponseOptimizer:
         # time.sleep(delay) - REMOVED for speed as requested
     
     def preprocess_input(self, user_input: str) -> str:
-        """Preprocess input for faster processing"""
-        # Remove extra whitespace
-        processed = ' '.join(user_input.split())
-        
-        # Remove unnecessary words for faster matching
-        filler_words = ['um', 'uh', 'like', 'you know', 'basically']
-        for word in filler_words:
-            processed = processed.replace(word, '')
-        
+        """Voice-aware preprocessing: strips STT artifacts, fillers, and echo duplicates."""
+        if not user_input:
+            return ""
+
+        processed = user_input
+
+        # 1. Convert spoken punctuation to actual punctuation
+        spoken_punctuation = {
+            ' comma ': ', ', ' period ': '. ', ' full stop ': '. ',
+            ' question mark ': '? ', ' exclamation mark ': '! ',
+            ' colon ': ': ', ' semicolon ': '; ',
+            ' new line ': '\n', ' newline ': '\n',
+        }
+        proc_lower = processed.lower()
+        for spoken, actual in spoken_punctuation.items():
+            if spoken in proc_lower:
+                # Case-insensitive replace
+                import re as _re
+                processed = _re.sub(_re.escape(spoken), actual, processed, flags=_re.IGNORECASE)
+
+        # 2. Remove filler words (voice artifacts from STT)
+        filler_words = [
+            'um', 'uh', 'uhh', 'umm', 'hmm', 'hm', 'er', 'ah',
+            'like', 'you know', 'basically', 'literally', 'actually',
+            'so like', 'i mean', 'kind of', 'sort of',
+            'okay so', 'alright so', 'well',
+        ]
+        for filler in filler_words:
+            # Only remove when it's a standalone filler, not part of a real word
+            import re as _re
+            pattern = r'\b' + _re.escape(filler) + r'\b'
+            processed = _re.sub(pattern, '', processed, flags=_re.IGNORECASE)
+
+        # 3. Remove duplicate adjacent words (echo/stutter from STT)
+        # e.g., "play play music" → "play music"
+        words = processed.split()
+        deduped = [words[0]] if words else []
+        for i in range(1, len(words)):
+            if words[i].lower() != words[i-1].lower():
+                deduped.append(words[i])
+        processed = ' '.join(deduped)
+
+        # 4. Clean up extra whitespace
+        processed = ' '.join(processed.split())
+
         return processed.strip()
     
     def get_stats(self) -> Dict:

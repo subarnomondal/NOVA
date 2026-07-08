@@ -120,8 +120,8 @@ class CommandDispatcher:
             
             if responses:
                 return "\n\n".join([str(r) for r in responses if r])
-            return None
-
+            # Fall through to legacy match if NLP routing didn't handle it
+            
         # 2. Legacy/Fallback direct string match
         user_input_lower = user_input.lower()
         if not user_input_lower.strip():

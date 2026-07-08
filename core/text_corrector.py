@@ -160,4 +160,47 @@ class TextCorrector:
                 
         return cleaned
 
+    # ===== FAST STT ERROR REPAIR =====
+    # Static map of common Whisper mistakes — no LLM call needed, <1ms
+    STT_CORRECTIONS = {
+        # Proper nouns
+        'nova': 'Nova', 'no va': 'Nova', 'nover': 'Nova',
+        'no bar': 'Nova', 'no vah': 'Nova',
+        # Homophones in command context
+        'whether': 'weather', 'whether today': 'weather today',
+        'whether report': 'weather report', 'whether forecast': 'weather forecast',
+        # Common STT confusions
+        'play some': 'play some', 'played music': 'play music',
+        'screen shot': 'screenshot', 'screen short': 'screenshot',
+        'what\'s app': 'WhatsApp', 'watts app': 'WhatsApp',
+        'what app': 'WhatsApp', 'watsapp': 'WhatsApp',
+        'look screen': 'lock screen', 'log screen': 'lock screen',
+        'shut down': 'shutdown', 'shot down': 'shutdown',
+        'turned off': 'turn off', 'tone off': 'turn off',
+        're boot': 'reboot',
+        # Capitalization fixes
+        'google': 'Google', 'youtube': 'YouTube', 'spotify': 'Spotify',
+        'whatsapp': 'WhatsApp', 'instagram': 'Instagram',
+        'chrome': 'Chrome', 'firefox': 'Firefox',
+    }
+
+    def correct_stt(self, text: str) -> str:
+        """Fast STT error correction using static mapping. No LLM needed.
+        Designed to run inline in the transcription pipeline for ~0ms overhead."""
+        if not text or len(text) < 2:
+            return text
+        
+        import re
+        corrected = text
+        text_lower = corrected.lower()
+        
+        for wrong, right in self.STT_CORRECTIONS.items():
+            if wrong in text_lower:
+                # Word-boundary matching for safety
+                pattern = r'\b' + re.escape(wrong) + r'\b'
+                corrected = re.sub(pattern, right, corrected, flags=re.IGNORECASE)
+                text_lower = corrected.lower()  # Update for next iteration
+        
+        return corrected
+
 # Singleton instance will be created in desktop.py

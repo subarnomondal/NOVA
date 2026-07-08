@@ -89,7 +89,11 @@ class BrowserAgent:
             try:
                 print("[Browser] Initializing Engine (Playwright)...")
                 self._playwright = sync_playwright().start()
-                self._browser = self._playwright.chromium.launch(headless=False)
+                self._browser = self._playwright.chromium.launch(
+                    headless=False,
+                    channel="msedge",
+                    args=['--autoplay-policy=no-user-gesture-required']
+                )
                 self._context = self._browser.new_context(
                     user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                     viewport={'width': 1280, 'height': 720}
@@ -137,6 +141,49 @@ class BrowserAgent:
         except Exception:
             pass
 
+    def get_screenshot_base64(self):
+        """Returns a base64 encoded jpeg of the current page, or None if not available."""
+        def _do_get():
+            if not self._page:
+                return None
+            try:
+                import base64
+                # Use a low-quality jpeg for faster streaming
+                img_bytes = self._page.screenshot(type="jpeg", quality=40)
+                return base64.b64encode(img_bytes).decode('utf-8')
+            except Exception:
+                return None
+        # Use internal executor to avoid thread collisions with Playwright
+        try:
+            return self._executor.submit(_do_get).result()
+        except Exception:
+            return None
+
+    def go_back(self):
+        def _do_back():
+            if self._page:
+                self._page.go_back()
+                return self._do_map_internal()
+            return "No page active"
+        return self._run_in_browser_thread(_do_back)
+        
+    def go_forward(self):
+        def _do_forward():
+            if self._page:
+                self._page.go_forward()
+                return self._do_map_internal()
+            return "No page active"
+        return self._run_in_browser_thread(_do_forward)
+        
+    def scroll(self, direction="down"):
+        def _do_scroll():
+            if self._page:
+                amount = 500 if direction == "down" else -500
+                self._page.mouse.wheel(0, amount)
+                return "Scrolled " + direction
+            return "No page active"
+        return self._run_in_browser_thread(_do_scroll)
+
     def open_url(self, url):
         def _do_open_url(u):
             if not self._page:
@@ -147,6 +194,23 @@ class BrowserAgent:
                 try: self._page.wait_for_load_state("networkidle", timeout=1000)
                 except Exception:
                     pass
+                    
+                # Force play if it's a media site (since headless sometimes blocks autoplay)
+                if "youtube" in u or "music" in u:
+                    try:
+                        self._page.evaluate("""() => {
+                            setTimeout(() => {
+                                const v = document.querySelector('video');
+                                if (v) v.play();
+                                else {
+                                    const playBtn = document.querySelector('.play-pause-button, #play-pause-button, .ytp-play-button');
+                                    if(playBtn) playBtn.click();
+                                }
+                            }, 1000);
+                        }""")
+                    except Exception:
+                        pass
+                        
                 return self._do_map_internal()
             except Exception as e:
                 return f"Failed to open {u}: {str(e)}"

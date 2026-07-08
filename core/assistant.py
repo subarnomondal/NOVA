@@ -382,11 +382,8 @@ class Nova:
             clean_final = clean_final.split("**Interactable Elements")[0].strip()
         
         if not clean_final:
-            # Fallback 1: Use final_response if clean_final is empty
+            # Fallback: Use final_response if clean_final is empty
             clean_final = final_response 
-            # Fallback 2: Final emergency response if still empty
-            if not clean_final:
-                clean_final = "I'm processing your request... what can I do for you?"
             
         return {
             "response": clean_final,

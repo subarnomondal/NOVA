@@ -18,6 +18,37 @@
 
 ---
 
+## 2. Smart Chat History Engine
+
+**Status:** Complete
+
+### What Changed
+- **LLM Filtering:** Added a local LLM evaluation step to `core/chat_history.py` to prevent "small talk" (like "hello" or "how are you") from polluting the persistent storage.
+- **Auto-Summarization:** Meaningful exchanges are now summarized into compact, actionable facts before being saved to memory.
+- **7-Day Retention Policy:** Added automatic pruning logic to delete any chat history data older than 7 days, maintaining a clean and relevant context window.
+
+---
+
+## 3. Backend Bug Fixes
+
+**Status:** Complete
+
+### What Changed
+- Fixed a critical `SyntaxError` in `core/llm_manager.py` (line 544) that was crashing the application when falling back to Groq or OpenRouter.
+- Removed duplicate routing logic blocks to streamline the LLM manager's request flow.
+
+---
+
+## 4. UI Aesthetics & System Integrity
+
+**Status:** Complete
+
+### What Changed
+- Generated a brand-new futuristic Dark Mode UI using Stitch MCP and prepared it for integration.
+- Audited the `.gitignore` file and added a strict system Workspace Rule (`AGENTS.md`) to always ensure `temp/` and auto-generated data are excluded from version control before any future Git updates.
+
+---
+
 > **Session Date:** 2026-07-02
 > **Total Files Modified:** 6
 > **Skills Fixed:** 1 (browser_agent)

@@ -128,10 +128,18 @@ def cmd_play(args):
             query = agi_context.get_query()
             
             if not query:
-                # Media toggle fallback
-                print("⏯️ Toggling media playback...")
-                return "Toggled media playback. ⏯️"
-            
+                if query_raw in ["play", "pause", "resume"]:
+                    # Media toggle fallback
+                    print("⏯️ Toggling media playback...")
+                    try:
+                        import pyautogui
+                        pyautogui.press("playpause")
+                    except Exception:
+                        pass
+                    return "Toggled media playback. ⏯️"
+                else:
+                    # e.g., user just said "play music" or "play song"
+                    query = "lofi chill beats"            
         # --- NEW: LOCAL FILE SEARCH ---
         if "local" in query_raw or "pc" in query_raw or "computer" in query_raw:
             clean_query = query.replace("local", "").replace("pc", "").replace("on", "").strip()

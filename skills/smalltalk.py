@@ -95,6 +95,11 @@ def cmd_status(args):
     prompt = "The user asks what you are doing. Give a creative answer in character."
     return generate_response(prompt, "status", 0.8) or "Just processing data."
 
+def cmd_identity(args):
+    """Usage: who are you / introduce yourself"""
+    prompt = "The user asks who you are or to introduce yourself. Introduce yourself proudly as Nova, a highly advanced local AI assistant built to help the user. Keep it natural and expressive, showing off your personality."
+    return generate_response(prompt, "identity", 0.8) or "I am Nova, your personal AI assistant. I'm here to help you with whatever you need!"
+
 def cmd_hello(args):
     """Usage: hello"""
     prompt = "The user says Hello. Greet them back in character."
@@ -197,6 +202,10 @@ def register(dispatcher):
     
     dispatcher.register("what are you doing", cmd_status)
     dispatcher.register("sup", cmd_status)
+    
+    dispatcher.register("who are you", cmd_identity)
+    dispatcher.register("your name", cmd_identity)
+    dispatcher.register("introduce yourself", cmd_identity)
     
     dispatcher.register("how are you", cmd_how_are_you)
     dispatcher.register("hru", cmd_how_are_you)

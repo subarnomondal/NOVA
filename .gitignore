@@ -83,3 +83,6 @@ playwright_screenshot.png
 # Stitch / temp UI prototypes (not production)
 web/stitch_*.html
 web/new_index.html
+# Temp skills
+skills/temp_skills/*
+!skills/temp_skills/__init__.py

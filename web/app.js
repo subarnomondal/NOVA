@@ -345,8 +345,6 @@ function renderNewsResults(container, results) {
 }
 
 function renderThoughts(thoughts, modelName = null) {
-    if (!thoughts || thoughts.length === 0) return;
-
     const feed = document.getElementById('thought-feed');
     const badge = document.getElementById('thought-status-badge');
     const countEl = document.getElementById('thought-count');
@@ -367,33 +365,20 @@ function renderThoughts(thoughts, modelName = null) {
     // Clear old thoughts
     feed.innerHTML = '';
 
-    const typeLabels = ['REASONING', 'ANALYZING', 'PLANNING', 'COMPUTING', 'EVALUATING'];
-    const typeColors = {
-        'REASONING': 'rgba(139,92,246,0.6)',
-        'ANALYZING': 'rgba(96,165,250,0.6)',
-        'PLANNING':  'rgba(52,211,153,0.6)',
-        'COMPUTING': 'rgba(251,191,36,0.6)',
-        'EVALUATING':'rgba(248,113,113,0.6)',
-    };
+    if (thoughts && thoughts.length > 0) {
+        thoughts.forEach((step, index) => {
+            const line = document.createElement('div');
+            line.className = 'text-[#8ca6f9] mb-2';
+            line.textContent = `> ${step}`;
+            feed.appendChild(line);
+        });
+    }
 
-    thoughts.forEach((step, index) => {
-        const label = typeLabels[index % typeLabels.length];
-        const color = typeColors[label];
-        const card = document.createElement('div');
-        card.className = 'thought-card';
-        card.style.cssText = `
-            border-left: 2px solid ${color};
-            background: rgba(139,92,246,0.04);
-            border-radius: 0 8px 8px 0;
-            padding: 10px 12px;
-            animation: thoughtSlideIn 0.4s ease-out ${index * 0.07}s both;
-        `;
-        card.innerHTML = `
-            <span style="font-family:monospace; font-size:9px; letter-spacing:0.18em; color:${color}; font-weight:600;">${label}</span>
-            <p style="font-family:monospace; font-size:12px; color:rgba(255,255,255,0.65); margin:5px 0 0; line-height:1.6;">${step}</p>
-        `;
-        feed.appendChild(card);
-    });
+    // Add trailing waiting animation
+    const waiting = document.createElement('div');
+    waiting.className = 'text-white/60 flex items-center gap-2';
+    waiting.innerHTML = '> Awaiting input <span class="w-1.5 h-3 bg-white/50 animate-pulse inline-block"></span>';
+    feed.appendChild(waiting);
 
     // Update count
     if (countEl) {
@@ -1144,10 +1129,14 @@ vadAnalyser = null;
 microphone = null;
 javascriptNode = null;
 
-// VAD Constants
-const VAD_THRESHOLD = 35; // Lowered to 35 for better sensitivity to quiet speech
-const SILENCE_DELAY = 1000; // Increased to 1000ms to allow more pause between words
+// VAD Constants — Tuned for maximum voice recognition accuracy
+const VAD_THRESHOLD = 25; // Lowered for soft-spoken users and distant mics
+const SILENCE_DELAY = 1500; // 1.5s patience to avoid cutting mid-sentence pauses
+const MIN_SPEECH_DURATION_MS = 300; // Minimum speech before arming silence timer (prevents cough/click triggers)
 let silenceTimer = null;
+let noiseFloor = 15; // Adaptive noise floor (updated continuously)
+let noiseFloorSamples = 0;
+let speechStartTime = 0; // Track when speech started
 
 async function startRecording() {
     if (isSpeaking) {
@@ -1157,10 +1146,94 @@ async function startRecording() {
     isLiveInteraction = true;
     isProcessing = false;
 
-    // Deferring all heavy voice handling to unify background hearing engine.
-    // This prevents 'Double Listening' between the Browser and the Desktop app.
-    console.log("🎤 Triggering backend listening session...");
-    fetch(`${API_URL}/voice/trigger`, { method: 'POST' }).catch(err => console.error("Trigger failed:", err));
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        vadAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+        microphone = vadAudioContext.createMediaStreamSource(stream);
+        vadAnalyser = vadAudioContext.createAnalyser();
+        vadAnalyser.fftSize = 512;
+        vadAnalyser.smoothingTimeConstant = 0.1;
+
+        microphone.connect(vadAnalyser);
+
+        javascriptNode = vadAudioContext.createScriptProcessor(2048, 1, 1);
+        vadAnalyser.connect(javascriptNode);
+        javascriptNode.connect(vadAudioContext.destination);
+
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (event) => {
+            if (event.data.size > 0) audioChunks.push(event.data);
+        };
+
+        mediaRecorder.onstop = () => {
+            stream.getTracks().forEach(track => track.stop());
+            cleanupAudio();
+            if (audioChunks.length > 0) {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                transcribeAudio(audioBlob);
+            }
+        };
+
+        let isSpeakingCurrently = false;
+
+        // Reset adaptive noise floor for this recording session
+        noiseFloor = 15;
+        noiseFloorSamples = 0;
+        speechStartTime = 0;
+
+        javascriptNode.onaudioprocess = function() {
+            if (!isRecording) return;
+            const array = new Uint8Array(vadAnalyser.frequencyBinCount);
+            vadAnalyser.getByteFrequencyData(array);
+            let sum = 0;
+            for (let i = 0; i < array.length; i++) {
+                sum += array[i];
+            }
+            const average = sum / array.length;
+
+            // Adaptive noise floor: continuously track ambient level during silence
+            if (!isSpeakingCurrently) {
+                noiseFloorSamples++;
+                // Exponential moving average for noise floor
+                noiseFloor = noiseFloor * 0.95 + average * 0.05;
+            }
+
+            // Dynamic threshold: noise floor + fixed margin
+            const effectiveThreshold = Math.max(VAD_THRESHOLD, noiseFloor + 12);
+
+            if (average > effectiveThreshold) {
+                if (!isSpeakingCurrently) {
+                    isSpeakingCurrently = true;
+                    speechStartTime = Date.now();
+                }
+                if (silenceTimer) {
+                    clearTimeout(silenceTimer);
+                    silenceTimer = null;
+                }
+            } else {
+                // Only arm silence timer if user has spoken for at least MIN_SPEECH_DURATION_MS
+                const speechDuration = speechStartTime > 0 ? (Date.now() - speechStartTime) : 0;
+                if (isSpeakingCurrently && !silenceTimer && speechDuration >= MIN_SPEECH_DURATION_MS) {
+                    silenceTimer = setTimeout(() => {
+                        isSpeakingCurrently = false;
+                        speechStartTime = 0;
+                        stopRecording();
+                    }, SILENCE_DELAY);
+                }
+            }
+        };
+
+        mediaRecorder.start();
+        isRecording = true;
+        if (micBtn) micBtn.classList.add('listening');
+        if (typeof liveOverlay !== 'undefined' && liveOverlay) liveOverlay.classList.add('listening');
+        console.log("🎤 Recording started via browser...");
+    } catch (err) {
+        console.error("Microphone access denied or error:", err);
+    }
 }
 
 function cleanupAudio() {
@@ -1357,15 +1430,17 @@ function animateVoiceVisualizer() {
         intensity = sum / dataArray.length;
     }
 
-    // Animate Halos
+    // Animate Halos - Made bigger and more interactive
     visualizerHalos.forEach((halo, index) => {
-        const offset = (index + 1) * 20;
-        const scale = 1 + (intensity / 255) * (2 + index);
-        const opacity = (intensity / 255) * (0.8 - index * 0.2);
+        // Boost intensity impact and base scale
+        const scale = 1.2 + (intensity / 100) * (3 + index * 2.5); 
+        const opacity = (intensity / 200) * (1.0 - index * 0.15);
+        const glow = intensity / 10;
 
         halo.style.transform = `scale(${scale})`;
-        halo.style.opacity = opacity;
-        halo.style.borderWidth = `${1 + (intensity / 100)}px`;
+        halo.style.opacity = Math.min(1, opacity);
+        halo.style.borderWidth = `${2 + (intensity / 50)}px`;
+        halo.style.boxShadow = `0 0 ${glow}px rgba(120, 180, 255, 0.5)`;
     });
 
     requestAnimationFrame(animateVoiceVisualizer);
@@ -2335,23 +2410,15 @@ async function sendCommand(text, isSilent = false, lang = null) {
         showBrowsingStatus('Searching Web...', 'assets/default_web.png');
     }
 
-    // Show animated "Thinking..." bubble immediately
-    const thinkingBubble = document.createElement('div');
-    thinkingBubble.className = 'message nova nova-msg thinking-bubble';
-    thinkingBubble.id = 'thinking-bubble';
-    thinkingBubble.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px;opacity:0.7;font-style:italic;">
-            <span>Thinking</span>
-            <span class="thinking-dots">
-                <span style="animation:thinkDot 1.2s infinite 0s">.</span>
-                <span style="animation:thinkDot 1.2s infinite 0.4s">.</span>
-                <span style="animation:thinkDot 1.2s infinite 0.8s">.</span>
-            </span>
-        </div>`;
-    const outputArea = document.getElementById('chat-feed');
-    if (outputArea) {
-        outputArea.appendChild(thinkingBubble);
-        outputArea.scrollTop = outputArea.scrollHeight;
+    // Show animated "Thinking..." indicator in Thought panel
+    const thoughtFeed = document.getElementById('thought-feed');
+    if (thoughtFeed) {
+        thoughtFeed.innerHTML = '';
+        const thinkingLine = document.createElement('div');
+        thinkingLine.id = 'thinking-bubble'; // Re-use the ID so it gets removed easily later
+        thinkingLine.className = 'text-[#8ca6f9] mb-2';
+        thinkingLine.innerHTML = `> Processing contextual intent<span class="thinking-dots"><span style="animation:thinkDot 1.2s infinite 0s">.</span><span style="animation:thinkDot 1.2s infinite 0.4s">.</span><span style="animation:thinkDot 1.2s infinite 0.8s">.</span></span>`;
+        thoughtFeed.appendChild(thinkingLine);
     }
 
     try {
@@ -3220,3 +3287,260 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+
+document.addEventListener('DOMContentLoaded', () => {
+    const coreLoadVal = document.getElementById('core-load-val');
+    const coreBars = document.querySelectorAll('#core-load-chart > div');
+
+    if (coreLoadVal) {
+        setInterval(() => {
+            // Randomize Core Load % (30% to 80%)
+            const load = Math.floor(Math.random() * 50) + 30;
+            coreLoadVal.innerText = load + '%';
+            
+            // Animate Core Chart Bars
+            coreBars.forEach(bar => {
+                const h = Math.floor(Math.random() * 80) + 20; // 20% to 100%
+                bar.style.height = h + '%';
+            });
+        }, 1500);
+    }
+
+});
+
+// --- Talking Glass Wave Shader ---
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_14');
+  if (!canvas) return;
+
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec3 u_color1;
+uniform vec3 u_color2;
+uniform float u_speak_intensity;
+
+varying vec2 v_texCoord;
+
+float pulse(float x, float p, float w) {
+    return pow(4.0 * x * (1.0 - x), 1.0 / w);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 p = uv * 2.0 - 1.0;
+    p.x *= u_resolution.x / u_resolution.y;
+    
+    float t = u_time * 1.5;
+    
+    float finalWave = 0.0;
+    for(float i = 1.0; i <= 5.0; i++) {
+        float speed = t * (0.5 + i * 0.2);
+        float amplitude = (0.15 / i) * (1.0 + u_speak_intensity * 3.0);
+        float frequency = 3.0 + i * 2.0;
+        float wave = sin(p.x * frequency + speed) * amplitude;
+        
+        float envelope = exp(-pow(p.x * 2.0, 2.0));
+        wave *= envelope;
+        
+        float dist = abs(p.y - wave);
+        finalWave += (0.01 / dist) * envelope;
+    }
+    
+    vec3 color = mix(u_color1, u_color2, uv.x + sin(t) * 0.5);
+    vec3 finalColor = color * finalWave;
+    
+    float highlight = pow(max(0.0, 1.0 - length(p * vec2(1.0, 4.0))), 4.0);
+    finalColor += u_color2 * highlight * 0.3 * (sin(t * 2.0) * 0.5 + 0.5);
+    
+    float alpha = clamp(finalWave + highlight * 0.2, 0.0, 1.0);
+    gl_FragColor = vec4(finalColor * alpha, alpha * 0.8);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uColor1 = gl.getUniformLocation(prog, 'u_color1');
+  const uColor2 = gl.getUniformLocation(prog, 'u_color2');
+  const uSpeak = gl.getUniformLocation(prog, 'u_speak_intensity');
+
+  // Default colors
+  let currentColor1 = [0.0, 0.706, 0.941];
+  let currentColor2 = [0.659, 0.333, 0.969];
+  let targetColor1 = [...currentColor1];
+  let targetColor2 = [...currentColor2];
+
+  window.setEmotionColors = function(emotion) {
+      switch(emotion.toLowerCase()) {
+          case 'happy':
+          case 'joy':
+              targetColor1 = [1.0, 0.8, 0.2]; // Yellow/Orange
+              targetColor2 = [1.0, 0.5, 0.0];
+              break;
+          case 'sad':
+          case 'sorrow':
+              targetColor1 = [0.2, 0.4, 0.8]; // Deep blue
+              targetColor2 = [0.1, 0.2, 0.5];
+              break;
+          case 'angry':
+          case 'anger':
+              targetColor1 = [1.0, 0.2, 0.1]; // Red
+              targetColor2 = [0.8, 0.0, 0.0];
+              break;
+          case 'calm':
+          case 'neutral':
+          default:
+              targetColor1 = [0.0, 0.706, 0.941]; // Default Blue
+              targetColor2 = [0.659, 0.333, 0.969]; // Default Purple
+              break;
+      }
+  };
+
+  let targetSpeakIntensity = 0;
+  let currentSpeakIntensity = 0;
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    
+    // Smoothly interpolate colors
+    for(let i = 0; i < 3; i++) {
+        currentColor1[i] += (targetColor1[i] - currentColor1[i]) * 0.05;
+        currentColor2[i] += (targetColor2[i] - currentColor2[i]) * 0.05;
+    }
+    
+    // Speak Intensity
+    targetSpeakIntensity = isSpeaking ? (Math.random() * 0.8 + 0.2) : 0.0;
+    currentSpeakIntensity += (targetSpeakIntensity - currentSpeakIntensity) * 0.2;
+    
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uColor1) gl.uniform3fv(uColor1, currentColor1);
+    if (uColor2) gl.uniform3fv(uColor2, currentColor2);
+    if (uSpeak) gl.uniform1f(uSpeak, currentSpeakIntensity);
+    
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+
+// Expose toggle function
+window.toggleTalkingAnimation = function(isTalking) {
+    const wave = document.getElementById('glass-wave-anim');
+    const thinkPing = document.getElementById('thought-ping-anim');
+    
+    if(wave) {
+        if(isTalking) {
+            wave.style.opacity = '1';
+        } else {
+            wave.style.opacity = '0';
+        }
+    }
+    
+    if(thinkPing) {
+        if(isTalking) {
+            thinkPing.classList.add('animate-ping');
+        } else {
+            thinkPing.classList.remove('animate-ping');
+        }
+    }
+};
+
+// BROWSER LIVE VIEW LOGIC
+let liveViewInterval = null;
+async function startLiveView() {
+    const imgEl = document.getElementById('live-view-img');
+    const loadEl = document.getElementById('live-view-loading');
+    const errEl = document.getElementById('live-view-error');
+    if(liveViewInterval) clearInterval(liveViewInterval);
+    liveViewInterval = setInterval(async () => {
+        try {
+            const res = await fetch(API_URL + '/browser/live_view');
+            const data = await res.json();
+            if(data.status === 'success' && data.image) {
+                imgEl.src = 'data:image/jpeg;base64,' + data.image;
+                imgEl.classList.remove('hidden');
+                loadEl.classList.add('hidden');
+                errEl.classList.add('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+                loadEl.classList.add('hidden');
+                errEl.classList.remove('hidden');
+                document.getElementById('live-view-error-msg').innerText = data.message || "Browser is not active.";
+            }
+        } catch(e) {
+            imgEl.classList.add('hidden');
+            loadEl.classList.add('hidden');
+            errEl.classList.remove('hidden');
+            document.getElementById('live-view-error-msg').innerText = "Connection lost.";
+        }
+    }, 1000);
+}
+
+
+function stopLiveView() {
+    if(liveViewInterval) {
+        clearInterval(liveViewInterval);
+        liveViewInterval = null;
+    }
+}
+
+async function sendBrowserAction(action, selector = null, value = null) {
+    try {
+        const payload = { action };
+        if (selector) payload.selector = selector;
+        if (value) payload.value = value;
+        
+        await fetch(API_URL + '/browser/action', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        // Clear inputs after sending
+        if(action === 'click' || action === 'type') {
+            const textEl = document.getElementById('live-browser-text');
+            if(textEl) textEl.value = '';
+        }
+    } catch(e) {
+        console.error("Browser action error:", e);
+    }
+}

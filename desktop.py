@@ -117,8 +117,31 @@ except ImportError:
 stt_model = None
 stt_load_lock = threading.Lock()
 
+# Expanded domain-vocabulary prompt to bias Whisper toward NOVA commands
+STT_INITIAL_PROMPT = (
+    "Nova, Hey Nova, weather forecast, latest news, remind me, set a reminder, "
+    "call, phone call, WhatsApp, what time is it, play music, play song, "
+    "search for, Google, screenshot, take a screenshot, volume up, volume down, "
+    "mute, unmute, lock screen, shutdown, restart, sleep mode, open, close, "
+    "browse, download, automate, explain, summarize, write code, calculate."
+)
+
+# Comprehensive hallucination filter — common Whisper phantom outputs
+STT_HALLUCINATIONS = {
+    "see you soon.", "see you soon", "thank you.", "thank you",
+    "bye.", "bye", "you", "mbc", "amara.org", "subtitles by",
+    "copyright", "all rights reserved", "silence", "stop",
+    "thanks for watching.", "thanks for watching", "subscribe",
+    "please subscribe", "like and subscribe", "the end", "the end.",
+    "i'm going to go ahead and", "so", "um", "uh", "hmm",
+    "you know", "okay", "right", "yeah", ".", "..", "...",
+    "♪", "music", "applause", "laughter", "cheers",
+    "thanks for listening", "good night", "good night.",
+    "thank you for watching", "see you next time",
+}
+
 def get_stt_model():
-    """Lazy load Faster-Whisper to save 1GB+ RAM on startup"""
+    """Lazy load Faster-Whisper (small.en) for maximum English accuracy"""
     global stt_model
     if stt_model is not None:
         return stt_model
@@ -128,17 +151,39 @@ def get_stt_model():
             return stt_model
             
         if os.environ.get("NOVA_TESTING") != "1":
-            # Using 'base' (multilingual) for better global/Indian accent parsing
-            model_size = "base" 
+            # small.en: 2x more accurate than base, .en variant skips language detection
+            model_size = "small.en"
             try:
-                print(f" Loading Faster-Whisper ({model_size} Model)...")
+                print(f"🧠 Loading Faster-Whisper ({model_size} Model)...")
                 from faster_whisper import WhisperModel  # type: ignore
                 stt_model = WhisperModel(model_size, device="cpu", compute_type="int8")
-                print("✅ Speech Recognition System Ready")
+                print("✅ Speech Recognition System Ready (small.en — High Accuracy)")
             except Exception as e:
-                print(f"❌ Whisper model load error: {e}")
-                stt_model = False # Marker for failed load
+                print(f"⚠️ small.en failed ({e}), falling back to base.en...")
+                try:
+                    from faster_whisper import WhisperModel  # type: ignore
+                    stt_model = WhisperModel("base.en", device="cpu", compute_type="int8")
+                    print("✅ Speech Recognition System Ready (base.en — Fallback)")
+                except Exception as e2:
+                    print(f"❌ Whisper model load error: {e2}")
+                    stt_model = False # Marker for failed load
     return stt_model
+
+def _is_stt_hallucination(text: str) -> bool:
+    """Check if transcribed text is a known Whisper hallucination."""
+    if not text:
+        return True
+    cleaned = text.strip().lower().rstrip('.')
+    # Exact match against known hallucinations
+    if cleaned in STT_HALLUCINATIONS or text.strip() in STT_HALLUCINATIONS:
+        return True
+    # Very short single-word outputs are usually noise
+    if len(cleaned) <= 2 and not cleaned.isalpha():
+        return True
+    # Repeated single character (e.g., "aaa", "...")
+    if len(set(cleaned.replace(' ', ''))) <= 1:
+        return True
+    return False
 
 try:
     from core.nova_core_llm import nova_core_llm  # type: ignore
@@ -184,6 +229,20 @@ print(f" Memory System: {memory.get_stats()['total_conversations']} conversation
 # Initialize NLU Processor
 nlp = NLUProcessor()
 print(f" NLU System: Ready for natural language understanding with semantic analysis")
+
+# Initialize STT Text Corrector (lightweight, no LLM dependency)
+_stt_corrector = None
+def get_stt_corrector():
+    """Lazy-init the TextCorrector for STT error repair."""
+    global _stt_corrector
+    if _stt_corrector is None:
+        try:
+            from core.text_corrector import TextCorrector
+            _stt_corrector = TextCorrector(llm_manager=None)
+            print("✅ STT Text Corrector: Ready")
+        except Exception as e:
+            print(f"⚠️ STT Corrector init failed: {e}")
+    return _stt_corrector
 
 # Initialize HITL System
 hitl = HITLSystem(feedback_file=os.path.join("userdata", "hitl_feedback.json"))
@@ -383,22 +442,6 @@ def speak_locally(text):
         with IS_SPEAKING_LOCK:
             IS_SPEAKING = False
 
-def ptt_listener_loop():
-    """Polls for Alt key press to trigger on-device hearing (Push-To-Talk)."""
-    try:
-        import win32api  # type: ignore
-        print("⌨️ PTT System: Active (Hold 'Alt' to talk)")
-        last_state = False
-        while True:
-            # 0x12 is Alt. 0x8000 checks if currently down.
-            current_state = (win32api.GetAsyncKeyState(0x12) & 0x8000) != 0
-            if current_state and not last_state:
-                # Manual Trigger
-                threading.Thread(target=trigger_active_listening, daemon=True).start()
-            last_state = current_state
-            time.sleep(0.05)
-    except Exception as e:
-        print(f"⚠️ PTT Listener Failed: {e}")
 
 def cleanup_temp_files():
     """Removes all orphaned temporary audio files from the temp directory and root."""
@@ -484,131 +527,6 @@ def select_best_microphone():
     except Exception:
         return None
 
-class NovaHearingEngine:
-    """
-    Google-style Streaming Hearing Engine.
-    Maintains a single persistent microphone stream and switches states 
-    to provide seamless wake-word and command processing.
-    """
-    def __init__(self, keyword="nova"):
-        self.keyword = keyword.lower()
-        self.recognizer = sr.Recognizer()
-        self.recognizer.energy_threshold = 800
-        self.recognizer.dynamic_energy_threshold = True
-        self.mic = select_best_microphone()
-        self.is_active = False
-        self.processing_lock = threading.Lock()
-        self.stop_listening: t.Any = None # Initialize for static analysis
-        cleanup_temp_files() # Clean on start
-
-    def start(self):
-        print(f" Nova Hearing Engine: Seamless Monitoring ('{self.keyword}')")
-        if not self.mic:
-            print("❌ No microphone detected. Hearing engine disabled.")
-            return
-            
-        with self.mic as source: # type: ignore
-            self.recognizer.adjust_for_ambient_noise(source, duration=1) # type: ignore
-        
-        # Start the background listener that never stops
-        self.stop_listening = self.recognizer.listen_in_background(
-            self.mic, self._handle_audio, phrase_time_limit=10
-        )
-
-    def force_trigger(self):
-        """Manually force the engine to process the next slice as a command (PTT/Button)."""
-        print("⚡ Manual trigger received.")
-        self.is_active = True
-        # In this state, the next _handle_audio call will treat input as a command
-
-    def _handle_audio(self, recognizer, audio):
-        """Callback for every detected phrase segment."""
-        # 0. Global Suppression: Don't listen to yourself!
-        global IS_SPEAKING
-        if IS_SPEAKING: return
-        
-        # Use a lock to prevent overlapping callbacks if processing is slow
-        if self.processing_lock.locked(): return
-        
-        with self.processing_lock:
-            try:
-                # 1. Capture to temporary WAV
-                hex_id = uuid.uuid4().hex
-                temp_wav = os.path.join("temp", f"stream_{hex_id[:6]}.wav")  # type: ignore[index]
-                os.makedirs("temp", exist_ok=True)
-                with open(temp_wav, "wb") as f: f.write(audio.get_wav_data())
-                
-                # 2. Fast Transcription
-                stt = get_stt_model()
-                if not stt: return
-                
-                segments, _ = stt.transcribe(
-                    temp_wav, 
-                    beam_size=5,
-                    language="en",
-                    vad_filter=True,
-                    vad_parameters=dict(min_silence_duration_ms=800),
-                    initial_prompt="Nova, weather, news, remind, call, time, play music, search, screenshot, volume."
-                )
-                text = " ".join([s.text for s in segments]).strip()
-                del segments
-                
-                # Use a small delay or try-except to handle Windows file locking during Faster-Whisper iteration
-                try:
-                    if os.path.exists(temp_wav): os.remove(temp_wav)
-                except:
-                    # If it fails, it will be caught by the next cleanup_temp_files() call
-                    pass
-                
-                # Periodically run a full cleanup to catch orphans
-                if random.random() < 0.1: # 10% chance per phrase
-                    cleanup_temp_files()
-
-                if not text: return
-
-                # Terminal visibility for transcription
-                print(f" [Transcribed] '{text}'")
-
-                # 3. State-Based Logic
-                if self.is_active:
-                    # COMMAND STATE
-                    print(f" [Command] User: '{text}'")
-                    update_ui(text, "user-msg")
-                    self.is_active = False # Reset to IDLE
-                    
-                    # Full Agent Loop
-                    result = process_command_text(text, voice_mode=True)
-                    response = result.get('response', '') if isinstance(result, dict) else str(result)
-                    
-                    show_nova_response(response)
-                    speak_locally(response)
-                    
-                else:
-                    # IDLE/WAKE-WORD STATE
-                    if self.keyword in text.lower():
-                        print(" Wake Word Detected!")
-                        update_ui("<i>Listening...</i>", "system-msg")
-                        self.is_active = True 
-                        # The very next phrase heard will hit the branch above
-            except Exception as e:
-                error_msg = f"⚠️ Hearing Loop Error: {e}"
-                print(error_msg)
-                logging.error(error_msg)
-
-def trigger_active_listening():
-    """Starts a focused listening session (triggered by wake word or PTT)."""
-    global hearing_engine
-    if hearing_engine:
-        update_ui("<i>Listening...</i>", "system-msg")
-        hearing_engine.force_trigger()
-    else:
-        # Fallback if engine not running for some reason
-        print("⚠️ hearing_engine not initialized. Re-initializing...")
-        # (Self-correction logic here if needed)
-
-# Global Hearing Instance
-hearing_engine = None
-
 # Initialize Vision System
 vision = ImageAnalyzer()
 # STT initialization relocated to top of file
@@ -634,6 +552,37 @@ def is_valid_audio(file_path):
     except Exception as e:
         logging.error(f"Audio validation error for {file_path}: {e}")
         return False
+
+def preprocess_audio(file_path: str) -> str:
+    """Normalize audio volume and reduce noise for better Whisper accuracy.
+    Returns the path to the preprocessed WAV file (or original if preprocessing fails)."""
+    try:
+        from pydub import AudioSegment  # type: ignore
+        
+        # Load audio (pydub auto-detects format via ffmpeg)
+        audio = AudioSegment.from_file(file_path)
+        
+        # 1. High-pass filter at 80Hz to remove mic hum/rumble
+        audio = audio.high_pass_filter(80)
+        
+        # 2. Normalize to -20 dBFS (consistent volume)
+        target_dBFS = -20.0
+        change_in_dBFS = target_dBFS - audio.dBFS
+        # Clamp gain to avoid over-amplifying pure silence
+        if abs(change_in_dBFS) < 40:
+            audio = audio.apply_gain(change_in_dBFS)
+        
+        # 3. Export as WAV (Whisper prefers WAV over WebM)
+        wav_path = file_path.rsplit('.', 1)[0] + '_processed.wav'
+        audio.export(wav_path, format='wav', parameters=["-ar", "16000", "-ac", "1"])
+        
+        return wav_path
+    except ImportError:
+        logging.debug("pydub not installed — skipping audio preprocessing")
+        return file_path
+    except Exception as e:
+        logging.debug(f"Audio preprocessing failed ({e}) — using original file")
+        return file_path
 
 # Initialize TTS (Edge TTS - API Only)
 coqui_tts = None
@@ -759,15 +708,15 @@ def upload_profile_image():
     if file.filename == '': return jsonify({"error": "No file"}), 400
     
     try:
-        # Save as standard 'user_avatar.png' in web folder
         filename = "user_avatar.png"
-        static_dir = app.static_folder or "web"
-        filepath = os.path.join(static_dir, filename)
+        userdata_dir = "userdata"
+        os.makedirs(userdata_dir, exist_ok=True)
+        filepath = os.path.join(userdata_dir, filename)
         file.save(filepath)
         
         # Update timestamp to bust cache
         timestamp = int(time.time())
-        return jsonify({"status": "success", "url": f"{filename}?t={timestamp}"})
+        return jsonify({"status": "success", "url": f"/userdata/{filename}?t={timestamp}"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -1128,7 +1077,7 @@ def upload_file():
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
         
-    filepath = os.path.join(upload_dir, str(filename or 'uploaded_file'))
+    filepath = os.path.join(upload_dir, filename or 'uploaded_file')
     file.save(filepath)
     
     # Set context for Document Analysis Skill
@@ -1186,8 +1135,8 @@ def predict_commands():
 @app.route('/api/voice/trigger', methods=['POST'])
 def trigger_voice():
     """Endpoint for the UI to manually trigger the back-end hearing engine."""
-    threading.Thread(target=trigger_active_listening, daemon=True).start()
-    return jsonify({"status": "success", "message": "Listening triggered"})
+    # Backend hearing engine is disabled.
+    return jsonify({"status": "success", "message": "Backend listening is disabled"})
 
 @app.route('/api/transcribe', methods=['POST'])
 def transcribe():
@@ -1195,44 +1144,60 @@ def transcribe():
     audio_file = request.files['audio']
     temp_path = f"temp_audio_{uuid.uuid4().hex}.webm"
     audio_file.save(temp_path)
+    processed_path = None
     
     try:
         # Robust Pre-check to avoid library crashes/errors
         if not is_valid_audio(temp_path):
              return jsonify({"transcript": "", "language": "en"})
+        
+        # Pre-process audio: normalize volume, filter noise, convert to WAV
+        processed_path = preprocess_audio(temp_path)
+        stt_input = processed_path if processed_path != temp_path else temp_path
              
         text = ""
         detected_language = "en"
         
-        # Method 1: Faster-Whisper
+        # Method 1: Faster-Whisper (small.en — high accuracy)
         stt = get_stt_model()
         if stt:
             try:
-                # Optimized beam_size=1 for faster live response
                 segments, info = stt.transcribe(
-                    temp_path, 
+                    stt_input, 
                     beam_size=5,
                     language="en",
                     vad_filter=True,
-                    vad_parameters=dict(min_silence_duration_ms=800),
-                    initial_prompt="Nova, weather, news, remind, call, time, play music, search, screenshot, volume."
+                    vad_parameters=dict(
+                        min_silence_duration_ms=600,
+                        speech_pad_ms=200
+                    ),
+                    initial_prompt=STT_INITIAL_PROMPT,
+                    condition_on_previous_text=False,
+                    no_speech_threshold=0.4,
+                    word_timestamps=True
                 )
-                text = " ".join([s.text for s in segments]).strip()
-                del segments
+                
+                # Collect segments with confidence filtering
+                seg_list = list(segments)
+                filtered_parts = []
+                for seg in seg_list:
+                    # Skip low-confidence segments (likely noise/hallucination)
+                    avg_logprob = getattr(seg, 'avg_logprob', -0.5)
+                    no_speech = getattr(seg, 'no_speech_prob', 0.0)
+                    if avg_logprob > -1.0 and no_speech < 0.5:
+                        filtered_parts.append(seg.text)
+                
+                text = " ".join(filtered_parts).strip()
+                del seg_list
                 detected_language = "en"
                 
-                # HALLUCINATION FILTER
-                hallucinations = [
-                    "See you soon.", "See you soon", "Thank you.", "Thank you",
-                    "Bye.", "Bye", "You", "MBC", "Amara.org", "Subtitles by",
-                    "Copyright", "All rights reserved", "Silence", "stop"
-                ]
-                
-                if any(h.lower() == text.lower() for h in hallucinations) or text.strip() == ".":
+                # HALLUCINATION FILTER (expanded + centralized)
+                if _is_stt_hallucination(text):
                     print(f"⚠️ Detected Hallucination: '{text}' -> Discarding.")
-                    text = "" # Force fallback
+                    text = ""
                     
-                print(f" Neural Transcribed ({detected_language}): {text}")
+                if text:
+                    print(f"🧠 Neural Transcribed ({detected_language}): {text}")
             except Exception as e:
                 print(f"Neural Transcription Error: {e}")
 
@@ -1242,28 +1207,34 @@ def transcribe():
                 r = sr.Recognizer()
                 with sr.AudioFile(temp_path) as source: audio_data = r.record(source)
                 try: 
-                    # Use getattr to safely check for the method
                     recognizer_func = getattr(r, "recognize_google", None)
                     if recognizer_func:
                         text = recognizer_func(audio_data, language="en-IN")
                         detected_language = "en"
-                        print(f" Fallback Transcribed (Google): {text}")
+                        print(f"🔄 Fallback Transcribed (Google): {text}")
                 except: pass
             except Exception as e:
                 print(f"Fallback Transcription Error: {e}")
                 if not text: return jsonify({"error": "Failed"}), 500
 
-        print(f"️ RAW ASR Output: '{text}' ({detected_language})")
+        print(f"🎯 RAW ASR Output: '{text}' ({detected_language})")
         gc.collect()
+        
+        # Apply fast STT error correction before normalization
+        corrector = get_stt_corrector()
+        if corrector:
+            text = corrector.correct_stt(text)
+        
         normalized_text = nlp.normalize_text(text, language=detected_language)
         return jsonify({"transcript": normalized_text, "language": detected_language})
         
     finally:
-        # CLEANUP: Guaranteed removal of voice recording
-        try:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-        except: pass
+        # CLEANUP: Guaranteed removal of voice recordings
+        for p in [temp_path, processed_path]:
+            try:
+                if p and os.path.exists(p):
+                    os.remove(p)
+            except: pass
 
 @app.route('/api/voice-command', methods=['POST'])
 def voice_command():
@@ -1272,44 +1243,77 @@ def voice_command():
     audio_file = request.files['audio']
     temp_path = f"temp_voice_{uuid.uuid4().hex}.webm"
     audio_file.save(temp_path)
+    processed_path = None
     
     try:
         # Robust Pre-check to avoid library crashes/errors
         if not is_valid_audio(temp_path):
             return jsonify({"response": "Hmm? I didn't catch that.", "audio": False}), 200
         
+        # Pre-process audio for better recognition
+        processed_path = preprocess_audio(temp_path)
+        stt_input = processed_path if processed_path != temp_path else temp_path
+        
         text = ""
         detected_lang = "en"
         stt = get_stt_model()
         if stt:
             try:
-                # Auto-detect language for multi-language support
                 segments, info = stt.transcribe(
-                    temp_path, 
-                    beam_size=5, 
+                    stt_input, 
+                    beam_size=5,
+                    language="en",
                     vad_filter=True,
-                    vad_parameters=dict(min_silence_duration_ms=800)
+                    vad_parameters=dict(
+                        min_silence_duration_ms=600,
+                        speech_pad_ms=200
+                    ),
+                    initial_prompt=STT_INITIAL_PROMPT,
+                    condition_on_previous_text=False,
+                    no_speech_threshold=0.4
                 )
-                text = " ".join([s.text for s in segments]).strip()
-                del segments
-                detected_lang = str(getattr(info, 'language', 'en'))
-                if detected_lang != "en":
-                    print(f" Detected language: {detected_lang} — will reply in English")
-            except: pass
+                
+                # Collect with confidence filtering
+                seg_list = list(segments)
+                filtered = []
+                for seg in seg_list:
+                    avg_logprob = getattr(seg, 'avg_logprob', -0.5)
+                    no_speech = getattr(seg, 'no_speech_prob', 0.0)
+                    if avg_logprob > -1.0 and no_speech < 0.5:
+                        filtered.append(seg.text)
+                
+                text = " ".join(filtered).strip()
+                del seg_list
+                detected_lang = "en"
+                
+                # Hallucination check
+                if _is_stt_hallucination(text):
+                    print(f"⚠️ Live Mode Hallucination: '{text}' -> Discarding.")
+                    text = ""
+            except Exception as e:
+                print(f"Voice Command STT Error: {e}")
         
         if not text:
+            if IS_LIVE_MODE:
+                return jsonify({"response": "", "audio": False}), 200
             return jsonify({"response": "Hmm? I didn't catch that.", "audio": False}), 200
+        
+        # Apply fast STT error correction
+        corrector = get_stt_corrector()
+        if corrector:
+            text = corrector.correct_stt(text)
             
-        print(f"️ Voice Command Detected: '{text}'")
+        print(f"🎯 Voice Command Detected: '{text}'")
         # Process command — always respond in English regardless of input language
         return process_command_text(text, "en", voice_mode=True)
         
     finally:
-        # CLEANUP: Delete voice recording to ensure privacy
-        try:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-        except: pass
+        # CLEANUP: Delete voice recordings to ensure privacy
+        for p in [temp_path, processed_path]:
+            try:
+                if p and os.path.exists(p):
+                    os.remove(p)
+            except: pass
 
 # Phonetic mapping for better pronunciation of interjections and Russian phrases
 PHONETIC_MAP = {
@@ -1511,6 +1515,47 @@ def cmd_admin_test(mode="single"):
         return "\n".join(responses)
     
     return random.choice(responses)
+
+@app.route('/api/browser/live_view', methods=['GET'])
+def browser_live_view():
+    """Returns a base64 screenshot of the current BrowserAgent page."""
+    try:
+        from skills.browser_agent import agent
+        img_b64 = agent.get_screenshot_base64()
+        if img_b64:
+            return jsonify({"status": "success", "image": img_b64})
+        return jsonify({"status": "error", "message": "No browser page active."})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
+@app.route('/api/browser/action', methods=['POST'])
+def browser_action():
+    """Execute an action on the active BrowserAgent."""
+    try:
+        from skills.browser_agent import agent
+        data = request.json
+        action = data.get('action')
+        
+        result = "Invalid action"
+        if action == "scroll_up":
+            result = agent.scroll("up")
+        elif action == "scroll_down":
+            result = agent.scroll("down")
+        elif action == "back":
+            result = agent.go_back()
+        elif action == "forward":
+            result = agent.go_forward()
+        elif action == "click":
+            selector = data.get('selector')
+            result = agent.interact("click", selector)
+        elif action == "type":
+            selector = data.get('selector')
+            value = data.get('value')
+            result = agent.interact("type", selector, value)
+            
+        return jsonify({"status": "success", "result": result})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
 
 @app.route('/api/skills/status', methods=['GET'])
 def get_skills_status():
@@ -1728,7 +1773,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
 
     # === STEP 1: ALWAYS try Direct Skill Dispatch first ===
     try:
-        skill_response = nova.dispatcher.dispatch(processed_input) if nova and hasattr(nova, 'dispatcher') else None
+        skill_response = nova.dispatcher.dispatch(processed_input, nlp_results=nlu_results) if nova and hasattr(nova, 'dispatcher') else None
         
         # --- NEW: ADVANCED LLM INTENT ROUTING ---
         if not skill_response and nova and hasattr(nova, 'dispatcher') and not chat_only:
@@ -1916,18 +1961,8 @@ def main():
         width=900, height=700, resizable=True, 
         background_color='#131314', frameless=False, easy_drag=True
     )
-    
-    # Start PTT Loop
-    threading.Thread(target=ptt_listener_loop, daemon=True).start()
-    
-    # Start Hearing Engine v2
-    global hearing_engine
-    if os.environ.get("NOVA_TESTING") != "1":
-        try:
-            hearing_engine = NovaHearingEngine()
-            threading.Thread(target=hearing_engine.start, daemon=True).start()
-        except Exception as e:
-            print(f"⚠️ Hearing Engine failed: {e}")
+    # Backend hearing engine and PTT loop are disabled.
+    # The microphone will only be active when used by the frontend for live mode.
             
     # Skills are now registered lazily via assistant.py
 
@@ -1941,7 +1976,14 @@ def main():
     except Exception as e:
         print(f"⚠️ Failed to start Proactive Vision: {e}")
 
-    webview.start(debug=False, icon=os.path.join(root_dir, 'assets', 'banner.png'))
+    webview_storage_path = os.path.join(root_dir, 'userdata', 'webview_storage')
+    os.makedirs(webview_storage_path, exist_ok=True)
+    webview.start(
+        debug=False, 
+        icon=os.path.join(root_dir, 'assets', 'banner.png'),
+        private_mode=False,
+        storage_path=webview_storage_path
+    )
 
 if __name__ == '__main__':
     try:
