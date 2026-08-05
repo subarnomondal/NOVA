@@ -330,23 +330,64 @@ class Nova:
                 obs = self.dispatcher.dispatch(f"reader {cmd}")
                 current_observation = f"Result: {obs}"
             
-            # FALLBACK: If no action tags but user clearly wants a skill (news, weather, time)
+            # FALLBACK: If no action tags but user clearly wants a skill
             if not has_action and not fallback_tried:
-                # Check if user is asking for common skills
-                user_lower = user_input.lower()
-                if any(word in user_lower for word in ['news', 'headlines', 'latest']):
+                user_lower = user_input.lower().strip()
+                if any(word in user_lower for word in ['news', 'headlines', 'latest news']):
                     has_action = True
                     fallback_tried = True
-                    print("Fallback: Detected news request, triggering skill...")
+                    print("⚡ Fallback: Detected news request, triggering skill...")
                     thought_log.append("📰 Fetching the latest news...")
                     obs = self.dispatcher.dispatch("news")
                     current_observation = f"Result: {obs}"
                 elif any(word in user_lower for word in ['weather', 'temperature', 'forecast']):
                     has_action = True
                     fallback_tried = True
-                    print("Fallback: Detected weather request, triggering skill...")
+                    print("⚡ Fallback: Detected weather request, triggering skill...")
                     thought_log.append("🌤️ Checking the weather forecast...")
                     obs = self.dispatcher.dispatch(f"weather {user_input}")
+                    current_observation = f"Result: {obs}"
+                elif any(phrase in user_lower for phrase in ['what time', 'current time', 'tell me the time', 'what is the time']):
+                    has_action = True
+                    fallback_tried = True
+                    print("⚡ Fallback: Detected time request, triggering skill...")
+                    thought_log.append("🕒 Checking current time...")
+                    obs = self.dispatcher.dispatch("time")
+                    current_observation = f"Result: {obs}"
+                elif any(phrase in user_lower for phrase in ["what's today's date", 'what date', "what is today's date", 'what day is it', 'todays date']):
+                    has_action = True
+                    fallback_tried = True
+                    print("⚡ Fallback: Detected date request, triggering skill...")
+                    thought_log.append("📅 Checking date...")
+                    obs = self.dispatcher.dispatch("date")
+                    current_observation = f"Result: {obs}"
+                elif any(phrase in user_lower for phrase in ['take a screenshot', 'capture screen', 'take screenshot', 'screenshot']):
+                    has_action = True
+                    fallback_tried = True
+                    print("⚡ Fallback: Detected screenshot request, triggering skill...")
+                    thought_log.append("📸 Capturing screenshot...")
+                    obs = self.dispatcher.dispatch("screenshot")
+                    current_observation = f"Result: {obs}"
+                elif any(phrase in user_lower for phrase in ['system status', 'system health', 'battery level', 'battery status', 'cpu usage', 'ram usage']):
+                    has_action = True
+                    fallback_tried = True
+                    print("⚡ Fallback: Detected system health request, triggering skill...")
+                    thought_log.append("🖥️ Checking system diagnostics...")
+                    obs = self.dispatcher.dispatch("status health")
+                    current_observation = f"Result: {obs}"
+                elif any(phrase in user_lower for phrase in ['volume up', 'volume down', 'mute audio', 'set volume to', 'change volume']):
+                    has_action = True
+                    fallback_tried = True
+                    print("⚡ Fallback: Detected volume request, triggering skill...")
+                    thought_log.append("🔊 Adjusting volume...")
+                    obs = self.dispatcher.dispatch(f"volume {user_input}")
+                    current_observation = f"Result: {obs}"
+                elif user_lower.startswith(('calculate', 'solve', 'what is', 'compute')) and any(op in user_lower for op in ['+', '-', '*', '/', 'sqrt', 'times', 'plus', 'minus', 'divided by', '^', '%']):
+                    has_action = True
+                    fallback_tried = True
+                    print("⚡ Fallback: Detected calculation request, triggering skill...")
+                    thought_log.append("🧮 Calculating expression...")
+                    obs = self.dispatcher.dispatch(f"calculate {user_input}")
                     current_observation = f"Result: {obs}"
 
 

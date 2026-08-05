@@ -1,0 +1,79 @@
+<div id="logs-modal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md" style="display: none;">
+<main class="z-50 w-full max-w-4xl mx-gutter overflow-hidden relative">
+<button id="close-logs-btn" class="absolute top-4 right-4 text-white hover:text-gray-400 z-[60]"><span class="material-symbols-outlined">close</span></button>
+<div class="bg-black/60 backdrop-blur-2xl border border-white/10 rounded-xl shadow-2xl flex flex-col h-[716px] relative overflow-hidden">
+<!-- Scanline Texture Overlay -->
+<div class="absolute inset-0 scanline z-10 opacity-20 pointer-events-none"></div>
+<!-- Modal Header -->
+<div class="flex items-center justify-between p-stack-md border-b border-white/10 z-20 bg-black/20">
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary text-[20px]" style="font-variation-settings: 'FILL' 1;">terminal</span>
+<h1 class="font-headline-md text-headline-md tracking-tight text-primary">System Logs &amp; Glitch History</h1>
+</div>
+<div class="flex items-center gap-unit px-stack-sm py-1 bg-emerald-400/10 border border-emerald-400/20 rounded-full">
+<div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+<span class="font-label-mono text-[10px] text-emerald-400">SYSTEM HEALTHY</span>
+</div>
+</div>
+<!-- Modal Content / Terminal Area -->
+<div class="flex-1 overflow-y-auto custom-scrollbar p-gutter relative z-20">
+<div class="flex flex-col gap-unit" id="log-container">
+<!-- Logs will be injected here for micro-interaction demo -->
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 opacity-40 hover:bg-white/5 transition-colors cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:22:01]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-secondary flex-1 leading-relaxed">Neural pathway initialization sequence started. Calibrating synaptic weights...</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 hover:bg-white/5 transition-colors cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:22:04]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-on-surface flex-1 leading-relaxed">External uplink established. Secure protocol NOVA-9 verified.</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 bg-white/5 cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:22:15]</span>
+<span class="font-label-mono text-label-mono text-primary bg-primary text-background px-1 shrink-0">WARNING</span>
+<p class="font-label-mono text-label-mono text-primary flex-1 leading-relaxed">Minor spatial variance detected in avatar wireframe. Adjusting rendering parameters.</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 hover:bg-white/5 transition-colors cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:23:42]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-secondary flex-1 leading-relaxed">Memory compression complete. Buffer cleared (24.4GB freed).</p>
+</div>
+<div class="flex gap-stack-md p-stack-sm border-b border-white/5 bg-red-500/10 cursor-default group">
+<span class="font-label-mono text-label-mono text-secondary shrink-0">[14:25:00]</span>
+<span class="font-label-mono text-label-mono text-error-container border border-error bg-error text-on-error px-1 shrink-0">ERROR</span>
+<p class="font-label-mono text-label-mono text-error flex-1 leading-relaxed">Critical glitch in temporal synchronization module. Retrying handshaking protocol...</p>
+</div>
+<!-- Dynamic Log Generation Entry -->
+<div class="flex gap-stack-md p-stack-sm group" id="active-log">
+<span class="font-label-mono text-label-mono text-secondary shrink-0" id="current-time">[14:25:01]</span>
+<span class="font-label-mono text-label-mono text-primary px-1 border border-primary/20 shrink-0">INFO</span>
+<p class="font-label-mono text-label-mono text-on-surface flex-1 leading-relaxed cursor-blink">Awaiting system instructions</p>
+</div>
+</div>
+</div>
+<!-- Footer Toolbar -->
+<div class="p-stack-md border-t border-white/10 flex justify-between items-center z-20 bg-black/20">
+<div class="flex gap-stack-md">
+<button class="px-stack-md py-stack-sm border border-white/20 bg-transparent text-primary font-label-mono text-label-mono hover:bg-white hover:text-black transition-all">EXPORT_LOGS</button>
+<button class="px-stack-md py-stack-sm border border-white/20 bg-transparent text-primary font-label-mono text-label-mono hover:bg-white hover:text-black transition-all">CLEAR_BUFFER</button>
+</div>
+<div class="text-right">
+<p class="font-label-mono text-[10px] text-secondary">ACTIVE THREADS: 12</p>
+<p class="font-label-mono text-[10px] text-secondary uppercase">Uptime: 00:42:12:09</p>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<div id="events-dashboard" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md" style="display: none;">
+<main class="relative z-10 w-full max-w-6xl aspect-[16/9]  animate-in fade-in zoom-in duration-500">
+<button id="close-dashboard-btn" class="absolute top-4 right-4 text-white hover:text-gray-400 z-[60]"><span class="material-symbols-outlined">close</span></button>
+<div class="glass-panel w-full h-full rounded-lg overflow-hidden flex flex-col shadow-2xl ring-1 ring-white/10">
+<!-- Modal Header -->
+<header class="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-white/5">
+<div class="flex items-center gap-4">
+<span class="font-label-mono text-label-mono tracking-widest text-primary">EARTH MISSION CONTROL</span>
+<div class="h-1 w-24 bg-white/10 relative overflow-hidden">
+<div class="absolute inset-0 bg-white/40 scanline"></div>

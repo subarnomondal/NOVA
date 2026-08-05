@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aether AI - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#3a393a",
+                        "error": "#ffb4ab",
+                        "background": "#131314",
+                        "on-primary-container": "#340080",
+                        "outline-variant": "#494454",
+                        "surface-variant": "#353436",
+                        "surface-tint": "#d0bcff",
+                        "on-primary": "#3c0091",
+                        "tertiary-container": "#00a572",
+                        "surface": "#131314",
+                        "on-primary-fixed": "#23005c",
+                        "tertiary": "#4edea3",
+                        "on-tertiary": "#003824",
+                        "inverse-on-surface": "#313031",
+                        "on-primary-fixed-variant": "#5516be",
+                        "secondary": "#adc6ff",
+                        "primary": "#d0bcff",
+                        "primary-container": "#a078ff",
+                        "secondary-container": "#0566d9",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#353436",
+                        "on-surface-variant": "#cbc3d7",
+                        "primary-fixed-dim": "#d0bcff",
+                        "on-surface": "#e5e2e3",
+                        "surface-container-low": "#1c1b1c",
+                        "on-secondary-fixed-variant": "#004395",
+                        "inverse-primary": "#6d3bd7",
+                        "error-container": "#93000a",
+                        "tertiary-fixed": "#6ffbbe",
+                        "tertiary-fixed-dim": "#4edea3",
+                        "outline": "#958ea0",
+                        "on-secondary-container": "#e6ecff",
+                        "on-tertiary-fixed": "#002113",
+                        "on-secondary": "#002e6a",
+                        "on-error": "#690005",
+                        "surface-dim": "#131314",
+                        "inverse-surface": "#e5e2e3",
+                        "secondary-fixed": "#d8e2ff",
+                        "surface-container": "#201f20",
+                        "on-tertiary-fixed-variant": "#005236",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#00311f",
+                        "surface-container-lowest": "#0e0e0f",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "primary-fixed": "#e9ddff",
+                        "on-background": "#e5e2e3",
+                        "surface-container-high": "#2a2a2b"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-desktop": "40px",
+                        "container-max": "1440px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "unit": "4px"
+                    },
+                    fontFamily: {
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "data-value": ["JetBrains Mono"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "data-label": ["JetBrains Mono"]
+                    },
+                    fontSize: {
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "data-value": ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "data-label": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    },
+                    animation: {
+                        'bar-1': 'barFluctuate 1.5s ease-in-out infinite alternate',
+                        'bar-2': 'barFluctuate 1.2s ease-in-out infinite alternate-reverse',
+                        'bar-3': 'barFluctuate 1.8s ease-in-out infinite alternate',
+                        'bar-4': 'barFluctuate 1.4s ease-in-out infinite alternate-reverse',
+                        'bar-5': 'barFluctuate 1.6s ease-in-out infinite alternate',
+                        'bar-6': 'barFluctuate 1.3s ease-in-out infinite alternate-reverse',
+                        'bar-7': 'barFluctuate 1.7s ease-in-out infinite alternate',
+                        'bar-8': 'barFluctuate 1.1s ease-in-out infinite alternate-reverse',
+                        'bar-9': 'barFluctuate 1.9s ease-in-out infinite alternate',
+                        'shimmer': 'shimmer 2s linear infinite',
+                    },
+                    keyframes: {
+                        barFluctuate: {
+                            '0%': { transform: 'scaleY(0.2)' },
+                            '100%': { transform: 'scaleY(1)' },
+                        },
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #0A0A0B; /* Strict requirement from style guide */
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glow-effect {
+            box-shadow: 0px 4px 20px rgba(208, 188, 255, 0.2);
+        }
+        
+        .bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 60px;
+        }
+        
+        .chart-bar {
+            width: 8px;
+            background: linear-gradient(to top, rgba(208, 188, 255, 0.1), rgba(208, 188, 255, 0.8));
+            border-radius: 4px;
+            transform-origin: bottom;
+        }
+        
+        .progress-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #6d3bd7, #adc6ff);
+            height: 100%;
+            border-radius: 9999px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.2) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+    </style>
+</head>
+<body class="text-on-surface font-body-md min-h-screen overflow-x-hidden flex">
+<!-- SideNavBar (Shared Component JSON) -->
+<nav class="hidden md:flex flex-col h-full py-margin-desktop bg-surface/30 backdrop-blur-3xl dark:bg-surface/30 h-screen w-[280px] fixed left-0 top-0 border-r border-white/10 shadow-[0px_4px_20px_rgba(208,188,255,0.1)] z-50">
+<div class="px-gutter mb-12">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim tracking-tighter">Aether AI</h1>
+<p class="font-data-label text-data-label text-on-surface-variant mt-1">System Online</p>
+</div>
+<div class="flex-1 px-4 space-y-2">
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg scale-[0.98] active:scale-95 transition-transform text-primary dark:text-primary-fixed-dim border-l-2 border-primary dark:border-primary-fixed-dim bg-primary/5" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<span class="font-data-label text-data-label">Nova Core</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg scale-[0.98] active:scale-95 transition-transform text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="font-data-label text-data-label">Swarm Intelligence</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg scale-[0.98] active:scale-95 transition-transform text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">dns</span>
+<span class="font-data-label text-data-label">Local Engine</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg scale-[0.98] active:scale-95 transition-transform text-on-surface-variant dark:text-on-surface-variant hover:text-on-surface hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-data-label text-data-label">Terminal</span>
+</a>
+</div>
+<div class="px-gutter mt-auto space-y-4">
+<button class="w-full py-3 rounded-lg bg-primary/20 border border-primary/30 text-primary font-data-label text-data-label hover:bg-primary/30 transition-colors glow-effect">
+                New Instance
+            </button>
+<div class="flex flex-col gap-2 pt-4 border-t border-white/10">
+<a class="flex items-center gap-3 px-2 py-2 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">settings</span>
+<span class="font-data-label text-data-label">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-2 py-2 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help_outline</span>
+<span class="font-data-label text-data-label">Support</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- TopAppBar (Shared Component JSON) -->
+<header class="hidden md:flex justify-between items-center px-gutter ml-[280px] bg-surface/10 backdrop-blur-md dark:bg-surface/10 fixed top-0 right-0 w-[calc(100%-280px)] h-16 border-b border-white/10 z-40">
+<div class="flex items-center">
+<span class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary-fixed-dim hidden">System Node 01</span> <!-- Hidden on desktop as per strict structural rules, typically title is here but we have sidebar -->
+<span class="font-data-label text-data-label text-on-surface-variant ml-4">System Node 01</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">wifi_tethering</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">memory</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors opacity-80 hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined">notifications_active</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-white/10">
+<img alt="Administrator" class="w-full h-full object-cover" data-alt="A highly detailed close-up futuristic avatar profile image of a digital administrator. The character features subtle cyberpunk elements with glowing neon blue and purple highlights against a dark backdrop. Professional, sleek, 8k resolution, high contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_SMK-pMWGtppNrTAohBveoUfVC9msDuCwK1hxdQJLXQK8xnkdHM6fZ9XNOtVxzrYhIrKqW5fMSIxyTM4q1D7Yo6bOFyT8ab8kTR5uMjnL4NCHcMMeH5Q4EuorxLyLphB15rz1E0_bgFYmS_buraX7mWeue63cANB-0TQ5unf9vLlX3MMFv-ueKYaOdBoxo_vbpc7vtJ42kBLwcI8zCPqOwcBqLqAUgr_HVOIzM_Yqg0luy6nTRUpxCAG0Jg0WbckSD4r41wrT4w"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[280px] pt-24 px-gutter pb-12 w-full max-w-container-max mx-auto">
+<div class="mb-8">
+<h2 class="font-headline-lg md:text-display-lg text-headline-lg-mobile text-on-surface mb-2">Core Dashboard</h2>
+<p class="font-body-md text-on-surface-variant">Real-time system telemetry and AI interaction node.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Widget 1: Core Load -->
+<div class="glass-panel rounded-xl p-6 flex flex-col justify-between min-h-[200px]">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-data-label text-data-label text-on-surface-variant uppercase">Core Load</h3>
+<div class="font-display-lg text-display-lg text-primary mt-1">64%</div>
+</div>
+<div class="p-2 bg-primary/10 rounded-lg">
+<span class="material-symbols-outlined text-primary">speed</span>
+</div>
+</div>
+<div class="bar-chart-container w-full justify-between mt-auto">
+<div class="chart-bar h-full animate-bar-1"></div>
+<div class="chart-bar h-[80%] animate-bar-2"></div>
+<div class="chart-bar h-[60%] animate-bar-3"></div>
+<div class="chart-bar h-[90%] animate-bar-4"></div>
+<div class="chart-bar h-[40%] animate-bar-5"></div>
+<div class="chart-bar h-[70%] animate-bar-6"></div>
+<div class="chart-bar h-[50%] animate-bar-7"></div>
+<div class="chart-bar h-[85%] animate-bar-8"></div>
+<div class="chart-bar h-[30%] animate-bar-9"></div>
+</div>
+</div>
+<!-- Widget 2: Memory -->
+<div class="glass-panel rounded-xl p-6 flex flex-col justify-between min-h-[200px]">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-data-label text-data-label text-on-surface-variant uppercase">Memory Allocation</h3>
+<div class="font-display-lg text-display-lg text-secondary mt-1">12.4 <span class="font-data-value text-data-value text-on-surface-variant">TB</span></div>
+</div>
+<div class="p-2 bg-secondary/10 rounded-lg">
+<span class="material-symbols-outlined text-secondary">memory_alt</span>
+</div>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between font-data-label text-data-label text-on-surface-variant mb-2">
+<span>Usage</span>
+<span>78%</span>
+</div>
+<div class="progress-track h-3 w-full">
+<div class="progress-fill w-[78%]"></div>
+</div>
+</div>
+</div>
+<!-- Widget 3: Talking Glass Wave (AI Assistant) -->
+<div class="glass-panel rounded-xl p-6 lg:col-span-1 lg:row-span-2 flex flex-col glow-effect border-primary/30 relative overflow-hidden min-h-[400px]">
+<div class="absolute inset-0 z-0 opacity-40 mix-blend-screen pointer-events-none">
+<!-- STITCH_SHADER_START:ANIMATION_14 class="absolute inset-0 w-full h-full" -->
+<div class="absolute inset-0 w-full h-full" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_14" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_14');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+
+varying vec2 v_texCoord;
+
+float pulse(float x, float p, float w) {
+    return pow(4.0 * x * (1.0 - x), 1.0 / w);
+}
+
+void main() {
+    vec2 uv = v_texCoord;
+    vec2 p = uv * 2.0 - 1.0;
+    p.x *= u_resolution.x / u_resolution.y;
+    
+    // Base colors from Luminous Nexus design system
+    vec3 colorBlue = vec3(0.0, 0.706, 0.941);   // Neon Blue
+    vec3 colorPurple = vec3(0.659, 0.333, 0.969); // Purple accent
+    
+    float t = u_time * 1.5;
+    
+    // Create multiple sine wave layers for the "talking" effect
+    float finalWave = 0.0;
+    for(float i = 1.0; i <= 5.0; i++) {
+        float speed = t * (0.5 + i * 0.2);
+        float amplitude = 0.15 / i;
+        float frequency = 3.0 + i * 2.0;
+        float wave = sin(p.x * frequency + speed) * amplitude;
+        
+        // Add a vertical envelope to make it look like a "blob" or voice signature
+        float envelope = exp(-pow(p.x * 2.0, 2.0));
+        wave *= envelope;
+        
+        // Distance to the wave line
+        float dist = abs(p.y - wave);
+        finalWave += (0.01 / dist) * envelope;
+    }
+    
+    // Glass refraction/glow effect
+    vec3 color = mix(colorBlue, colorPurple, uv.x + sin(t) * 0.5);
+    vec3 finalColor = color * finalWave;
+    
+    // Add refractive highlight "refracting light"
+    float highlight = pow(max(0.0, 1.0 - length(p * vec2(1.0, 4.0))), 4.0);
+    finalColor += colorPurple * highlight * 0.3 * (sin(t * 2.0) * 0.5 + 0.5);
+    
+    // Transparency control
+    float alpha = clamp(finalWave + highlight * 0.2, 0.0, 1.0);
+    
+    gl_FragColor = vec4(finalColor * alpha, alpha * 0.8);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_14 -->
+</div>
+<div class="relative z-10 flex flex-col h-full">
+<div class="flex items-center gap-3 mb-8">
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-tertiary"></span>
+</span>
+<h3 class="font-data-label text-data-label text-tertiary uppercase tracking-widest">Voice Assistant Active</h3>
+</div>
+<div class="mt-auto mb-8 text-center">
+<p class="font-headline-lg text-headline-lg-mobile text-on-surface font-light">"How can I assist with node optimization today?"</p>
+</div>
+<div class="flex justify-center gap-4 mt-auto">
+<button class="w-12 h-12 rounded-full bg-surface/50 border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-on-surface">mic_off</span>
+</button>
+<button class="w-12 h-12 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center hover:bg-primary/40 transition-colors shadow-[0_0_15px_rgba(208,188,255,0.4)]">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Filler Widget for remaining grid space -->
+<div class="glass-panel rounded-xl p-6 lg:col-span-2 min-h-[200px] flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0" data-alt="A highly abstract, dark, futuristic network visualization. Glowing interconnected nodes and thin light pathways over a deep black void. Neon blue and purple hues. Subtle depth of field effect. High tech aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAPlws3-HgFXE87EmXnKInT3zN2k_8m0sRSXSLiew-hDWz3UYPhoSm_egHgwzt4DT2Qf4OIga1HkaFRlfQzM9K5wh7TqFZlM3o66YqZo4zuXfeROAnMrMjerYaZhxJnnLkhO_JmHqmJExTlRq-6HeeNyWrqLcJ6oMwID8Moc7QXi4QzpBpkpHdPK4E9M7HUm_JwqoetKEIvW0BohNEdmQb5vo9VUvJbEbpi4rIVMHpn7cMfcVHpOOX0MwDeBCv0Grf0w0dt_Nmecg'); background-size: cover; background-position: center; opacity: 0.1;"></div>
+<div class="text-center relative z-10">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">network_node</span>
+<p class="font-data-label text-data-label text-on-surface-variant">Network Topology Map Offline</p>
+</div>
+</div>
+</div>
+</main>
+</body></html>

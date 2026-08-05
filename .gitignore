@@ -80,9 +80,18 @@ screenshot.png
 after_send_screenshot*.png
 playwright_screenshot.png
 
-# Stitch / temp UI prototypes (not production)
+# Stitch / temp UI prototypes & backups
 web/stitch_*.html
 web/new_index.html
+web/*_backup*.html
+web/*_old*.html
+
+# Audio & Voice temp files
+*.wav
+*.webm
+*.ogg
+*.mp3
+
 # Temp skills
 skills/temp_skills/*
 !skills/temp_skills/__init__.py

@@ -14,7 +14,10 @@ def cmd_calculate(args):
         
 
         
-        # Custom Unit Conversion: "90 degrees" -> "math.radians(90)"
+        # Custom Unit & Percentage Conversion
+        # "20 percent of 150" -> "(20/100)*150", "15% of 80" -> "(15/100)*80"
+        expression = re.sub(r'(\d+(?:\.\d+)?)\s*(?:%|percent)\s*(?:of)?\s*(\d+(?:\.\d+)?)', r'(\1/100)*\2', expression, flags=re.IGNORECASE)
+        # "90 degrees" -> "math.radians(90)"
         expression = re.sub(r'(\d+(?:\.\d+)?)\s*degrees?', r'math.radians(\1)', expression, flags=re.IGNORECASE)
 
         # ASR/Speech Correction Map
@@ -51,20 +54,18 @@ def cmd_calculate(args):
             "divide": "/",
             "over": "/",
             "power of": "**",
+            "to the power of": "**",
             "squared": "**2",
             "cubed": "**3",
-            "to": "",
-            "of": "",
+            "mod": "%",
+            "modulo": "%",
             # Symbols
             "π": "math.pi",
             "√": "math.sqrt",
             "^": "**",
             "×": "*",
             "÷": "/",
-            "−": "-",
-            "the": "",
-            "what is": "",
-            "what's": ""
+            "−": "-"
         }
         
         # Sort keys by length (descending) to match 'square root' before 'root'
@@ -81,18 +82,12 @@ def cmd_calculate(args):
             expression = re.sub(pattern, op, expression, flags=re.IGNORECASE)
         
         # fix: wrap sqrt argument in parens if missing (e.g. "math.sqrt 9" -> "math.sqrt(9)")
-        # Supports: sqrt, sin, cos, tan, log, log10, factorial, degrees, radians
-        # Also supports nested calls like: math.sin math.radians(90) -> math.sin(math.radians(90))
         expression = re.sub(r'(math\.[a-z0-9]+)\s+(\d+(?:\.\d+)?)', r'\1(\2)', expression)
         expression = re.sub(r'(math\.[a-z0-9]+)\s+(math\.[a-z0-9]+\([^\)]+\))', r'\1(\2)', expression)
         
-        # Safety Check: Allow only numbers, operators, parentheses, decimal points, and 'math.sqrt'
-        # We need to import math for sqrt to work
         import math
         
         # Validation Regex (Allow digits, operators, parens, dots, spaces)
-        
-        # Updated to remove all math functions for validation
         check_expr = expression.replace("**", "")
         allowed_funcs = [
             "math.sqrt", "math.sin", "math.cos", "math.tan", 
@@ -104,13 +99,10 @@ def cmd_calculate(args):
         for func in allowed_funcs:
             check_expr = check_expr.replace(func, "")
         
-        if not re.match(r'^[\d\s\+\-\*\/\.\(\)a-z_]*$', check_expr):
-            # Fallback: If it's not a math equation, return None so other skills (like generic LLM) can handle it
+        # Strip allowed mathematical characters
+        if not re.match(r'^[\d\s\+\-\*\/\.\(\)\%a-z_]*$', check_expr):
              return None
         
-        # Evaluation
-        # We use a restricted dictionary allowing only 'math' module usage if needed, though simpleeval is better if available.
-        # Here we trust the regex filter.
         result = eval(expression, {"__builtins__": None, "math": math})
         
         # Formatting result (remove .0 if integer)

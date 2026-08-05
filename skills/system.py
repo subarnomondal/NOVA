@@ -1,15 +1,20 @@
 import os
+import platform
 import subprocess
 import psutil # type: ignore
 import pyautogui # type: ignore
 from datetime import datetime
-from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-from comtypes import CLSCTX_ALL, CoInitialize
+
+if platform.system() == 'Windows':
+    from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+    from comtypes import CLSCTX_ALL, CoInitialize
 from rich.console import Console
 
 console = Console()
 
 def get_volume_interface():
+    if platform.system() != 'Windows':
+        return None
     try:
         CoInitialize()
         devices = AudioUtilities.GetSpeakers()
@@ -30,30 +35,54 @@ def get_volume_interface():
 import re
 
 def cmd_volume(args):
-    """Usage: volume <0-100>"""
+    """Usage: volume <0-100>, volume up, volume down, mute, unmute"""
     try:
-        # Extract the first number found in the string
-        match = re.search(r'(\d+)', args)
-        if not match:
-            return "I can adjust the volume for you! Just let me know what percentage you'd like - anywhere from 0 to 100! "
-        
-        target = float(match.group(1))
-        target = max(0.0, min(100.0, target))
-        
+        low_args = args.lower().strip()
         volume = get_volume_interface()
-        if volume:
-            volume.SetMasterVolumeLevelScalar(target / 100.0, None)
-            import random
-            responses = [
-                f"Done! Volume is now at {target}%. ",
-                f"All set! I've adjusted the volume to {target}%. ✨",
-                f"Perfect! Volume's at {target}% now. "
-            ]
-            return random.choice(responses)
+        if not volume:
+            return "Hmm, I'm having trouble accessing the audio controls right now (or you are not on Windows). Mind trying again? 🔊"
+        
+        current_scalar = volume.GetMasterVolumeLevelScalar()
+        current_pct = int(round(current_scalar * 100))
+        
+        # 1. Handle Mute / Unmute
+        if "unmute" in low_args:
+            volume.SetMute(0, None)
+            if current_pct == 0:
+                volume.SetMasterVolumeLevelScalar(0.3, None)
+                return "Unmuted! Volume set to 30%. 🔊"
+            return f"Unmuted! Volume is at {current_pct}%. 🔊"
+        elif "mute" in low_args:
+            volume.SetMute(1, None)
+            return "Audio muted! 🔇"
+            
+        # 2. Handle Relative Controls (Up / Down / Max)
+        if "max" in low_args or "full" in low_args:
+            target = 100.0
+        elif any(w in low_args for w in ["up", "louder", "increase", "higher", "raise"]):
+            target = min(100.0, current_pct + 10.0)
+        elif any(w in low_args for w in ["down", "softer", "quieter", "lower", "decrease", "reduce"]):
+            target = max(0.0, current_pct - 10.0)
         else:
-            return "Hmm, I'm having trouble accessing the audio controls right now. Mind trying again? "
+            # 3. Extract the first number found in the string
+            match = re.search(r'(\d+)', args)
+            if not match:
+                return f"Volume is currently at {current_pct}%. Let me know what percentage you'd like (0-100) or say 'volume up' / 'volume down'!"
+            target = float(match.group(1))
+            target = max(0.0, min(100.0, target))
+        
+        volume.SetMute(0, None)
+        volume.SetMasterVolumeLevelScalar(target / 100.0, None)
+        import random
+        responses = [
+            f"Done! Volume is now at {int(target)}%. 🔊",
+            f"All set! I've adjusted the volume to {int(target)}%. ✨",
+            f"Perfect! Volume's at {int(target)}% now. 🎵"
+        ]
+        return random.choice(responses)
     except Exception as e:
-        return "Oops, I had a little hiccup adjusting the volume. Let's try that again! "
+        print(f"Volume Error: {e}")
+        return "Oops, I had a little hiccup adjusting the volume. Let's try that again! 🔊"
 
 
 def cmd_open_app(args):
@@ -113,7 +142,12 @@ def cmd_open_app(args):
         }
         if app_name in app_map:
             print(f"[System] Opening {app_name}...")
-            os.system(f"start {app_map[app_name]}")
+            if platform.system() == "Windows":
+                os.system(f"start {app_map[app_name]}")
+            elif platform.system() == "Darwin":
+                os.system(f"open -a {app_name}")
+            else:
+                os.system(f"xdg-open {app_name}")
             import random
             responses = [
                 f"Oki doki! Launching {app_name} for you! ",
@@ -122,7 +156,12 @@ def cmd_open_app(args):
             ]
             return random.choice(responses)
         else:
-            os.system(f"start {app_name}")
+            if platform.system() == "Windows":
+                os.system(f"start {app_name}")
+            elif platform.system() == "Darwin":
+                os.system(f"open -a {app_name}")
+            else:
+                os.system(f"xdg-open {app_name}")
             return f"Trying to open {app_name} for you! "
             
     except Exception as e:
@@ -259,7 +298,12 @@ def cmd_power(args):
         pending_delay = agi_context.chain_data.get("pending_power_delay", 0)
 
         if "abort" in cmd or "cancel" in cmd:
-            os.system("shutdown /a")
+            if platform.system() == "Windows":
+                os.system("shutdown /a")
+            elif platform.system() == "Darwin":
+                os.system("killall shutdown")
+            else:
+                os.system("shutdown -c")
             # If there was a background sleep process, we can't easily kill it here 
             # without pid tracking, but shutdown /a handles Windows shutdown timer.
             agi_context.chain_data["pending_power_command"] = None
@@ -267,7 +311,12 @@ def cmd_power(args):
             return "Shutdown/Restart aborted! That was close. ✨"
 
         if "lock" in cmd:
-            os.system("rundll32.exe user32.dll,LockWorkStation")
+            if platform.system() == "Windows":
+                os.system("rundll32.exe user32.dll,LockWorkStation")
+            elif platform.system() == "Darwin":
+                os.system("pmset displaysleepnow")
+            else:
+                os.system("xdg-screensaver lock")
             return "Locking your PC now. Stay safe! "
         
         delay = extract_delay_seconds(cmd)
@@ -284,9 +333,15 @@ def cmd_power(args):
             if is_confirmed or "force" in cmd:
                 # Sleep doesn't have a native delay in Windows cmd
                 # We use a background process to wait and then sleep
-                sleep_cmd = "powershell -command \"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Application]::SetSuspendState([System.Windows.Forms.PowerState]::Suspend, $false, $false)\""
+                if platform.system() == "Windows":
+                    sleep_cmd = "powershell -command \"Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Application]::SetSuspendState([System.Windows.Forms.PowerState]::Suspend, $false, $false)\""
+                elif platform.system() == "Darwin":
+                    sleep_cmd = "pmset sleepnow"
+                else:
+                    sleep_cmd = "systemctl suspend"
+                
                 if delay > 0:
-                    subprocess.Popen(f"timeout /t {delay} && {sleep_cmd}", shell=True)
+                    subprocess.Popen(f"sleep {delay} && {sleep_cmd}" if platform.system() != "Windows" else f"timeout /t {delay} && {sleep_cmd}", shell=True)
                     agi_context.chain_data["pending_power_command"] = None
                     return f"Oki doki! I'll put the system to sleep in {delay} seconds. Goodnight! "
                 else:
@@ -298,8 +353,10 @@ def cmd_power(args):
             
         elif "shutdown" in cmd or (pending == "shutdown" and is_confirmed):
             if is_confirmed or "force" in cmd:
-                # shutdown /s /t <seconds> handles the delay natively
-                os.system(f"shutdown /s /t {delay if delay > 0 else 60}")
+                if platform.system() == "Windows":
+                    os.system(f"shutdown /s /t {delay if delay > 0 else 60}")
+                else:
+                    os.system(f"shutdown -h +{max(1, delay // 60)}")
                 agi_context.chain_data["pending_power_command"] = None
                 return f"Initiating shutdown{delay_str}. Run 'abort' to cancel! "
             else:
@@ -308,7 +365,10 @@ def cmd_power(args):
             
         elif "restart" in cmd or (pending == "restart" and is_confirmed):
             if is_confirmed or "force" in cmd:
-                os.system(f"shutdown /r /t {delay if delay > 0 else 60}")
+                if platform.system() == "Windows":
+                    os.system(f"shutdown /r /t {delay if delay > 0 else 60}")
+                else:
+                    os.system(f"shutdown -r +{max(1, delay // 60)}")
                 agi_context.chain_data["pending_power_command"] = None
                 return f"Restarting{delay_str}. Run 'abort' to cancel! "
             else:

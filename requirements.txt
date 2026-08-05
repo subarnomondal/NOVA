@@ -14,8 +14,8 @@ flask-cors>=4.0.0
 playwright>=1.42.0
 
 # Audio & Voice
-pycaw>=20230407
-comtypes>=1.2.0
+pycaw>=20230407; sys_platform == 'win32'
+comtypes>=1.2.0; sys_platform == 'win32'
 edge-tts>=6.1.0
 pyttsx3>=2.90
 SpeechRecognition>=3.10.0
@@ -39,6 +39,6 @@ pyautogui>=0.9.54
 pywhatkit>=5.4
 duckduckgo-search>=4.0.0
 wikipedia>=1.4.0
-pywin32>=306
+pywin32>=306; sys_platform == 'win32'
 # MCP Support
 fastmcp>=0.1.0

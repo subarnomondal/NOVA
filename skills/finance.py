@@ -32,47 +32,76 @@ def save_finance_data(data):
 def cmd_add_expense(args):
     """Usage: add expense <amount> for <item> or <item> costing <amount>"""
     try:
-        from core.llm_manager import llm_manager
+        raw_text = args.strip()
+        amount = None
+        item = None
         
-        # Use LLM to extract amount and item for better natural language support
-        system_prompt = (
-            "Extract the expense amount and the item/category from the user's input. "
-            "Respond in JSON format: {\"amount\": float, \"item\": \"string\"}. "
-            "If no amount is found, return {\"error\": \"no_amount\"}."
-        )
-        extraction = llm_manager.generate(f"User input: {args}", system_prompt=system_prompt, raw_gen=True)
+        # 1. Fast Local Regex Pattern Matchers (Zero latency / Offline)
+        patterns = [
+            r'(?:add\s+expense|spent|paid|recorded?)\s+([₹$€£]?\s*[\d\.]+)\s+(?:for|on)\s+(.+)',
+            r'(?:add\s+expense|spent|paid)\s+(.+?)\s+(?:costing|for|amounting to)\s+([₹$€£]?\s*[\d\.]+)',
+            r'([₹$€£]?\s*[\d\.]+)\s+(?:for|on)\s+(.+)',
+        ]
         
-        try:
-            # Clean extraction for JSON parsing
-            clean_json = extraction.strip() if extraction else "{}"
-            if "```json" in clean_json:
-                clean_json = clean_json.split("```json")[1].split("```")[0].strip()
-            elif "```" in clean_json:
-                clean_json = clean_json.split("```")[1].split("```")[0].strip()
+        for p in patterns:
+            match = re.search(p, raw_text, re.IGNORECASE)
+            if match:
+                g1, g2 = match.group(1).strip(), match.group(2).strip()
+                # Determine which group is numeric
+                val1 = re.sub(r'[^\d\.]', '', g1)
+                val2 = re.sub(r'[^\d\.]', '', g2)
+                try:
+                    if val1 and not val2:
+                        amount = float(val1)
+                        item = g2
+                        break
+                    elif val2 and not val1:
+                        amount = float(val2)
+                        item = g1
+                        break
+                except ValueError:
+                    pass
+        
+        # 2. If regex didn't resolve, fall back to LLM JSON extraction
+        if amount is None or not item:
+            from core.llm_manager import llm_manager
+            system_prompt = (
+                "Extract the expense amount and the item/category from the user's input. "
+                "Respond in JSON format: {\"amount\": float, \"item\": \"string\"}. "
+                "If no amount is found, return {\"error\": \"no_amount\"}."
+            )
+            extraction = llm_manager.generate(f"User input: {args}", system_prompt=system_prompt, raw_gen=True)
             
-            result = json.loads(clean_json)
-        except (json.JSONDecodeError, ValueError, KeyError):
-            return "I couldn't quite catch the amount. Could you say it like 'add expense 50 for lunch'?"
+            try:
+                clean_json = extraction.strip() if extraction else "{}"
+                if "```json" in clean_json:
+                    clean_json = clean_json.split("```json")[1].split("```")[0].strip()
+                elif "```" in clean_json:
+                    clean_json = clean_json.split("```")[1].split("```")[0].strip()
+                
+                result = json.loads(clean_json)
+                if "error" in result:
+                    return "What was the amount for this expense? I need a number to track it! 💰"
+                amount = float(result.get("amount", 0))
+                item = str(result.get("item", "Miscellaneous"))
+            except (json.JSONDecodeError, ValueError, KeyError):
+                return "I couldn't quite catch the amount. Could you say it like 'add expense 50 for lunch'?"
 
-        if "error" in result:
-            return "What was the amount for this expense? I need a number to track it! "
-
-        amount = result["amount"]
-        item = result["item"]
-        
+        if amount <= 0:
+            return "Please specify a positive amount for the expense. 💰"
+            
         data = load_finance_data()
         entry = {
             "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "amount": amount,
             "item": item
         }
-        # Ensure expenses is a list
         if not isinstance(data.get("expenses"), list):
             data["expenses"] = []
         data["expenses"].append(entry)
         save_finance_data(data)
         
-        return f"Got it! Recorded {amount} for '{item}'. Your wallet is watching! "
+        return f"Got it! Recorded {amount} for '{item}'. Your wallet is watching! 💳"
         
     except Exception as e:
         return f"Finance Error: {e}"

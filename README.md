@@ -94,9 +94,16 @@ NOVA’s true power lies in her massive, modular skill library. She can natively
 
 ### 🔌 MCP Server (Integration)
 
-NOVA now supports the **Model Context Protocol (MCP)**, allowing her to act as a tool provider for external AI clients (like Cursor or Claude Desktop).
+NOVA fully supports the **Model Context Protocol (MCP)** via FastMCP, enabling Cursor, Claude Desktop, Antigravity, and other agents to leverage her tool suite:
 * Run the server: `python mcp_nova.py`
-* Available tools: `ask_nova`, `execute_skill`, `list_skills`, `get_system_health`.
+* Available tools: `ask_nova`, `execute_skill`, `list_skills`, `get_system_health`, `take_screenshot`, `search_web`, `calculate`, `add_expense`.
+
+### 🧪 Automated Verification & Testing
+
+Run the full automated system & skills verification suite:
+```bash
+python scripts/test_all_systems.py
+```
 
 ---
 

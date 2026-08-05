@@ -68,6 +68,36 @@ def list_skills() -> List[str]:
     lazy = list(n.dispatcher.lazy_skills.keys())
     return sorted(list(set(active + lazy)))
 
+@mcp.tool()
+def take_screenshot() -> str:
+    """Take a screenshot of the primary display and save to userdata/screenshots."""
+    n = get_nova()
+    result = n.dispatcher.dispatch("screenshot")
+    return str(result) if result else "Screenshot captured."
+
+@mcp.tool()
+def search_web(query: str) -> str:
+    """Perform a web and knowledge search using DuckDuckGo and Wikipedia."""
+    n = get_nova()
+    result = n.dispatcher.dispatch(f"search {query}")
+    if isinstance(result, dict):
+        return result.get("response", str(result))
+    return str(result) if result else "No search results found."
+
+@mcp.tool()
+def calculate(expression: str) -> str:
+    """Solve mathematical or scientific calculation queries."""
+    n = get_nova()
+    result = n.dispatcher.dispatch(f"calculate {expression}")
+    return str(result) if result else "Could not solve the expression."
+
+@mcp.tool()
+def add_expense(expense_text: str) -> str:
+    """Log an expense (e.g. '50 for coffee' or 'lunch 25')."""
+    n = get_nova()
+    result = n.dispatcher.dispatch(f"add expense {expense_text}")
+    return str(result) if result else "Expense logged."
+
 if __name__ == "__main__":
     # Run the MCP server
     mcp.run()

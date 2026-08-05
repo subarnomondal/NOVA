@@ -244,7 +244,12 @@ def cmd_open_app(args):
         target = shortcuts.get(app_name.lower(), app_name)
         
         # Use 'start' in shell to handle paths and registered apps
-        subprocess.run(f"start {target}", shell=True)
+        if IS_WINDOWS:
+            subprocess.run(f"start {target}", shell=True)
+        elif platform.system() == "Darwin":
+            subprocess.run(f"open -a {target}", shell=True)
+        else:
+            subprocess.run(f"xdg-open {target}", shell=True)
         return f"Opening {app_name}... "
         
     except Exception as e:
@@ -289,25 +294,48 @@ def cmd_volume_control(args):
         return f"Volume Error: {e}"
 
 def cmd_cleanup_system(args):
-    """Win11: Cleans temp files and Recycle Bin."""
-    if not IS_WINDOWS: return "Cleanup is Windows-only."
+    """Cleans temp files."""
     try:
+        import tempfile
+        import shutil
         print(" Cleaning system...")
-        # Empty Recycle Bin
-        subprocess.run(["powershell", "-command", "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"], shell=True)
-        # Clear Temp
-        subprocess.run(["powershell", "-command", "Remove-Item -Path $env:TEMP\\* -Recurse -Force -ErrorAction SilentlyContinue"], shell=True)
-        return "System cleanup complete!  Emptied Recycle Bin and cleared temporary files."
+        
+        temp_dir = tempfile.gettempdir()
+        try:
+            for item in os.listdir(temp_dir):
+                item_path = os.path.join(temp_dir, item)
+                try:
+                    if os.path.isfile(item_path) or os.path.islink(item_path):
+                        os.unlink(item_path)
+                    elif os.path.isdir(item_path):
+                        shutil.rmtree(item_path)
+                except Exception:
+                    pass # Ignore files in use
+        except Exception:
+            pass
+            
+        if IS_WINDOWS:
+            subprocess.run(["powershell", "-command", "Clear-RecycleBin -Force -ErrorAction SilentlyContinue"], shell=True)
+            
+        return "System cleanup complete! Cleared temporary files (and Recycle Bin if on Windows)."
     except Exception as e:
         return f"Cleanup Error: {e}"
 
 def cmd_get_system_health(args):
-    """Win11: Gets disk and battery status."""
-    if not IS_WINDOWS: return "Health check is Windows-only."
+    """Gets disk and battery status using psutil."""
     try:
-        disk = subprocess.check_output(["powershell", "-command", "Get-PSDrive C | Select-Object Used,Free | ConvertTo-Json"], text=True)
-        battery = subprocess.check_output(["powershell", "-command", "Get-CimInstance -ClassName Win32_Battery | Select-Object EstimatedChargeRemaining, BatteryStatus | ConvertTo-Json"], text=True)
-        return f"SYSTEM HEALTH REPORT:\nDisk (C:): {disk}\nBattery: {battery if battery.strip() else 'No battery detected (Desktop?)'}"
+        import psutil
+        disk = psutil.disk_usage('/')
+        disk_str = f"Used: {disk.used // (2**30)} GB, Free: {disk.free // (2**30)} GB"
+        
+        battery = psutil.sensors_battery()
+        if battery:
+            plugged = "Plugged In" if battery.power_plugged else "Discharging"
+            batt_str = f"{battery.percent}% ({plugged})"
+        else:
+            batt_str = 'No battery detected (Desktop?)'
+            
+        return f"SYSTEM HEALTH REPORT:\nDisk (Root): {disk_str}\nBattery: {batt_str}"
     except Exception as e:
         return f"Health Check Error: {e}"
 
@@ -327,7 +355,12 @@ def cmd_system_control(args):
     """System power controls."""
     arg = args.lower()
     if "lock" in arg:
-        subprocess.run("rundll32.exe user32.dll,LockWorkStation", shell=True)
+        if IS_WINDOWS:
+            subprocess.run("rundll32.exe user32.dll,LockWorkStation", shell=True)
+        elif platform.system() == "Darwin":
+            subprocess.run("pmset displaysleepnow", shell=True)
+        else:
+            subprocess.run("xdg-screensaver lock", shell=True)
         return "I've locked the workstation. "
     if "cleanup" in arg or "clean" in arg:
         return cmd_cleanup_system(args)

@@ -104,6 +104,8 @@ def cmd_kill_process(args):
 
 def cmd_flush_dns(args):
     """Usage: flush dns, fix network"""
+    if platform.system() != "Windows":
+        return "DNS flush is currently Windows-only."
     if "flush_dns" not in pending_actions:
         pending_actions["flush_dns"] = True
         return "⚠️ CONFIRMATION REQUIRED: Are you sure you want to flush the DNS cache? Ask me again to confirm."
@@ -118,6 +120,8 @@ def cmd_flush_dns(args):
 
 def cmd_disk_cleanup(args):
     """Usage: disk cleanup, clean drives"""
+    if platform.system() != "Windows":
+        return "Disk cleanup utility is Windows-only."
     if "disk_cleanup" not in pending_actions:
         pending_actions["disk_cleanup"] = True
         return "⚠️ CONFIRMATION REQUIRED: Are you sure you want to launch Disk Cleanup? Ask me again to confirm."

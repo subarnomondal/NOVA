@@ -94,8 +94,34 @@ def cmd_search(args):
         if kb_result and kb_result['confidence'] > 0.7:
             return kb_result['facts'][0]['information']
         
-        with DDGS() as ddgs:
-            results = list(ddgs.text(query, region='us-en', max_results=5))
+        results = []
+        try:
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, region='us-en', max_results=5))
+        except Exception as ddg_err:
+            print(f"⚠️ DuckDuckGo Search Error: {ddg_err}")
+
+        # Fallback to Wikipedia if DDG returns nothing
+        if not results:
+            try:
+                import wikipedia
+                wiki_summary = wikipedia.summary(query, sentences=3)
+                wiki_page = wikipedia.page(query, auto_suggest=False)
+                return {
+                    "response": f"According to Wikipedia:\n\n{wiki_summary}",
+                    "data": {
+                        "type": "search_results",
+                        "query": query,
+                        "results": [{
+                            "title": wiki_page.title,
+                            "url": wiki_page.url,
+                            "snippet": wiki_summary,
+                            "favicon": "https://wikipedia.org/static/favicon/wikipedia.ico"
+                        }]
+                    }
+                }
+            except Exception:
+                pass
         
         if not results:
             return f"Hmm, I couldn't find much about '{query}'."

@@ -141,8 +141,16 @@ class CommandDispatcher:
                 
                 # Double check after potential load
                 if key in self.commands:
-                    print(f" Dispatcher: Legacy match for '{key}'")
-                    return self.commands[key](user_input)
+                    print(f"⚡ Dispatcher: Legacy match for '{key}'")
+                    try:
+                        raw_resp = self.commands[key](user_input)
+                        if isinstance(raw_resp, dict):
+                            self.agi_context.set_result(raw_resp.get("data"))
+                            return raw_resp
+                        return raw_resp
+                    except Exception as e:
+                        print(f"⚠️ Dispatch Error for '{key}': {e}")
+                        return f"I encountered an issue running '{key}': {e}"
         
         return None
 

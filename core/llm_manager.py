@@ -15,6 +15,16 @@ import json
 import requests # type: ignore
 from core.chat_history import chat_history
 
+# Default validated free models on OpenRouter (Swarm priorities)
+DEFAULT_MODELS = [
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "google/gemini-2.0-flash-exp:free",
+    "qwen/qwen-2.5-72b-instruct:free",
+    "deepseek/deepseek-r1:free",
+    "mistralai/mistral-7b-instruct:free",
+    "openrouter/free"
+]
+
 class LLMManager:
     _instance = None
     _llm = None
@@ -261,18 +271,11 @@ class LLMManager:
                 "X-Title": "Nova AI"
             }
             
-            # Current validated free models on OpenRouter (Swarm priorities)
             is_multimodal = isinstance(user_input, dict) and user_input.get("image_path")
-            models = [
-                "mistralai/pixtral-12b:free" if is_multimodal else "openrouter/free", 
-                "google/gemini-flash-1.5-free",
-                "openrouter/free", # Let OpenRouter choose a working free model
-                "google/gemma-2-9b-it:free",
-                "meta-llama/llama-3.1-8b-instruct:free",
-                "qwen/qwen-2.5-72b-instruct:free",
-                "meta-llama/llama-3.2-3b-instruct:free",
-                "deepseek/deepseek-r1:free"
-            ]
+            models = list(DEFAULT_MODELS)
+            if is_multimodal:
+                models.insert(0, "google/gemini-2.0-flash-exp:free")
+                models.insert(1, "mistralai/pixtral-12b:free")
 
             
             for model in models:
@@ -335,9 +338,7 @@ class LLMManager:
                     if tools:
                         data["tools"] = tools
 
-
-                    
-                    print(f" Requesting {model} OpenRouter (Attempt {attempt+1}/3)...")
+                    print(f"🌐 Requesting {model} OpenRouter (Attempt {attempt+1}/3)...")
                     response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data, timeout=30)
                     self.last_error_code = response.status_code
                     
@@ -366,7 +367,7 @@ class LLMManager:
             print(f"⚠️ OpenRouter Exception: {e}")
             return None
 
-    def _generate_groq(self, user_input, system_prompt, history=None):
+    def _generate_groq(self, user_input, system_prompt, history=None, tools=None):
         """Generate response via Groq API (Smart Swarm Mode)."""
         try:
             import requests
@@ -407,6 +408,8 @@ class LLMManager:
                         "temperature": 0.7,
                         "max_tokens": 500
                     }
+                    if tools:
+                        payload["tools"] = tools
 
                     response = requests.post(url, headers=headers, json=payload, timeout=30)
                     self.last_error_code = response.status_code
@@ -416,6 +419,8 @@ class LLMManager:
                         if "choices" in result and result["choices"]:
                             self.last_provider = "Groq"
                             self.last_model = model
+                            if tools:
+                                return result["choices"][0]["message"]
                             return result["choices"][0]["message"]["content"]
                             
                     elif response.status_code == 429:
@@ -434,18 +439,50 @@ class LLMManager:
             print(f"⚠️ Groq Exception: {e}")
         return None
 
-    def _generate_ollama(self, user_input, system_prompt, model_name="llama3"):
-        """High-Power Local Brain via Ollama."""
+    def _generate_ollama(self, user_input, system_prompt, history=None, model_name="llama3"):
+        """High-Power Local Brain via Ollama with Chat and Completion Fallback."""
         try:
             import requests
+            text_input = user_input.get("text", "") if isinstance(user_input, dict) else str(user_input)
+            
+            # 1. Try Ollama /api/chat
+            try:
+                url_chat = "http://localhost:11434/api/chat"
+                messages = [{"role": "system", "content": system_prompt}]
+                if history:
+                    for line in history.strip().split('\n'):
+                        if line.startswith("User:"):
+                            messages.append({"role": "user", "content": line.replace("User:", "").strip()})
+                        elif line.startswith("Nova:"):
+                            messages.append({"role": "assistant", "content": line.replace("Nova:", "").strip()})
+                messages.append({"role": "user", "content": text_input})
+                
+                payload = {
+                    "model": model_name,
+                    "messages": messages,
+                    "stream": False
+                }
+                res_chat = requests.post(url_chat, json=payload, timeout=30)
+                if res_chat.status_code == 200:
+                    chat_json = res_chat.json()
+                    if "message" in chat_json and "content" in chat_json["message"]:
+                        self.last_provider = "Ollama"
+                        self.last_model = model_name
+                        return chat_json["message"]["content"]
+            except Exception:
+                pass
+            
+            # 2. Fallback to /api/generate
             url = "http://localhost:11434/api/generate"
             payload = {
                 "model": model_name,
-                "prompt": f"{system_prompt}\n\nUser: {user_input}\nAssistant:",
+                "prompt": f"{system_prompt}\n\nUser: {text_input}\nAssistant:",
                 "stream": False
             }
             response = requests.post(url, json=payload, timeout=30)
             if response.status_code == 200:
+                self.last_provider = "Ollama"
+                self.last_model = model_name
                 return response.json().get("response", "")
             return None
         except Exception as e:
@@ -527,8 +564,10 @@ class LLMManager:
                     # 1. Groq
                     if provider == "groq" or (not provider and "groq" in (os.getenv("PREFERRED_PROVIDER", "openrouter").lower())):
                         print("⚡ Routing to Groq (Llama-3)...")
-                        groq_resp = self._generate_groq(actual_input, full_system_prompt, tools=tools)
+                        groq_resp = self._generate_groq(actual_input, full_system_prompt, history=history, tools=tools)
                         if groq_resp:
+                            if tools and isinstance(groq_resp, dict):
+                                return groq_resp
                             return self._process_response_text(groq_resp, user_input, include_tags, raw_user_input)
                     
                     # 2. OpenRouter
@@ -543,7 +582,7 @@ class LLMManager:
                     # 3. Ollama
                     if provider == "ollama" or (not provider and os.getenv("USE_OLLAMA") == "true"):
                         print("🦙 Routing to Ollama...")
-                        ollama_resp = self._generate_ollama(user_input, full_system_prompt)
+                        ollama_resp = self._generate_ollama(user_input, full_system_prompt, history=history)
                         if ollama_resp:
                             return self._process_response_text(ollama_resp, user_input, include_tags, raw_user_input)
 
