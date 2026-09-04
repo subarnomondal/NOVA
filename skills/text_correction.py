@@ -1,6 +1,6 @@
 """
-Text Correction Skill for NOVA
-Allows users to ask NOVA to fix their spelling and grammar.
+Text Correction Skill for CLIO
+Allows users to ask CLIO to fix their spelling and grammar.
 """
 
 import random

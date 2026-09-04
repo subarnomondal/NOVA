@@ -6,10 +6,10 @@ from core.dispatcher import CommandDispatcher
 
 console = Console()
 
-class Nova:
+class Clio:
     def __init__(self, config_path=os.path.join("userdata", "config", "settings.yaml")):
         self.config = self.load_config(config_path)
-        self.name = self.config.get("assistant", {}).get("name", "Nova")
+        self.name = self.config.get("assistant", {}).get("name", "Clio")
         self.running = True
         self.dispatcher = CommandDispatcher()
         from core.nlp_processor import NLUProcessor
@@ -170,14 +170,14 @@ class Nova:
             if chat_only:
                 print(f"Social Mode: Bypassing agent loop.")
                 system_prompt = (
-                    "You are Nova. You're in a voice call right now, so keep it extremely natural and short. "
+                    "You are Clio. You're in a voice call right now, so keep it extremely natural and short. "
                     "Focus on conversation only — don't mention skills or technical features. "
                     "Be genuine, witty when it fits, and always direct. "
                     "Respond in 1-2 short sentences max."
                 )
             else:
                 system_prompt = (
-                    "You are Nova, a smart and personable AI companion. "
+                    "You are Clio, a smart and personable AI companion. "
                     "Be authentic, witty, and direct — like chatting with a sharp friend. "
                     "Keep it short (1-2 sentences). No robotic disclaimers or canned intros."
                 )
@@ -209,14 +209,15 @@ class Nova:
             if primary_social and loop_count == 1:
                 # Soft persona for casual chat
                 system_prompt = (
-                    "You are Nova, a smart and helpful AI companion. "
+                    "You are Clio, a smart and helpful AI companion. "
                     "Be conversational and genuine — witty when it fits, supportive when needed. "
-                    f"If you need to do something, use these skills: {available_skills}\n"
-                    "If a simple chat response is enough, just talk naturally."
+                    "If you need to do something, use these skills: {available_skills}\n"
+                    "If a simple chat response is enough, just talk naturally.\n"
+                    "CRITICAL RULE: If you use <thought> tags, keep them ULTRA SHORT (max 10 words) for fast responses. Long thoughts cause lag."
                 )
             else:
                 system_prompt = (
-                    "You are Nova, an autonomous and highly capable AI companion. Execute tasks directly and decisively. "
+                    "You are Clio, an autonomous and highly capable AI companion. Execute tasks directly and decisively. "
                     f"- To use a Skill: [SKILL] skill_name [/SKILL]\n"
                     f"  Available Skills: {available_skills}\n"
                     "- Scripting: [SCRIPT] code [/SCRIPT]\n"
@@ -226,7 +227,7 @@ class Nova:
                     "- Browser Control: [BROWSER_CLICK id] or [BROWSER_TYPE id \"text\"]\n\n"
                     "### YOUR OPERATING PRINCIPLES:\n"
                     "- **Autonomy**: Decide the best course of action based on user intent. Don't ask for permission for routine tasks.\n"
-                    "- **Reasoning**: Think in <thought> tags to plan multi-step operations. Keep thoughts EXTREMELY BRIEF (1-2 sentences max). ALWAYS process DOM maps and element IDs inside <thought> tags, NEVER read them out loud to the user.\n"
+                    "- **Reasoning**: Think in <thought> tags to plan your actions. CRITICAL RULE: Keep thoughts ULTRA SHORT (max 10-15 words). Writing long thoughts causes severe lag! Be fast. Process DOM maps inside <thought> tags.\n"
                     "- **Direct Action**: Use your skills, scripts, and commands to reach the user's goal immediately.\n"
                     "- **Personality**: Be witty, loyal, and efficient."
                 )

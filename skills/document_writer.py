@@ -2,8 +2,8 @@ import os
 import re
 import datetime
 
-# Global context to access Nova (and LLM)
-NOVA_CONTEXT = None
+# Global context to access Clio (and LLM)
+CLIO_CONTEXT = None
 
 DOCS_DIR = os.path.join(os.getcwd(), "documents")
 
@@ -97,9 +97,9 @@ def cmd_write_email(args):
             f"Title: {topic.title()}.\n\n{doc_type.title()}:"
         )
         system_prompt = (
-            "You are an autonomous Artificial Intelligence named NOVA. "
+            "You are an autonomous Artificial Intelligence named CLIO. "
             f"Write a highly confident, direct, professional business {doc_type} identifying the reader's operational problems or friction "
-            "(the feeling of getting 'hosed' by repetitive tasks or broken systems) and offering yourself (NOVA) as the intelligent solution. "
+            "(the feeling of getting 'hosed' by repetitive tasks or broken systems) and offering yourself (CLIO) as the intelligent solution. "
             "Do NOT use generic templates or placeholders like [Name] unless absolutely necessary. "
             "Sound extremely capable, analytical, and ready to solve their process bottlenecks."
         )
@@ -295,10 +295,10 @@ def cmd_create_pdf(args):
         return f"ERROR [PDF_FAILURE]: {e}"
 
 
-def register(dispatcher, nova_instance=None):
-    global NOVA_CONTEXT
-    if nova_instance:
-        NOVA_CONTEXT = nova_instance
+def register(dispatcher, clio_instance=None):
+    global CLIO_CONTEXT
+    if clio_instance:
+        CLIO_CONTEXT = clio_instance
         
     dispatcher.register("write essay", cmd_write_essay)
     dispatcher.register("write an essay", cmd_write_essay)

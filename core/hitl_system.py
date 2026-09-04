@@ -1,6 +1,6 @@
 """
-HITL (Human-In-The-Loop) System for NOVA
-Allows NOVA to learn from user corrections and feedback
+HITL (Human-In-The-Loop) System for CLIO
+Allows CLIO to learn from user corrections and feedback
 """
 
 import json
@@ -39,13 +39,13 @@ class HITLSystem:
         except Exception as e:
             print(f"⚠️ HITL save error: {e}")
     
-    def record_interaction(self, user_input: str, nova_response: str, 
+    def record_interaction(self, user_input: str, clio_response: str, 
                           intent: str, confidence: float):
         """Record an interaction for potential feedback"""
         interaction = {
             'timestamp': datetime.now().isoformat(),
             'user_input': user_input,
-            'nova_response': nova_response,
+            'clio_response': clio_response,
             'intent': intent,
             'confidence': confidence,
             'feedback': None,

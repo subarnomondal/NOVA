@@ -55,7 +55,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
         // Personalized greeting
         h1.textContent = `${greeting}, Rivu! 🙏`;
-        p.textContent = "I'm Nova, your AI assistant. Ready to help you today!";
+        p.textContent = "I'm Clio, your Local Autonomous Responsive Agent. Ready to help you today!";
     }
 
     // Play welcome sound after a short delay

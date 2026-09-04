@@ -1,5 +1,5 @@
 """
-Online Training Skill for NOVA
+Online Training Skill for CLIO
 Enables importing conversation datasets from online sources (specifically ChatterBot corpus)
 """
 
@@ -32,7 +32,7 @@ You can import knowledge on these topics:
 **Usage:** `import dataset [topic]` or `import dataset all`"""
 
 def fetch_and_train_topic(topic):
-    """Fetch a specific topic and train Nova"""
+    """Fetch a specific topic and train Clio"""
     url = f"{CORPUS_BASE_URL}{topic}.yml"
     try:
         response = requests.get(url, timeout=10)

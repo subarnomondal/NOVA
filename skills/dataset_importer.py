@@ -121,7 +121,7 @@ def cmd_create_sample_csv(args):
         with open(filename, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(["Question", "Answer"])
-            writer.writerow(["What is Nova?", "Nova is an advanced AI assistant."])
+            writer.writerow(["What is Clio?", "Clio is an advanced AI assistant."])
             writer.writerow(["Who created you?", "I was created by my developer."])
             writer.writerow(["Do you like Python?", "Yes, it is my native language!"])
             

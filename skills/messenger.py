@@ -236,7 +236,7 @@ def cmd_send_message(args):
         # 3. Professionalize Message using LLM
         print(f" Professionalizing WhatsApp message for: {content}")
         system_prompt = (
-            "You are Nova, a professional and efficient assistant. "
+            "You are Clio, a professional and efficient assistant. "
             "Rewrite the user's brief note into a short, clear, and professional WhatsApp message. "
             "Do NOT include subject lines or formal email closings. "
             "Just the message content. Keep it short for mobile reading."

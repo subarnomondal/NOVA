@@ -1,5 +1,5 @@
 """
-Browser Agent Skill for NOVA
+Browser Agent Skill for CLIO
 Autonomous web navigation, data extraction, and form filling using Playwright and DDGS.
 """
 
@@ -241,7 +241,7 @@ class BrowserAgent:
             print("[Browser] Injecting Antigravity DOM Annotator...")
 
             dom_map = self._page.evaluate(r"""() => {
-                document.querySelectorAll('.nova-dom-label').forEach(el => el.remove());
+                document.querySelectorAll('.clio-dom-label').forEach(el => el.remove());
                 
                 let elements = document.querySelectorAll('a, button, input, select, textarea, [role="button"], [role="link"], [role="menuitem"], [onclick]');
                 let interactables = [];
@@ -259,10 +259,10 @@ class BrowserAgent:
                     
                     if (isVisible) {
                         let id = id_counter++;
-                        el.setAttribute('nova-id', id);
+                        el.setAttribute('clio-id', id);
                         
                         let label = document.createElement('div');
-                        label.className = 'nova-dom-label';
+                        label.className = 'clio-dom-label';
                         label.textContent = id;
                         label.style.position = 'absolute';
                         label.style.left = (rect.left + window.scrollX) + 'px';
@@ -304,7 +304,7 @@ class BrowserAgent:
         return self._run_in_browser_thread(self._do_map_internal)
 
     def interact(self, action_type, selector_or_id, value=None):
-        """Performs clicks or typing via CSS selector or nova-id."""
+        """Performs clicks or typing via CSS selector or clio-id."""
         def _do_interact(a_type, sel, val):
             if not self._page:
                 return "No page is open for interaction."
@@ -312,7 +312,7 @@ class BrowserAgent:
             try:
                 # Determine if it's an ID or a standard selector
                 if str(sel).isdigit():
-                    sel = f'[nova-id="{sel}"]'
+                    sel = f'[clio-id="{sel}"]'
                 
                 if a_type == "click":
                     self._page.click(sel, timeout=10000)
@@ -412,6 +412,7 @@ def register(dispatcher):
     dispatcher.register("visit", cmd_browser_navigate)
     dispatcher.register("search and browse", cmd_browser_search)
     dispatcher.register("find on web", cmd_browser_search)
+    dispatcher.register("browser search", cmd_browser_search)
     dispatcher.register("auto browse", cmd_browser_map)
     dispatcher.register("map dom", cmd_browser_map)
     dispatcher.register("take screenshot", cmd_browser_snap)

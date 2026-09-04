@@ -1,5 +1,5 @@
 """
-Music & Song Intelligence Skill for Nova
+Music & Song Intelligence Skill for Clio
 Handles song identification, lyrics, artist info, and trending Indian music.
 """
 
@@ -46,7 +46,7 @@ def cmd_music_info(args):
         year = release_date[:4] if release_date else 'N/A'
         view_url = metadata.get('trackViewUrl', '#')
 
-        response = f"###  Nova Music Report: **{track}**\n\n"
+        response = f"###  Clio Music Report: **{track}**\n\n"
         response += f"| Category | Details |\n"
         response += f"| :--- | :--- |\n"
         response += f"| **Artist** | {artist} |\n"
@@ -265,7 +265,7 @@ def cmd_download_song(args):
         import platform
         import threading
         
-        music_dir = os.path.join(os.path.expanduser("~"), "Music", "Nova Downloads")
+        music_dir = os.path.join(os.path.expanduser("~"), "Music", "Clio Downloads")
         if not os.path.exists(music_dir):
             os.makedirs(music_dir)
             
@@ -294,10 +294,10 @@ def cmd_download_song(args):
             except Exception as e:
                 print(f"Download thread error: {e}")
 
-        # Start download in background so Nova doesn't freeze
+        # Start download in background so Clio doesn't freeze
         threading.Thread(target=download_thread, daemon=True).start()
         
-        return f"On it! I'm downloading '{query}' as an MP3. It will be saved to your `Music/Nova Downloads` folder shortly! ✨"
+        return f"On it! I'm downloading '{query}' as an MP3. It will be saved to your `Music/Clio Downloads` folder shortly! ✨"
         
     except Exception as e:
         return f"I had trouble starting the download. Error: {e}"
@@ -318,25 +318,37 @@ def cmd_mood_recommendation(args):
     
     # 2. Map Mood to Search Query
     mood_queries = {
-        "joy": "upbeat happy party songs 2026 hits",
-        "sadness": "melancholic sad breakup songs playlist",
+        "joy": "happy upbeat songs",
+        "sadness": "sad melancholic songs",
         "excitement": "high energy gym workout power music",
-        "chill": "lofi hip hop chill study beats playlist",
-        "love": "romantic love songs couple playlist",
-        "anger": "aggressive heavy metal hard rock hype songs",
+        "chill": "lofi hip hop chill study beats",
+        "love": "romantic love songs",
+        "anger": "aggressive heavy metal hard rock",
         "fear": "calming peaceful meditation nature sounds",
-        "neutral": "popular top hits radio today"
+        "neutral": "popular top hits"
     }
     
-    search_query = mood_queries.get(user_mood, "lofi chill study beats")
-    print(f" Searching for {user_mood} music: {search_query}")
+    search_query = mood_queries.get(user_mood, "popular songs")
+    print(f" Searching YTMusic for {user_mood} music: {search_query}")
 
     try:
-        with DDGS() as ddgs:
-            results = list(ddgs.text(f"best {search_query} spotify youtube", region='in-en', max_results=5))
+        from ytmusicapi import YTMusic
+        auth_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "userdata", "config", "headers_auth.json")
+        try:
+            if os.path.exists(auth_file):
+                yt = YTMusic(auth_file)
+            else:
+                yt = YTMusic()
+        except Exception as auth_e:
+            print(f"YTMusic Auth Warning: {auth_e}. Falling back to unauthenticated.")
+            yt = YTMusic()
+            
+        results = yt.search(search_query, filter='songs', limit=10)
         
         if not results:
             return "I couldn't find a specific playlist for your mood right now. Maybe some classics? "
+
+        random.shuffle(results)
 
         # 3. Construct Narrative Result
         mood_intro = {
@@ -350,18 +362,25 @@ def cmd_mood_recommendation(args):
         }
         
         intro = mood_intro.get(user_mood, mood_intro["neutral"])
-        response = f"{intro} I found some music that matches your state:\n\n"
+        response = f"{intro} I found some authentic tracks that match your state:\n\n"
         
-        for i, res in enumerate(results[:3], 1):
-            response += f"{i}. {res['title'][:80]}\n"
+        for i, song in enumerate(results[:3], 1):
+            title = song.get('title', 'Unknown')
+            artists = ", ".join([a.get('name', '') for a in song.get('artists', [])])
+            response += f"{i}. **{title}** by {artists}\n"
             
-        response += f"\n*hums a matching tune* Should I play the top choice '{results[0]['title'][:40]}' for you? "
+        first_song = f"{results[0].get('title', '')} {', '.join([a.get('name', '') for a in results[0].get('artists', [])])}"
+        response += f"\n*hums a matching tune* I'm starting the top choice '{results[0].get('title', 'Unknown')[:40]}' for you right now! "
         
-        return {
-            "response": response,
-            "data": {"query": results[0]['title']},
-            "suggested_next": "play" 
-        }
+        # 4. Instant Auto-Play
+        try:
+            from skills.media import cmd_play
+            cmd_play(first_song)
+        except Exception as e:
+            print(f"Mood auto-play error: {e}")
+            response += "\n(Oops, I had a little trouble auto-playing it, but you can still look it up!)"
+        
+        return response
 
     except Exception as e:
         print(f"Mood Recommendation Error: {e}")

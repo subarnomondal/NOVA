@@ -1,5 +1,5 @@
 """
-Language & Vocabulary Tutor Skill for NOVA
+Language & Vocabulary Tutor Skill for CLIO
 Assists with translation, grammar, and linguistic growth.
 """
 

@@ -6,7 +6,7 @@ import os
 from skills.messenger import ContactManager
 
 # Global context for LLM
-NOVA_CONTEXT = None
+CLIO_CONTEXT = None
 
 # Reuse the Contact Manager for phone/email if possible, but Messenger uses 'contacts.json' which stores Numbers.
 # We will create a separate EmailDirectory for simplicity or extend functionality.
@@ -159,7 +159,7 @@ def cmd_send_email(args):
         # 3. Generate Professional Draft using LLM
         print(f" Drafting professional email for: {topic}")
         system_prompt = (
-            "You are Nova, a professional yet friendly assistant. "
+            "You are Clio, a professional yet friendly assistant. "
             "Draft a professional email based on the user's brief note. "
             "Structure it with 'Subject: <subject>' on the first line, followed by the body. "
             "Keep it concise, clear, and polite."
@@ -196,10 +196,10 @@ def cmd_send_email(args):
         print(f"❌ Email Error: {e}")
         return f"Sorry, I ran into an issue preparing that email: {str(e)}"
 
-def register(dispatcher, nova_instance=None):
-    global NOVA_CONTEXT
-    if nova_instance:
-        NOVA_CONTEXT = nova_instance
+def register(dispatcher, clio_instance=None):
+    global CLIO_CONTEXT
+    if clio_instance:
+        CLIO_CONTEXT = clio_instance
         
     dispatcher.register("send email", cmd_send_email)
     dispatcher.register("mail", cmd_send_email)

@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo NOVA Advanced Protection (PyArmor)
+echo CLIO Advanced Protection (PyArmor)
 echo ========================================
 echo.
 

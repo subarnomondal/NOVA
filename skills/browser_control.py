@@ -1,6 +1,6 @@
 """
-Browser Control Skill for Nova
-Enables Nova to navigate tabs and read page content via the browser extension.
+Browser Control Skill for Clio
+Enables Clio to navigate tabs and read page content via the browser extension.
 """
 
 def cmd_browser_nav(args):
@@ -27,20 +27,7 @@ def cmd_browser_nav(args):
         }
     }
 
-def cmd_browser_search(args):
-    """Usage: browser search <query>"""
-    query = args.lower().replace("browser search", "").strip()
-    if not query:
-        return "What should I search for in the browser? "
-        
-    search_url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
-    return {
-        "response": f"Searching for '{query}' in your browser... ",
-        "data": {
-            "browser_action": "navigate",
-            "url": search_url
-        }
-    }
+# ponytail: cmd_browser_search removed (duplicate handled by skills.browser_agent)
 
 def cmd_read_page(args):
     """Usage: read this page or what's on this website?"""
@@ -55,6 +42,6 @@ def register(dispatcher):
     dispatcher.register("browse to", cmd_browser_nav)
     dispatcher.register("visit", cmd_browser_nav)
     dispatcher.register("open website", cmd_browser_nav)
-    dispatcher.register("browser search", cmd_browser_search)
+    # ponytail: browser search registration removed
     dispatcher.register("read this page", cmd_read_page)
     dispatcher.register("what's on this page", cmd_read_page)

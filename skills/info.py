@@ -16,7 +16,7 @@ def cmd_ping(args):
 
 def cmd_introduce(args):
     """Usage: who are you, introduce yourself"""
-    return """Hey, I'm Nova — your AI buddy. Think of me as the spark that keeps your day flowing. I'm here to chat like a friend, share fun facts, help organize your thoughts, and keep things light when you need a break.
+    return """Hey, I'm Clio — your AI buddy. Think of me as the spark that keeps your day flowing. I'm here to chat like a friend, share fun facts, help organize your thoughts, and keep things light when you need a break.
 
 I'm curious, witty, and always ready to listen. Whether you want a quick laugh, a daily reminder, or just someone to bounce ideas off, I've got you covered.
 
@@ -74,7 +74,7 @@ def get_aqi(city):
     return None
 
 def analyze_weather_data(current, daily):
-    """Nova-style analysis of the Open-Meteo data"""
+    """Clio-style analysis of the Open-Meteo data"""
     temp = current.get('temperature_2m', '??')
     wind = current.get('wind_speed_10m', '??')
     weather_code = current.get('weather_code', 0)

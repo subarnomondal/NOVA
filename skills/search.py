@@ -1,6 +1,6 @@
 """
-Web Search Skill for Nova
-Allows Nova to search the web and provide answers
+Web Search Skill for Clio
+Allows Clio to search the web and provide answers
 """
 
 from duckduckgo_search import DDGS

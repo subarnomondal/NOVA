@@ -14,56 +14,56 @@ if root_dir not in sys.path:
 os.makedirs("userdata", exist_ok=True)
 os.makedirs("userdata/temp", exist_ok=True)
 
-from core.assistant import Nova
+from core.assistant import Clio
 
-# Initialize Nova in a background thread to avoid blocking MCP startup
-nova_instance = None
-nova_lock = threading.Lock()
+# Initialize Clio in a background thread to avoid blocking MCP startup
+clio_instance = None
+clio_lock = threading.Lock()
 
-def get_nova():
-    global nova_instance
-    with nova_lock:
-        if nova_instance is None:
-            print(" Initializing NOVA for MCP...")
-            nova_instance = Nova()
-        return nova_instance
+def get_clio():
+    global clio_instance
+    with clio_lock:
+        if clio_instance is None:
+            print(" Initializing CLIO for MCP...")
+            clio_instance = Clio()
+        return clio_instance
 
 # Create FastMCP server
-mcp = FastMCP("NOVA")
+mcp = FastMCP("CLIO")
 
 @mcp.tool()
-def ask_nova(query: str) -> str:
+def ask_clio(query: str) -> str:
     """
-    Send a natural language query to NOVA. NOVA can perform system tasks, 
+    Send a natural language query to CLIO. CLIO can perform system tasks, 
     web searches, automation, and more.
     """
-    n = get_nova()
+    n = get_clio()
     result = n.handle_input(query)
     if isinstance(result, dict):
-        return result.get("response", "No response from NOVA.")
+        return result.get("response", "No response from CLIO.")
     return str(result)
 
 @mcp.tool()
 def execute_skill(command: str) -> str:
     """
-    Directly execute a NOVA skill by command keyword.
+    Directly execute a CLIO skill by command keyword.
     Example: 'weather Mumbai', 'volume up', 'lock pc'
     """
-    n = get_nova()
+    n = get_clio()
     response = n.dispatcher.dispatch(command)
     return str(response) if response else "Skill executed (no output)."
 
 @mcp.tool()
 def get_system_health() -> str:
     """Get the current system health report (CPU, RAM, Disk, Battery)."""
-    n = get_nova()
+    n = get_clio()
     result = n.dispatcher.dispatch("status health")
     return str(result) if result else "No health data available."
 
 @mcp.tool()
 def list_skills() -> List[str]:
-    """List all currently active and available NOVA skills."""
-    n = get_nova()
+    """List all currently active and available CLIO skills."""
+    n = get_clio()
     active = list(n.dispatcher.commands.keys())
     lazy = list(n.dispatcher.lazy_skills.keys())
     return sorted(list(set(active + lazy)))
@@ -71,14 +71,14 @@ def list_skills() -> List[str]:
 @mcp.tool()
 def take_screenshot() -> str:
     """Take a screenshot of the primary display and save to userdata/screenshots."""
-    n = get_nova()
+    n = get_clio()
     result = n.dispatcher.dispatch("screenshot")
     return str(result) if result else "Screenshot captured."
 
 @mcp.tool()
 def search_web(query: str) -> str:
     """Perform a web and knowledge search using DuckDuckGo and Wikipedia."""
-    n = get_nova()
+    n = get_clio()
     result = n.dispatcher.dispatch(f"search {query}")
     if isinstance(result, dict):
         return result.get("response", str(result))
@@ -87,14 +87,14 @@ def search_web(query: str) -> str:
 @mcp.tool()
 def calculate(expression: str) -> str:
     """Solve mathematical or scientific calculation queries."""
-    n = get_nova()
+    n = get_clio()
     result = n.dispatcher.dispatch(f"calculate {expression}")
     return str(result) if result else "Could not solve the expression."
 
 @mcp.tool()
 def add_expense(expense_text: str) -> str:
     """Log an expense (e.g. '50 for coffee' or 'lunch 25')."""
-    n = get_nova()
+    n = get_clio()
     result = n.dispatcher.dispatch(f"add expense {expense_text}")
     return str(result) if result else "Expense logged."
 

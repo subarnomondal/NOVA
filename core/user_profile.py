@@ -1,5 +1,5 @@
 """
-User Profile System for NOVA
+User Profile System for CLIO
 Stores and manages user preferences, habits, and personalization data
 """
 

@@ -5,7 +5,7 @@ import re
 class CodebaseReader:
     """
     CodebaseReader
-    Provides Nova with the ability to search and read through its own source code 
+    Provides Clio with the ability to search and read through its own source code 
     to answer architectural questions. (Mini-RAG)
     """
     def __init__(self, root_dir=None):

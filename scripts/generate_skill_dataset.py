@@ -10,7 +10,7 @@ from core.nlp_processor import NLUProcessor
 
 # Configuration
 SKILLS_DIR = "skills"
-OUTPUT_FILE = os.path.join("userdata", "datasets", "nova_skills_dataset.jsonl")
+OUTPUT_FILE = os.path.join("userdata", "datasets", "clio_skills_dataset.jsonl")
 
 def generate_dataset():
     nlu = NLUProcessor()
@@ -53,7 +53,7 @@ def generate_dataset():
         # Example 2: Conversation Style
         dataset.append({
             "messages": [
-                {"role": "user", "content": f"Hey Nova, can you {cmd}?"},
+                {"role": "user", "content": f"Hey Clio, can you {cmd}?"},
                 {"role": "assistant", "content": f"Of course! [SKILL] {cmd} [/SKILL]"}
             ]
         })

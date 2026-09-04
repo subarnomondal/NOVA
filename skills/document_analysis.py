@@ -58,7 +58,7 @@ class DocumentAnalysis:
         TASK: {task_prompt}
         STYLE: Professional and insightful. Point out non-obvious details and maintain a helpful, sharp character.
         RESPONSE FORMAT: Markdown.
-        Nova:"""
+        Clio:"""
 
         # 3. Generate Response
         # FORCE LOCAL LLM for Document Analysis (Privacy/Cost/Offline)

@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Nova AI Assistant",
+    "name": "Clio AI Assistant",
     "version": "1.1.0",
-    "description": "Your personal AI assistant \u2014 chat with Nova from any browser tab.",
+    "description": "Your personal AI assistant \u2014 chat with Clio from any browser tab.",
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
@@ -25,7 +25,7 @@
         "tabs",
         "activeTab",
         "scripting",
-        "declarativeNetRequest"
+        "deccliotiveNetRequest"
     ],
     "host_permissions": [
         "http://localhost:5000/*",
@@ -33,11 +33,11 @@
     ],
     "browser_specific_settings": {
         "gecko": {
-            "id": "nova-ai-assistant@nova-ai.com",
+            "id": "clio-ai-assistant@clio-ai.com",
             "strict_min_version": "109.0"
         }
     },
-    "declarative_net_request": {
+    "deccliotive_net_request": {
         "rule_resources": [
             {
                 "id": "ruleset_1",

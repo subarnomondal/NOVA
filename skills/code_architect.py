@@ -7,7 +7,7 @@ import traceback
 class CodeArchitect:
     """
     CodeArchitect Skill
-    Enables Nova to read, edit, and verify its own source code autonomously.
+    Enables Clio to read, edit, and verify its own source code autonomously.
     """
     def __init__(self, workspace_root=None):
         self.workspace_root = workspace_root or os.getcwd()

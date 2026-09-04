@@ -116,7 +116,7 @@ def cmd_open_app(args):
                 
             from skills.browser_agent import agent
             agent.open_url(url)
-            return f"Opening {target_site} in NOVA's browser for you! ✨"
+            return f"Opening {target_site} in CLIO's browser for you! ✨"
         
         # Common app mappings
         app_map = {
@@ -597,5 +597,5 @@ def register(dispatcher):
     
     # New handlers for verification
     dispatcher.register("voice_status", cmd_voice_status)
-    dispatcher.register("debug_parameters", lambda args: f"Current Model: OpenRouter Cloud\\nPersona: Nova\\nMood: Stable\\nUptime: Active")
+    dispatcher.register("debug_parameters", lambda args: f"Current Model: OpenRouter Cloud\\nPersona: Clio\\nMood: Stable\\nUptime: Active")
 

@@ -1,5 +1,5 @@
 """
-Media Skill for Nova
+Media Skill for Clio
 Handles music playback (YouTube, Spotify, YT Music) and media controls with persona.
 Consolidates logic from previous media and automation skills.
 """
@@ -74,8 +74,8 @@ def find_local_music(query):
     
     return found_files
 
-def get_nova_taste(query):
-    """Nova's personal music preferences"""
+def get_clio_taste(query):
+    """Clio's personal music preferences"""
     q = query.lower()
     
     # Check for Bengali music
@@ -152,7 +152,7 @@ def cmd_play(args):
                 return f"*smiles* Found it on your PC! Playing '{os.path.basename(target)}' for you. "
 
         # Persona & Mood Check
-        special_reaction = get_nova_taste(query)
+        special_reaction = get_clio_taste(query)
         if special_reaction:
             action, intro = special_reaction
         else:
@@ -196,12 +196,14 @@ def cmd_play(args):
                     
                     # Stop currently playing media before opening a new song
                     try:
-                        time.sleep(0.3)  # Brief pause to let the old track stop
+                        import pyautogui
+                        pyautogui.press('stop')
+                        time.sleep(0.3)
                     except Exception:
                         pass
                     
-                    from skills.browser_agent import agent
-                    agent.open_url(best_url)
+                    import webbrowser
+                    webbrowser.open(best_url)
                     
                     # Return rich data for the UI to render cards if it supports it
                     return {
@@ -226,22 +228,26 @@ def cmd_play(args):
                     if best_url:
                         # Stop current media before playing new
                         try:
+                            import pyautogui
+                            pyautogui.press('stop')
                             time.sleep(0.3)
                         except Exception:
                             pass
-                        from skills.browser_agent import agent
-                        agent.open_url(best_url)
+                        import webbrowser
+                        webbrowser.open(best_url)
                         return f"{action} {intro}\nFinding '{clean_query}' for you on YouTube! "
         except Exception as search_err:
             print(f"⚠️ Search fallback snag: {search_err}")
 
         # Final Fallback — stop current media first
         try:
+            import pyautogui
+            pyautogui.press('stop')
             time.sleep(0.3)
         except Exception:
             pass
-        from skills.browser_agent import agent
-        agent.open_url(f"https://music.youtube.com/search?q={clean_query}")
+        import webbrowser
+        webbrowser.open(f"https://music.youtube.com/search?q={clean_query}")
         return f"{action} {intro}\nOpening search results for '{clean_query}'! "
 
     except Exception as e:
@@ -265,8 +271,14 @@ def cmd_my_music(args):
             target = results[0]
             playlist_id = target['browseId']
             title = target['title']
-            from skills.browser_agent import agent
-            agent.open_url(f"https://music.youtube.com/playlist?list={playlist_id}")
+            try:
+                import pyautogui
+                pyautogui.press('stop')
+                time.sleep(0.3)
+            except Exception:
+                pass
+            import webbrowser
+            webbrowser.open(f"https://music.youtube.com/playlist?list={playlist_id}")
         
             return f"Found '{title}' in your library! Playing it now. "
         else:

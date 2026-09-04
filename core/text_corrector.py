@@ -1,5 +1,5 @@
 """
-Text Corrector Module for NOVA
+Text Corrector Module for CLIO
 Provides high-quality text corrections (spelling, grammar, and style) using the LLM.
 """
 
@@ -133,7 +133,7 @@ class TextCorrector:
         explanation_markers = [
             "\n\nExplanation:", "\n\nChanges made:", "\n\nI have corrected",
             "\n\nThe spelling", "\n\nNote:", "\n\nHere are", "\n\nCorrection details:",
-            "Here is the corrected text:", "Nova:", "User:"
+            "Here is the corrected text:", "Clio:", "User:"
         ]
         
         for marker in explanation_markers:
@@ -164,8 +164,8 @@ class TextCorrector:
     # Static map of common Whisper mistakes — no LLM call needed, <1ms
     STT_CORRECTIONS = {
         # Proper nouns
-        'nova': 'Nova', 'no va': 'Nova', 'nover': 'Nova',
-        'no bar': 'Nova', 'no vah': 'Nova',
+        'clio': 'Clio', 'no va': 'Clio', 'nover': 'Clio',
+        'no bar': 'Clio', 'no vah': 'Clio',
         # Homophones in command context
         'whether': 'weather', 'whether today': 'weather today',
         'whether report': 'weather report', 'whether forecast': 'weather forecast',

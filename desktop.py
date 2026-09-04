@@ -44,7 +44,7 @@ llm_executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
 # ==================================================================================
 
 # Configure logging to save errors AND fixes to a permanent file
-LOG_FILE = os.path.join("userdata", "nova_errors.log")
+LOG_FILE = os.path.join("userdata", "clio_errors.log")
 logging.basicConfig(
     level=logging.INFO, # Changed from ERROR to INFO to track resolutions
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -91,7 +91,7 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 sys.excepthook = handle_exception
 
 # Core Imports (Assumes 'core' folder exists alongside desktop.py)
-from core.assistant import Nova  # type: ignore
+from core.assistant import Clio  # type: ignore
 from core.conversation_memory import ConversationMemory  # type: ignore
 from core.nlp_processor import NLUProcessor  # type: ignore
 from core.hitl_system import HITLSystem  # type: ignore
@@ -125,10 +125,10 @@ def _is_stt_hallucination(text: str) -> bool:
     return stt_manager.is_hallucination(text)
 
 try:
-    from core.nova_core_llm import nova_core_llm  # type: ignore
+    from core.clio_core_llm import clio_core_llm  # type: ignore
 except ImportError:
-    nova_core_llm = None
-    print("⚠️ Warning: core.nova_core_llm not found. Using fallback.")
+    clio_core_llm = None
+    print("⚠️ Warning: core.clio_core_llm not found. Using fallback.")
 
 from core.time_context import TimeContextManager  # type: ignore
 from core.proactive_vision import proactive_vision_engine  # type: ignore
@@ -157,8 +157,8 @@ def serve_userdata(filename):
 
 start_time = time.time()
 
-# Initialize Nova Core (Deferred after skills/managers ready)
-nova = None
+# Initialize Clio Core (Deferred after skills/managers ready)
+clio = None
 ONLINE_MODE = True
 
 # Initialize Conversation Memory
@@ -244,11 +244,11 @@ correction_manager = CorrectionManager(corrections_file=os.path.join("userdata",
 corr_stats = correction_manager.get_stats()
 print(f" Correction Manager: {corr_stats['total_corrections']} corrections learned")
 
-# Initialize NeuralChat (Nova Core)
+# Initialize NeuralChat (Clio Core)
 try:
     from core.neural_chat import NeuralChat  # type: ignore
     custom_llm = NeuralChat()
-    print(" Nova Core (Custom LLM) Initialized")
+    print(" Clio Core (Custom LLM) Initialized")
 except ImportError:
     custom_llm = None
     NeuralChat = None
@@ -264,25 +264,25 @@ from core.text_corrector import TextCorrector  # type: ignore
 text_corrector = TextCorrector(llm_manager)
 print("✍️ Text Corrector: Ready to fix spelling & grammar")
 
-# Initialize Nova Core with managers
-nova = Nova()
+# Initialize Clio Core with managers
+clio = Clio()
 # Register text correction skill explicitly
 from skills import text_correction, natural_events  # type: ignore
-text_correction.register(nova.dispatcher, text_corrector)
-natural_events.register(nova.dispatcher)
+text_correction.register(clio.dispatcher, text_corrector)
+natural_events.register(clio.dispatcher)
 
 
 # Register emotion explanation skill
 from skills import emotion_analytics  # type: ignore
-emotion_analytics.register(nova.dispatcher)
+emotion_analytics.register(clio.dispatcher)
 
 # Register browser control skill
 from skills import browser_control  # type: ignore
-browser_control.register(nova.dispatcher)
+browser_control.register(clio.dispatcher)
 
 # Register autonomous browser agent skill
 from skills import browser_agent  # type: ignore
-browser_agent.register(nova.dispatcher)
+browser_agent.register(clio.dispatcher)
 
 # State & Shared Objects
 IS_LIVE_MODE = False
@@ -305,14 +305,14 @@ def update_ui(message, msg_type="system-msg"):
         except Exception as e:
             print(f"⚠️ UI Update Error: {e}")
 
-def show_nova_response(response_text, tokens=0):
-    """Pushes Nova's final response and metadata to the UI safely."""
+def show_clio_response(response_text, tokens=0):
+    """Pushes Clio's final response and metadata to the UI safely."""
     global gui_window
     if gui_window:
         try:
             import json
             safe_resp = json.dumps(response_text)
-            js_code = f"addLine({safe_resp}, 'nova-msg', {tokens})"
+            js_code = f"addLine({safe_resp}, 'clio-msg', {tokens})"
             gui_window.evaluate_js(js_code)
         except Exception as e:
             print(f"⚠️ UI Response Error: {e}")
@@ -369,7 +369,7 @@ def speak_locally(text):
             if os.path.exists(temp_file): os.remove(temp_file)
         else:
             # If GUI is present, we still 'wait' for the estimated duration
-            # to prevent Nova from interrupting her own UI-based speech.
+            # to prevent Clio from interrupting her own UI-based speech.
             # Avg speaking speed ~150 wpm = ~2.5 words/sec.
             word_count = len(text.split())
             wait_time = max(1.5, word_count / 2.5) 
@@ -497,16 +497,16 @@ def index():
 
 @app.route('/api/status', methods=['GET'])
 def status():
-    """Returns the current online/offline and initialization status of Nova"""
+    """Returns the current online/offline and initialization status of Clio"""
     res = {
         "status": "online",
-        "name": "Nova",
+        "name": "Clio",
         "version": "1.0.0"
     }
-    if nova:
-        res["name"] = getattr(nova, 'name', 'Nova')
-        if hasattr(nova, 'config') and nova.config:
-            res["version"] = nova.config.get("assistant", {}).get("version", "1.0.0")
+    if clio:
+        res["name"] = getattr(clio, 'name', 'Clio')
+        if hasattr(clio, 'config') and clio.config:
+            res["version"] = clio.config.get("assistant", {}).get("version", "1.0.0")
     return jsonify(res)
 
 @app.route('/api/telemetry', methods=['GET'])
@@ -531,7 +531,7 @@ def telemetry():
 
 @app.route('/api/settings/online', methods=['POST'])
 def set_online():
-    """Toggle Nova's online/offline status"""
+    """Toggle Clio's online/offline status"""
     global ONLINE_MODE
     try:
         data = request.json
@@ -566,10 +566,10 @@ def set_personality():
 
 @app.route('/api/settings/model', methods=['POST'])
 def set_model():
-    """LOCKED: Nova is now strictly local and single-model."""
+    """LOCKED: Clio is now strictly local and single-model."""
     return jsonify({
         "status": "locked",
-        "message": "Nova is locked to strictly local brain. No switching allowed.",
+        "message": "Clio is locked to strictly local brain. No switching allowed.",
         "current_provider": "Strictly Local"
     }), 200
 
@@ -667,12 +667,12 @@ def admin_emulator():
         
         # Attempt to execute via dispatcher
         try:
-            if nova and hasattr(nova, 'dispatcher'):
-                response = nova.dispatcher.dispatch(command)
+            if clio and hasattr(clio, 'dispatcher'):
+                response = clio.dispatcher.dispatch(command)
                 execution_status = "success" if response else "no_handler"
             else:
-                response = "Nova system not fully initialized."
-                execution_status = "error: Nova not initialized"
+                response = "Clio system not fully initialized."
+                execution_status = "error: Clio not initialized"
         except Exception as e:
             response = None
             execution_status = f"error: {str(e)}"
@@ -751,57 +751,57 @@ def export_conversation():
             return jsonify(history)
         
         elif format_type == 'txt':
-            output = "NOVA Conversation History\n"
+            output = "CLIO Conversation History\n"
             output += "=" * 50 + "\n\n"
             # History might be a list or a dict containing a list
             conversations = history if isinstance(history, list) else history.get('conversations', [])
             for entry in conversations:
                 timestamp = entry.get('timestamp', 'Unknown')
                 user_msg = entry.get('user', '')
-                nova_msg = entry.get('nova', '')
+                clio_msg = entry.get('clio', '')
                 output += f"[{timestamp}]\n"
                 output += f"You: {user_msg}\n"
-                output += f"Nova: {nova_msg}\n\n"
-            return output, 200, {'Content-Type': 'text/plain; charset=utf-8', 'Content-Disposition': 'attachment; filename=nova_history.txt'}
+                output += f"Clio: {clio_msg}\n\n"
+            return output, 200, {'Content-Type': 'text/plain; charset=utf-8', 'Content-Disposition': 'attachment; filename=clio_history.txt'}
         
         elif format_type == 'html':
             output = f"""
             <!DOCTYPE html>
             <html>
             <head>
-                <title>NOVA Conversation History</title>
+                <title>CLIO Conversation History</title>
                 <style>
                     body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #0f0f0f; color: #e0e0e0; }}
                     h1 {{ color: #a29bfe; text-align: center; border-bottom: 1px solid #333; padding-bottom: 20px; }}
                     .message {{ margin: 15px 0; padding: 15px; border-radius: 12px; line-height: 1.5; }}
                     .user {{ background: rgba(100, 100, 255, 0.1); border-left: 5px solid #6c5ce7; margin-left: 50px; }}
-                    .nova {{ background: rgba(162, 155, 254, 0.1); border-left: 5px solid #a29bfe; margin-right: 50px; }}
+                    .clio {{ background: rgba(162, 155, 254, 0.1); border-left: 5px solid #a29bfe; margin-right: 50px; }}
                     .timestamp {{ font-size: 0.8em; opacity: 0.5; margin-bottom: 5px; }}
                     .label {{ font-weight: bold; color: #a29bfe; margin-bottom: 5px; display: block; }}
                 </style>
             </head>
             <body>
-                <h1>NOVA History Log</h1>
+                <h1>CLIO History Log</h1>
             """
             conversations = history if isinstance(history, list) else history.get('conversations', [])
             for entry in conversations:
                 timestamp = entry.get('timestamp', '')
                 user_msg = entry.get('user', '')
-                nova_msg = entry.get('nova', '')
+                clio_msg = entry.get('clio', '')
                 output += f"""
                 <div class="message user">
                     <div class="timestamp">{timestamp}</div>
                     <span class="label">YOU</span>
                     <div>{user_msg}</div>
                 </div>
-                <div class="message nova">
+                <div class="message clio">
                     <div class="timestamp">{timestamp}</div>
-                    <span class="label">NOVA</span>
-                    <div>{nova_msg}</div>
+                    <span class="label">CLIO</span>
+                    <div>{clio_msg}</div>
                 </div>
                 """
             output += "</body></html>"
-            return output, 200, {'Content-Type': 'text/html; charset=utf-8', 'Content-Disposition': 'attachment; filename=nova_history.html'}
+            return output, 200, {'Content-Type': 'text/html; charset=utf-8', 'Content-Disposition': 'attachment; filename=clio_history.html'}
         
         elif format_type == 'pdf':
             # PDF export using print-optimized HTML
@@ -809,7 +809,7 @@ def export_conversation():
             <!DOCTYPE html>
             <html>
             <head>
-                <title>NOVA Conversation History</title>
+                <title>CLIO Conversation History</title>
                 <style>
                     @media print {{
                         body {{ margin: 0; padding: 0; }}
@@ -819,14 +819,14 @@ def export_conversation():
                     .stats {{ text-align: center; margin-bottom: 30px; color: #666; font-size: 0.9em; }}
                     .message {{ margin: 15px 0; padding: 15px; border-radius: 8px; line-height: 1.6; page-break-inside: avoid; }}
                     .user {{ background: #f0f0ff; border-left: 4px solid #6c5ce7; }}
-                    .nova {{ background: #fff5f8; border-left: 4px solid #a29bfe; }}
+                    .clio {{ background: #fff5f8; border-left: 4px solid #a29bfe; }}
                     .timestamp {{ font-size: 0.75em; color: #999; margin-bottom: 5px; }}
                     .label {{ font-weight: bold; color: #6c5ce7; margin-bottom: 8px; display: block; }}
                     .content {{ white-space: pre-wrap; word-wrap: break-word; }}
                 </style>
             </head>
             <body>
-                <h1> NOVA Conversation History</h1>
+                <h1> CLIO Conversation History</h1>
             """
             conversations = history if isinstance(history, list) else history.get('conversations', [])
             output += f'<div class="stats">Total Conversations: {len(conversations)}</div>'
@@ -834,17 +834,17 @@ def export_conversation():
             for entry in conversations:
                 timestamp = entry.get('timestamp', '')
                 user_msg = entry.get('user', '').replace('<', '&lt;').replace('>', '&gt;')
-                nova_msg = entry.get('nova', '').replace('<', '&lt;').replace('>', '&gt;')
+                clio_msg = entry.get('clio', '').replace('<', '&lt;').replace('>', '&gt;')
                 output += f"""
                 <div class="message user">
                     <div class="timestamp">{timestamp}</div>
                     <span class="label">YOU</span>
                     <div class="content">{user_msg}</div>
                 </div>
-                <div class="message nova">
+                <div class="message clio">
                     <div class="timestamp">{timestamp}</div>
-                    <span class="label">NOVA</span>
-                    <div class="content">{nova_msg}</div>
+                    <span class="label">CLIO</span>
+                    <div class="content">{clio_msg}</div>
                 </div>
                 """
             output += """
@@ -913,7 +913,7 @@ def test_voice():
     """Generate a sample TTS for voice testing in settings"""
     try:
         data = request.json or {}
-        voice = data.get('voice', 'en-US-AvaNeural')
+        voice = data.get('voice', 'en-US-AnaNeural')
         speed = float(data.get('speed', 1.0))
         pitch = int(data.get('pitch', 0))
         
@@ -997,9 +997,9 @@ def upload_file():
         if llm_executor or (llm_manager and getattr(llm_manager, 'model', None)):
             # Pre-warm LLM Status
             if getattr(llm_manager, 'last_model', None):
-                print(f" Nova Intelligence: {llm_manager.last_model} API mode active.")
+                print(f" Clio Intelligence: {llm_manager.last_model} API mode active.")
             active_persona = personality_manager.get_active_personality()
-            system_prompt = f"{active_persona['system_prompt']}\nCONTEXT: User uploaded an image.\nIMAGE CONTENTS: {objects}\nTASK: Comment briefly on what you see.\nNova:"
+            system_prompt = f"{active_persona['system_prompt']}\nCONTEXT: User uploaded an image.\nIMAGE CONTENTS: {objects}\nTASK: Comment briefly on what you see.\nClio:"
             response_text = llm_manager.generate(system_prompt, max_tokens=80, temperature=0.7)
             
         analysis_data = {"type": "image", "labels": labels, "description": response_text}
@@ -1030,9 +1030,44 @@ def predict_commands():
 
 @app.route('/api/voice/trigger', methods=['POST'])
 def trigger_voice():
-    """Endpoint for the UI to manually trigger the back-end hearing engine."""
-    # Backend hearing engine is disabled.
-    return jsonify({"status": "success", "message": "Backend listening is disabled"})
+    """Records audio from microphone and returns transcribed text for Live Mode"""
+    import speech_recognition as sr
+    import uuid
+    import os
+    try:
+        r = sr.Recognizer()
+        r.energy_threshold = 300
+        r.dynamic_energy_threshold = True
+        
+        mic = select_best_microphone()
+        if not mic:
+            return jsonify({"status": "error", "message": "No microphone found"})
+            
+        with mic as source:
+            r.adjust_for_ambient_noise(source, duration=0.5)
+            # Listen, timing out if silence is too long
+            audio = r.listen(source, timeout=10, phrase_time_limit=15)
+            
+        temp_file = os.path.join("temp", f"temp_voice_{uuid.uuid4().hex}.wav")
+        with open(temp_file, "wb") as f:
+            f.write(audio.get_wav_data())
+            
+        # Transcribe using our unified STT manager
+        result = stt_manager.transcribe(temp_file)
+        
+        if os.path.exists(temp_file):
+            try:
+                os.remove(temp_file)
+            except: pass
+            
+        if result.get("transcript"):
+            return jsonify({"status": "success", "text": result["transcript"]})
+        else:
+            return jsonify({"status": "error", "message": "Nothing heard"})
+    except sr.WaitTimeoutError:
+        return jsonify({"status": "error", "message": "No speech detected"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/transcribe', methods=['POST'])
 def transcribe():
@@ -1161,7 +1196,9 @@ def clean_text_for_tts(text):
     text = re.sub(r'^\s*•\s*', '', text, flags=re.MULTILINE)
     text = re.sub(r'^\s*-\s*', '', text, flags=re.MULTILINE)
     
-    # NEW: Remove any remaining XML-like tags (including thoughts if they leaked)
+    # NEW: Strip multi-line thought blocks completely so TTS never speaks them
+    text = re.sub(r'<thought>.*?</thought>', '', text, flags=re.IGNORECASE | re.DOTALL)
+    # Remove any remaining XML-like tags
     text = re.sub(r'<.*?>', '', text)
     
     # 5. Remove ALL emojis and special symbols (keep only letters, numbers, basic punctuation)
@@ -1178,7 +1215,7 @@ def clean_text_for_tts(text):
 # ==================================================================================
 
 # Mapping 27 emotions to Edge-TTS prosody settings (Pitch, Rate)
-# Styles: "en-US-AvaNeural" (Default), "en-US-AndrewNeural" (Male), etc.
+# Styles: "en-US-AnaNeural" (Default), "en-US-AndrewNeural" (Male), etc.
 EMOTION_PROSODY_MAP = {
     # Positive
     "joy":          ("+10Hz", "+15%"),
@@ -1238,7 +1275,7 @@ def construct_ssml(text, voice, rate="+0%", pitch="+0Hz"):
 
 def quick_tts(text: str, lang: str = "en") -> t.Optional[str]:
     try:
-        voice = "en-US-AvaNeural"
+        voice = "en-US-AnaNeural"
         try: 
             active_persona = personality_manager.get_active_personality()
             if active_persona:
@@ -1287,7 +1324,7 @@ def cmd_admin_test(mode="single"):
     # Test Sequence
     responses = [
         "Diagnostics initiated. System status: Online.",
-        "Testing emotion engine... I am currently behaving as Nova.",
+        "Testing emotion engine... I am currently behaving as Clio.",
         "Checking database connectivity... Stable.",
         "All systems nominal. Ready to serve you."
     ]
@@ -1343,18 +1380,18 @@ def browser_action():
 def get_skills_status():
     """Returns a list of all skills and their current state (Active/Lazy)."""
     try:
-        if not nova: return jsonify([])
+        if not clio: return jsonify([])
         skills = []
         
         # 1. Lazy Skills (Dormant)
         path_to_triggers = {}
-        for cmd, path in nova.dispatcher.lazy_skills.items():
+        for cmd, path in clio.dispatcher.lazy_skills.items():
             if path not in path_to_triggers: path_to_triggers[path] = []
             path_to_triggers[path].append(cmd)
             
         for path, triggers in path_to_triggers.items():
             # Don't show if already loaded (it will be in Active list)
-            if path in nova.dispatcher.loaded_modules:
+            if path in clio.dispatcher.loaded_modules:
                 continue
                 
             name = path.replace("skills.", "").replace("_skill", "").title()
@@ -1367,7 +1404,7 @@ def get_skills_status():
             })
             
         # 2. Active Skills (Loaded)
-        for path, module in nova.dispatcher.loaded_modules.items():
+        for path, module in clio.dispatcher.loaded_modules.items():
             name = path.replace("skills.", "").replace("_skill", "").title()
             # We can try to find triggers for this path from a reverse lookup 
             # if we wanted, but for now just show active.
@@ -1389,10 +1426,10 @@ def stop_skill():
     try:
         data = request.json
         module_path = data.get("path")
-        if not nova:
-             return jsonify({"success": False, "error": "Nova instance not initialized"}), 503
+        if not clio:
+             return jsonify({"success": False, "error": "Clio instance not initialized"}), 503
             
-        success = nova.dispatcher.unload_module_manually(module_path)
+        success = clio.dispatcher.unload_module_manually(module_path)
         return jsonify({"success": success})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1403,10 +1440,10 @@ def load_skill():
     try:
         data = request.json
         module_path = data.get("path")
-        if not nova:
-             return jsonify({"success": False, "error": "Nova instance not initialized"}), 503
+        if not clio:
+             return jsonify({"success": False, "error": "Clio instance not initialized"}), 503
             
-        success = nova.dispatcher.load_module_manually(module_path)
+        success = clio.dispatcher.load_module_manually(module_path)
         return jsonify({"success": success})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1524,12 +1561,12 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
         # Check if the user is explicitly answering the Yes/No prompt
         if any(word in low_input for word in affirmative):
             print("⚡ Intercepted affirmative response for pending automation.")
-            obs = nova.dispatcher.dispatch("confirm run") if nova else "System offline"
+            obs = clio.dispatcher.dispatch("confirm run") if clio else "System offline"
             return {"response": obs, "skill_direct": True, "emotion": "happy"}
             
         elif any(word in low_input for word in negative):
             print(" Intercepted negative response for pending automation.")
-            obs = nova.dispatcher.dispatch("cancel run") if nova else "System offline"
+            obs = clio.dispatcher.dispatch("cancel run") if clio else "System offline"
             return {"response": obs, "skill_direct": True, "emotion": "neutral"}
         
         # If user ignores the prompt and talks about something else, auto-cancel it to be safe.
@@ -1555,16 +1592,16 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
 
     # === STEP 1: ALWAYS try Direct Skill Dispatch first ===
     try:
-        skill_response = nova.dispatcher.dispatch(processed_input, nlp_results=nlu_results) if nova and hasattr(nova, 'dispatcher') else None
+        skill_response = clio.dispatcher.dispatch(processed_input, nlp_results=nlu_results) if clio and hasattr(clio, 'dispatcher') else None
         
         # --- NEW: ADVANCED LLM INTENT ROUTING ---
-        if not skill_response and nova and hasattr(nova, 'dispatcher') and not chat_only:
+        if not skill_response and clio and hasattr(clio, 'dispatcher') and not chat_only:
             try:
                 from core.llm_router import intent_router
-                mapped_cmd = intent_router.determine_skill(processed_input, nova.dispatcher)
+                mapped_cmd = intent_router.determine_skill(processed_input, clio.dispatcher)
                 if mapped_cmd and mapped_cmd.upper() != "NONE":
                     safe_print(f" LLM Router mapped intent to: '{mapped_cmd}'")
-                    skill_response = nova.dispatcher.dispatch(mapped_cmd)
+                    skill_response = clio.dispatcher.dispatch(mapped_cmd)
             except Exception as e:
                 safe_print(f"⚠️ Intent Router Failed: {e}")
 
@@ -1593,8 +1630,8 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
 
     # === STEP 2: Agent Loop (LLM) — only if skills didn't fully handle it ===
     history = memory.get_context_string(10)
-    nova_data = nova.handle_input(user_input, history=history, voice_mode=voice_mode, provider=provider, chat_only=chat_only) if nova else {"response": "Nova instance missing"}
-    response = nova_data.get("response", "")
+    clio_data = clio.handle_input(user_input, history=history, voice_mode=voice_mode, provider=provider, chat_only=chat_only) if clio else {"response": "Clio instance missing"}
+    response = clio_data.get("response", "")
     
     if response:
         reward = drl.calculate_reward(user_feedback="neutral", response_time=0.5, confidence=float(primary_res.get('confidence') or 1.0))
@@ -1602,13 +1639,13 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
         memory.add_conversation(user_input, response, detected_lang)
         agent_payload = {
             "response": response,
-            "thoughts": nova_data.get("thoughts", []),
+            "thoughts": clio_data.get("thoughts", []),
             "emotion": detect_emotion(response),
             "agi": True,
             "llm_model": llm_manager.last_model
         }
-        if "data" in nova_data:
-            agent_payload["data"] = nova_data["data"]
+        if "data" in clio_data:
+            agent_payload["data"] = clio_data["data"]
         return agent_payload
 
     return {"response": "I'm sorry, I couldn't process that.", "error": "AGENT_LOOP_FAILURE"}
@@ -1656,7 +1693,7 @@ def proactive_vision_callback(text):
         # We use a slight delay to avoid clashing with active user input
         js_code = f"""
             if (typeof addLine === 'function') {{
-                addLine(`{text}`, 'nova-msg');
+                addLine(`{text}`, 'clio-msg');
                 triggerGlowPulse();
                 {(f"const audio = new Audio('data:audio/mpeg;base64,{audio_b64}'); audio.play();" if audio_b64 else "")}
             }}
@@ -1664,7 +1701,7 @@ def proactive_vision_callback(text):
         if gui_window:
             gui_window.evaluate_js(js_code)
             
-        # Add to memory so Nova doesn't forget she said this
+        # Add to memory so Clio doesn't forget she said this
         memory.add_conversation("Internal: Vision Observation", text, "en")
         
         # Advanced Chaos Trigger (Bully/Troll Mode)
@@ -1683,7 +1720,7 @@ def proactive_vision_callback(text):
 # ==================================================================================
 
 def start_flask():
-    print(" Starting Nova Backend...")
+    print(" Starting Clio Backend...")
     app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)
 
 
@@ -1714,7 +1751,7 @@ def cleanup_uploads():
 atexit.register(cleanup_uploads)  # type: ignore[arg-type]
 
 def shutdown_sequence():
-    print("\n Closing Nova Desktop...")
+    print("\n Closing Clio Desktop...")
     
     # Save cache and memory before shutdown
     try:
@@ -1729,7 +1766,7 @@ def shutdown_sequence():
     #     import edge_tts, asyncio
     #     ...
     # except Exception as e: ...
-    print("✅ Nova shutdown complete.")
+    print("✅ Clio shutdown complete.")
     cleanup_uploads()
     cleanup_temp_files()
 
@@ -1748,7 +1785,7 @@ def main():
     # Create Window
     global gui_window
     gui_window = webview.create_window(
-        'NOVA - Your AI Soulmate', 
+        'CLIO - Your AI Soulmate', 
         'http://127.0.0.1:5000',
         width=900, height=700, resizable=True, 
         background_color='#131314', frameless=False, easy_drag=True
@@ -1762,7 +1799,7 @@ def main():
     # Load setting from profile
     try:
         profile_data = user_profile.get_profile_data()
-        proactive_vision_engine.enabled = profile_data.get("preferences", {}).get("eyes_of_nova", True)
+        proactive_vision_engine.enabled = profile_data.get("preferences", {}).get("eyes_of_clio", True)
         proactive_vision_engine.callback = proactive_vision_callback
         proactive_vision_engine.start()
     except Exception as e:
@@ -1784,3 +1821,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         shutdown_sequence()
         sys.exit(0)
+
+

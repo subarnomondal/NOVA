@@ -1,5 +1,5 @@
 """
-Code Protection Script for NOVA
+Code Protection Script for CLIO
 Obfuscates core modules to prevent unauthorized access
 """
 
@@ -8,8 +8,8 @@ import shutil
 import py_compile
 from pathlib import Path
 
-def protect_nova():
-    print(" NOVA Code Protection System")
+def protect_clio():
+    print(" CLIO Code Protection System")
     print("=" * 50)
     
     # Files to protect
@@ -57,7 +57,7 @@ def protect_nova():
     copy_files = [
         "config/settings.yaml",
         "requirements.txt",
-        "run_nova.bat"
+        "run_clio.bat"
     ]
     
     for file_path in copy_files:
@@ -69,10 +69,10 @@ def protect_nova():
     
     # Create README
     with open(f"{protected_dir}/README.txt", "w") as f:
-        f.write("""NOVA - Protected Distribution
+        f.write("""CLIO - Protected Distribution
 ================================
 
-This is a protected version of NOVA.
+This is a protected version of CLIO.
 Core modules are compiled to bytecode (.pyc) to prevent unauthorized modification.
 
 To run:
@@ -93,4 +93,4 @@ For licensing inquiries, contact the developer.
     print("   - Never share your keys.json file!")
 
 if __name__ == "__main__":
-    protect_nova()
+    protect_clio()

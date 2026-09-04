@@ -14,9 +14,9 @@ def install_dependency():
 def setup_oauth():
     from ytmusicapi import YTMusic
     
-    print("\n Nova YouTube Music Sync Setup ")
+    print("\n Clio YouTube Music Sync Setup ")
     print("-----------------------------------")
-    print("This will allow Nova to access your playlists and library.")
+    print("This will allow Clio to access your playlists and library.")
     print("Please follow the instructions that appear in your browser/terminal.\n")
     
     # This initiates the OAuth flow
@@ -52,7 +52,7 @@ def setup_oauth():
         setup(filepath="oauth.json")
         
         print("\n✅ Success! authorized and saved to 'oauth.json'.")
-        print("   Nova can now access your account!")
+        print("   Clio can now access your account!")
         
     except Exception as e:
         print(f"\n❌ Error during setup: {e}")

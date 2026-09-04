@@ -49,5 +49,5 @@ def enhance_dataset(input_file, output_file):
     print(f"✅ Successfully added {count} new complex reasoning examples to {output_file}")
 
 if __name__ == "__main__":
-    dataset_path = os.path.join("userdata", "datasets", "nova_skills_dataset.jsonl")
+    dataset_path = os.path.join("userdata", "datasets", "clio_skills_dataset.jsonl")
     enhance_dataset(dataset_path, dataset_path)

@@ -88,7 +88,7 @@ function addSystemMsg(text) {
 function showThinking() {
     hideWelcome();
     const indicator = document.createElement('div');
-    indicator.className = 'msg nova';
+    indicator.className = 'msg clio';
     indicator.id = 'thinking-indicator';
     indicator.innerHTML = `
         <div class="msg-avatar" style="background:linear-gradient(135deg,#8a2be2,#06b6d4);">✦</div>
@@ -170,7 +170,7 @@ async function sendCommand(text) {
     if (!isOnline) {
         const connected = await checkConnection();
         if (!connected) {
-            addSystemMsg('⚠️ Nova is offline. Make sure desktop.py is running.');
+            addSystemMsg('⚠️ Clio is offline. Make sure desktop.py is running.');
             isProcessing = false;
             sendBtn.disabled = false;
             return;
@@ -194,7 +194,7 @@ async function sendCommand(text) {
         hideThinking();
 
         if (data.response) {
-            addMessage(data.response, 'nova');
+            addMessage(data.response, 'clio');
 
             // Update thinking panel
             if (data.thoughts && data.thoughts.length > 0) {
@@ -220,7 +220,7 @@ async function sendCommand(text) {
     } catch (e) {
         hideThinking();
         console.error('Send error:', e);
-        addSystemMsg('❌ Connection failed. Is Nova running?');
+        addSystemMsg('❌ Connection failed. Is Clio running?');
         isOnline = false;
         statusDot.className = 'status-dot offline';
         modelBadge.textContent = 'Offline';
@@ -242,22 +242,22 @@ async function executeBrowserAction(data) {
     } else if (data.browser_action === "read_page") {
         ext.runtime.sendMessage({ action: "get_active_tab_content" }, (response) => {
             if (response && response.data) {
-                // Send the page content back to Nova backend for analysis
+                // Send the page content back to Clio backend for analysis
                 const summary = `I've read the page: "${response.data.title}". Here is the content Summary: ${response.data.content.substring(0, 500)}...`;
                 addSystemMsg(`Reading: ${response.data.title}`);
 
-                // Optional: Re-send to Nova for a deep dive if needed
+                // Optional: Re-send to Clio for a deep dive if needed
                 // For now, let's just confirm we read it
-                addMessage("I can see that this page is about " + response.data.title + ". What would you like me to find here?", 'nova');
+                addMessage("I can see that this page is about " + response.data.title + ". What would you like me to find here?", 'clio');
             } else {
-                addMessage("I couldn't read the page content. Make sure you're on a valid website.", 'nova');
+                addMessage("I couldn't read the page content. Make sure you're on a valid website.", 'clio');
             }
         });
     } else if (data.browser_action === "get_dom_map") {
         ext.runtime.sendMessage({ action: "get_dom_map" }, async (response) => {
             if (response && response.data) {
                 addSystemMsg(`Mapped the page DOM elements.`);
-                // Automatically send it back to Nova context
+                // Automatically send it back to Clio context
                 isProcessing = true;
                 sendBtn.disabled = true;
                 showThinking();
@@ -282,13 +282,13 @@ async function executeBrowserAction(data) {
                 
                 if (clickMatch) {
                     respText = respText.replace(clickMatch[0], "").trim();
-                    executeBrowserAction({ browser_action: "click_element", nova_id: parseInt(clickMatch[1]) });
+                    executeBrowserAction({ browser_action: "click_element", clio_id: parseInt(clickMatch[1]) });
                 } else if (typeMatch) {
                     respText = respText.replace(typeMatch[0], "").trim();
-                    executeBrowserAction({ browser_action: "type_element", nova_id: parseInt(typeMatch[1]), value: typeMatch[2] });
+                    executeBrowserAction({ browser_action: "type_element", clio_id: parseInt(typeMatch[1]), value: typeMatch[2] });
                 }
 
-                if (respText) addMessage(respText, 'nova');
+                if (respText) addMessage(respText, 'clio');
                         if (resData.thoughts && resData.thoughts.length > 0) renderThoughts(resData.thoughts, resData.llm_model);
                         if (resData.data && resData.data.browser_action) executeBrowserAction(resData.data);
                     }
@@ -302,7 +302,7 @@ async function executeBrowserAction(data) {
             }
         });
     } else if (data.browser_action === "click_element" || data.browser_action === "type_element") {
-        ext.runtime.sendMessage({ action: data.browser_action, nova_id: data.nova_id, value: data.value }, (response) => {
+        ext.runtime.sendMessage({ action: data.browser_action, clio_id: data.clio_id, value: data.value }, (response) => {
             if (response && response.data && response.data.success) {
                 addSystemMsg(response.data.message);
                 // Continue loop

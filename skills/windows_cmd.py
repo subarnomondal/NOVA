@@ -1,5 +1,5 @@
 """
-Windows Command & System Automation Skill for Nova
+Windows Command & System Automation Skill for Clio
 Provides advanced control over Windows internals, networking, and system maintenance.
 """
 

@@ -1,6 +1,6 @@
 """
-Training Skill for NOVA
-Commands to teach Nova new conversational patterns and responses
+Training Skill for CLIO
+Commands to teach Clio new conversational patterns and responses
 """
 
 import re
@@ -11,7 +11,7 @@ trainer = ConversationTrainer()
 
 def cmd_teach_response(args):
     """
-    Teach Nova a new response
+    Teach Clio a new response
     Usage: teach "trigger" to say "response" [with mood "mood"] [in category "category"]
     Example: teach "hello" to say "hi" with mood "happy"
     """
@@ -99,7 +99,7 @@ Example: add variation "good morning" with "*waves* Morning! Ready for another d
 def cmd_teach_conversation(args):
     """
     Teach a complete conversation example
-    Usage: learn conversation "user says" then "nova responds"
+    Usage: learn conversation "user says" then "clio responds"
     """
     try:
         pattern = r'(?:learn\s+conversation|conversation)\s+["\'](.+?)["\']\s+(?:then|->)\s+["\'](.+?)["\']'
@@ -107,9 +107,9 @@ def cmd_teach_conversation(args):
         
         if match:
             user_input = match.group(1).strip()
-            nova_response = match.group(2).strip()
+            clio_response = match.group(2).strip()
             
-            trainer.teach_conversation_flow(user_input, nova_response)
+            trainer.teach_conversation_flow(user_input, clio_response)
             return f"*nods* I've learned this conversation pattern! I'll remember how to respond naturally."
         else:
             return """Teach me a conversation flow:
@@ -178,7 +178,7 @@ def cmd_analyze_quality(args):
         last_conv = recent[-1]
         analysis = trainer.analyze_conversation_quality(
             last_conv.get('user', ''),
-            last_conv.get('nova', '')
+            last_conv.get('clio', '')
         )
         
         metrics = analysis['metrics']
@@ -204,7 +204,7 @@ def cmd_analyze_quality(args):
         if metrics['emotional_engagement'] < 0.5:
             response += " Tip: Add more emotions or engaging elements!\n"
         if metrics['personality_consistency'] < 0.5:
-            response += " Tip: Keep Nova's personality consistent across responses!\n"
+            response += " Tip: Keep Clio's personality consistent across responses!\n"
         if metrics['natural_flow'] < 0.5:
             response += " Tip: Avoid robotic AI phrases, stay natural!\n"
         

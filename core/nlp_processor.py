@@ -1,5 +1,5 @@
 """
-NLU (Natural Language Understanding) Processor for NOVA
+NLU (Natural Language Understanding) Processor for CLIO
 Modern LLM-first architecture: The LLM handles intent recognition, 
 entity extraction, and semantic understanding. Rule-based logic is 
 only used as a lightweight fallback for system-critical commands.
@@ -13,7 +13,17 @@ from datetime import datetime
 
 
 class NLUProcessor:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
     def __init__(self):
+        if hasattr(self, '_initialized'):
+            return
+        self._initialized = True
         # Dialogue state tracking
         self.dialogue_state = {
             'last_intent': None,
@@ -27,9 +37,9 @@ class NLUProcessor:
         # Common Whisper/STT mistakes → intended words
         # These are applied BEFORE intent matching for better accuracy
         self.voice_corrections = {
-            # Nova-specific
-            'no va': 'nova', 'no bar': 'nova', 'nover': 'nova',
-            'no vah': 'nova', 'novar': 'nova',
+            # Clio-specific
+            'no va': 'clio', 'no bar': 'clio', 'nover': 'clio',
+            'no vah': 'clio', 'clior': 'clio',
             # System commands
             'look screen': 'lock screen', 'look my pc': 'lock pc',
             'log screen': 'lock screen', 'log my pc': 'lock pc',

@@ -19,7 +19,7 @@ pending_execution = None
 def _strip_bot_prefixes(text):
     """Strips natural language prefixes to isolate the actual command."""
     prefixes = [
-        r"hey\s+nova,?", r"nova,?", r"please,?", r"can\s+you,?", r"could\s+you,?",
+        r"hey\s+clio,?", r"clio,?", r"please,?", r"can\s+you,?", r"could\s+you,?",
         r"i\s+need\s+you\s+to,?", r"automate,?", r"run,?", r"execute,?"
     ]
     pattern = r"^\s*(" + "|".join(prefixes) + r")\s+"
@@ -49,7 +49,7 @@ def _execute_system_command(command, delayed=False):
     print(f"{prefix}Executing System Command: {command}")
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
-        # If delayed, we might want to speak the result via Nova's engine if available
+        # If delayed, we might want to speak the result via Clio's engine if available
         # But for now, returning it or printing it to console is safest.
         if delayed:
             if result.returncode == 0:
@@ -209,51 +209,7 @@ def cmd_window_control(args):
         
     return "I wasn't sure what to do with the windows. Try 'minimize all'. "
 
-def cmd_open_app(args):
-    """
-    Opens applications.
-    Usage: open [app name], launch [app name]
-    """
-    # Clean prefix (Hey Nova, Nova, etc.)
-    app_name = _strip_bot_prefixes(args)
-    
-    # Remove direct verbs
-    app_name = app_name.replace("open", "").replace("launch", "").replace("start", "").strip()
-    
-    if not app_name:
-        return "Which app would you like me to open? "
-        
-    try:
-        print(f" Launching: {app_name}")
-        # Common Windows App Shortcuts
-        shortcuts = {
-            "notepad": "notepad.exe",
-            "calculator": "calc.exe",
-            "chrome": "start chrome",
-            "edge": "start msedge",
-            "explorer": "explorer.exe",
-            "cmd": "start cmd",
-            "terminal": "wt.exe",
-            "vscode": "code",
-            "spotify": "start spotify:",
-            "settings": "start ms-settings:",
-            "task manager": "taskmgr",
-            "control panel": "control"
-        }
-        
-        target = shortcuts.get(app_name.lower(), app_name)
-        
-        # Use 'start' in shell to handle paths and registered apps
-        if IS_WINDOWS:
-            subprocess.run(f"start {target}", shell=True)
-        elif platform.system() == "Darwin":
-            subprocess.run(f"open -a {target}", shell=True)
-        else:
-            subprocess.run(f"xdg-open {target}", shell=True)
-        return f"Opening {app_name}... "
-        
-    except Exception as e:
-        return f"I couldn't open {app_name}. Error: {e}"
+# ponytail: cmd_open_app removed — duplicate of skills.system.cmd_open_app which is richer (handles web URLs)
 
 def cmd_volume_control(args):
     """
@@ -388,9 +344,7 @@ def register(dispatcher):
     dispatcher.register("restore windows", cmd_window_control)
     dispatcher.register("show desktop", cmd_window_control)
     
-    dispatcher.register("open", cmd_open_app)
-    dispatcher.register("launch", cmd_open_app)
-    dispatcher.register("start", cmd_open_app)
+    # ponytail: open/launch/start registrations removed — handled by skills.system
     
     dispatcher.register("volume", cmd_volume_control)
     dispatcher.register("mute", cmd_volume_control)

@@ -1,5 +1,5 @@
 """
-Response Optimization System for NOVA
+Response Optimization System for CLIO
 Provides both fast caching and thoughtful reasoning modes
 """
 
@@ -108,20 +108,7 @@ class ResponseOptimizer:
         mode = "THOUGHTFUL" if enabled else "FAST"
         print(f" Response Mode: {mode}")
     
-    def add_thinking_delay(self, complexity: str = "medium"):
-        """Add artificial delay for thoughtful responses"""
-        if not self.thoughtful_mode:
-            return
-        
-        delays = {
-            "simple": 0.5,
-            "medium": 1.0,
-            "complex": 2.0
-        }
-        
-        delay = delays.get(complexity, 1.0)
-        # print(f" Thinking deeply... ({delay}s)")
-        # time.sleep(delay) - REMOVED for speed as requested
+    # ponytail: add_thinking_delay removed — was a no-op (delay already commented out)
     
     def preprocess_input(self, user_input: str) -> str:
         """Voice-aware preprocessing: strips STT artifacts, fillers, and echo duplicates."""

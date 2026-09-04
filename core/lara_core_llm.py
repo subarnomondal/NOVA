@@ -1,16 +1,16 @@
 import logging
 from core.llm_manager import llm_manager
 
-class NovaCoreLLM:
+class ClioCoreLLM:
     """
-    Nova Core LLM (High-performance Local Brain)
+    Clio Core LLM (High-performance Local Brain)
     Acts as a wrapper around the unified LLMManager to provide
     conversational capabilities using the API.
     """
     def __init__(self):
         self.initialized = True
         self.llm = llm_manager
-        print(" Nova Core: Linked to Main LLM Manager (API-Only)")
+        print(" Clio Core: Linked to Main LLM Manager (API-Only)")
         
     def predict(self, text):
         """
@@ -42,7 +42,7 @@ class NovaCoreLLM:
             ltm_instruction = f"\nLONG TERM MEMORY:\n{ltm_context}" if ltm_context else ""
             
             system_prompt = (
-                f"You are Nova. {emotion_instruction}"
+                f"You are Clio. {emotion_instruction}"
                 f"{ltm_instruction}"
                 "\nProvide a concise, helpful, and character-driven response."
             )
@@ -85,11 +85,11 @@ class NovaCoreLLM:
             return response
             
         except Exception as e:
-            print(f"❌ Nova Core Generation Error: {e}")
+            print(f"❌ Clio Core Generation Error: {e}")
             return None
 
     def generate(self, prompt, **kwargs):
         """Legacy generate method"""
         return self.generate_response(prompt, [], **kwargs)
 
-nova_core_llm = NovaCoreLLM()
+clio_core_llm = ClioCoreLLM()

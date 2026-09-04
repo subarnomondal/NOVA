@@ -30,7 +30,7 @@ def load_data(filepath):
             text = ""
             for intent in data.get('intents', []):
                 for pattern in intent.get('patterns', []):
-                    text += f"User: {pattern}\nNova: {intent.get('responses', [''])[0]}\n"
+                    text += f"User: {pattern}\nClio: {intent.get('responses', [''])[0]}\n"
             return text
     elif filepath.endswith('.txt'):
         with open(filepath, 'r', encoding='utf-8') as f:
@@ -59,7 +59,7 @@ def estimate_loss(model, train_data, val_data):
     model.train()
     return out
 
-def train(dataset_path, model_save_path=os.path.join("userdata", "models", "scratch_nova.pth")):
+def train(dataset_path, model_save_path=os.path.join("userdata", "models", "scratch_clio.pth")):
     text = load_data(dataset_path)
     if not text:
         print("❌ No data found at", dataset_path)

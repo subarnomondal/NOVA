@@ -2,7 +2,7 @@ import os
 import subprocess
 import platform
 
-print("🚀 Starting NOVA Build Process (Cross-Platform)...")
+print("🚀 Starting CLIO Build Process (Cross-Platform)...")
 
 # Install PyInstaller if missing
 try:
@@ -29,11 +29,11 @@ cmd = [
     "--noconfirm",
     "--onedir",       # Creates a directory with the executable (better for debugging/assets than onefile)
     "--windowed",     # Hides the terminal window (GUI only)
-    "--name", "NOVA",
+    "--name", "CLIO",
 ] + add_data_args + ["desktop.py"]
 
 print(f"📦 Running Build Command: {' '.join(cmd)}")
 subprocess.run(cmd)
 
-print("✅ Build complete! You can find the compiled executable in the 'dist/NOVA' folder.")
+print("✅ Build complete! You can find the compiled executable in the 'dist/CLIO' folder.")
 print("Note: The 'userdata' folder will be generated automatically when you run the app.")

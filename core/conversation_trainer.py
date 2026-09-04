@@ -1,6 +1,6 @@
 """
-Conversation Trainer for NOVA
-Advanced system for teaching Nova new conversational patterns, responses, and behaviors
+Conversation Trainer for CLIO
+Advanced system for teaching Clio new conversational patterns, responses, and behaviors
 """
 
 import json
@@ -50,11 +50,11 @@ class ConversationTrainer:
     
     def teach_response(self, trigger: str, response: str, category: str = "general", mood: str = "neutral") -> bool:
         """
-        Teach Nova a new response pattern
+        Teach Clio a new response pattern
         
         Args:
             trigger: The user input that should trigger this response
-            response: Nova's response
+            response: Clio's response
             category: Category of the response (greeting, fact, emotion, etc.)
             mood: The mood associated with this response
         """
@@ -75,19 +75,19 @@ class ConversationTrainer:
         print(f"✅ Taught new response: '{trigger}' → '{response[:50]}...' (Mood: {mood})")
         return True
     
-    def teach_conversation_flow(self, user_input: str, nova_response: str, 
+    def teach_conversation_flow(self, user_input: str, clio_response: str, 
                                 context: Optional[str] = None) -> bool:
         """
-        Teach Nova a complete conversation example with context
+        Teach Clio a complete conversation example with context
         
         Args:
             user_input: What the user said
-            nova_response: How Nova should respond
+            clio_response: How Clio should respond
             context: Optional context (previous conversation, mood, etc.)
         """
         example = {
             'user_input': user_input,
-            'nova_response': nova_response,
+            'clio_response': clio_response,
             'context': context,
             'trained_at': datetime.now().isoformat(),
             'quality_score': None
@@ -186,7 +186,7 @@ class ConversationTrainer:
     
     def teach_template(self, template_name: str, template: str, variables: List[str]) -> bool:
         """
-        Teach Nova a response template with variables
+        Teach Clio a response template with variables
         
         Args:
             template_name: Name of the template
@@ -222,7 +222,7 @@ class ConversationTrainer:
             print(f"⚠️ Missing variable for template: {e}")
             return None
     
-    def analyze_conversation_quality(self, user_input: str, nova_response: str) -> Dict:
+    def analyze_conversation_quality(self, user_input: str, clio_response: str) -> Dict:
         """
         Analyze the quality of a conversation turn
         
@@ -235,33 +235,33 @@ class ConversationTrainer:
         analysis = {
             'timestamp': datetime.now().isoformat(),
             'user_input': user_input,
-            'nova_response': nova_response,
+            'clio_response': clio_response,
             'metrics': {}
         }
         
         # 1. Length appropriateness
         user_len = len(user_input.split())
-        nova_len = len(nova_response.split())
+        clio_len = len(clio_response.split())
         
         if user_len < 5:  # Short query
             ideal_len = (10, 30)
         else:  # Longer query
             ideal_len = (20, 60)
         
-        length_score = 1.0 if ideal_len[0] <= nova_len <= ideal_len[1] else 0.5
+        length_score = 1.0 if ideal_len[0] <= clio_len <= ideal_len[1] else 0.5
         analysis['metrics']['length_score'] = length_score
         
         # 2. Emotional engagement (check for actions, emojis, personality markers)
         emotion_markers = ['*', '(', ')', '!', '?', '...', '~', '♡', '✨', '']
-        has_emotion = any(marker in nova_response for marker in emotion_markers)
+        has_emotion = any(marker in clio_response for marker in emotion_markers)
         analysis['metrics']['emotional_engagement'] = 1.0 if has_emotion else 0.3
         
-        # 3. Personality consistency (check for Nova-specific traits)
-        nova_markers = [
+        # 3. Personality consistency (check for Clio-specific traits)
+        clio_markers = [
             '<thought>', 'actually', 'honestly', 'let me think', 
             'right', 'look', 'hey', 'anyway', 'to be honest'
         ]
-        has_personality = any(marker.lower() in nova_response.lower() for marker in nova_markers)
+        has_personality = any(marker.lower() in clio_response.lower() for marker in clio_markers)
         analysis['metrics']['personality_consistency'] = 1.0 if has_personality else 0.5
         
         # 4. Natural flow (avoid robotic phrases)
@@ -269,7 +269,7 @@ class ConversationTrainer:
             'as an ai', 'i am an ai', 'i cannot', 'i am not able',
             'my purpose is', 'i was created', 'i do not have feelings'
         ]
-        is_natural = not any(phrase in nova_response.lower() for phrase in robotic_phrases)
+        is_natural = not any(phrase in clio_response.lower() for phrase in robotic_phrases)
         analysis['metrics']['natural_flow'] = 1.0 if is_natural else 0.0
         
         # Overall quality score
@@ -307,8 +307,8 @@ class ConversationTrainer:
         missing_personality_count = 0
         
         for conv in recent_conversations[-10:]:  # Last 10 conversations
-            if 'user' in conv and 'nova' in conv:
-                quality = self.analyze_conversation_quality(conv['user'], conv['nova'])
+            if 'user' in conv and 'clio' in conv:
+                quality = self.analyze_conversation_quality(conv['user'], conv['clio'])
                 
                 overall_score = quality['overall_quality']['score'] if isinstance(quality['overall_quality'], dict) else quality['overall_quality']
                 if overall_score < 0.6:
@@ -328,10 +328,10 @@ class ConversationTrainer:
             suggestions.append(" Responses lack emotional engagement. Train more expressive responses with actions and emotions.")
         
         if missing_personality_count > 5:
-            suggestions.append(" Personality consistency is low. Reinforce Nova's character traits (smart, witty, direct) in responses.")
+            suggestions.append(" Personality consistency is low. Reinforce Clio's character traits (smart, witty, direct) in responses.")
         
         # Check for repetitive responses
-        response_texts = [conv.get('nova', '') for conv in recent_conversations[-10:]]
+        response_texts = [conv.get('clio', '') for conv in recent_conversations[-10:]]
         unique_responses = len(set(response_texts))
         if unique_responses < len(response_texts) * 0.7:
             suggestions.append(" Detected repetitive responses. Add more response variations.")

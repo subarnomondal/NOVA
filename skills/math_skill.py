@@ -1,5 +1,5 @@
 """
-Math Skill for Nova
+Math Skill for Clio
 Handles basic arithmetic and calculation requests safely.
 """
 import re

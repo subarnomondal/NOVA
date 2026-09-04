@@ -1,12 +1,12 @@
 """
-WhatsApp Auto-Call Monitor for NOVA
+WhatsApp Auto-Call Monitor for CLIO
 =====================================
 Runs as a background thread from startup.
 Automatically detects incoming WhatsApp voice call popups and:
   - Accepts them (voice only, ignores video calls).
   - Runs a dedicated Python audio loop to talk with the caller.
     The caller's voice is captured via Stereo Mix (system audio loopback)
-    and Nova's responses are spoken via edge-tts (Neural Voice).
+    and Clio's responses are spoken via edge-tts (Neural Voice).
 """
 
 import threading
@@ -218,7 +218,7 @@ def _accept_call(win):
 
 def _speak_tts(text):
     """
-    Speak text using Nova's real voice (edge_tts AnaNeural).
+    Speak text using Clio's real voice (edge_tts AnaNeural).
     Audio plays through PC speakers → WhatsApp mic picks it up.
     """
     import asyncio
@@ -228,7 +228,7 @@ def _speak_tts(text):
         import edge_tts
 
         # Load voice from settings if available, else use default (Ava is premium quality)
-        voice = "en-US-AvaNeural"
+        voice = "en-US-AnaNeural"
         try:
             import json
             settings_path = os.path.join("userdata", "settings.json")
@@ -268,7 +268,7 @@ def _speak_tts(text):
             pygame.mixer.music.play()
             
             # Wait for playback to finish
-            print(f" Playing Nova's voice: '{text[:50]}...'")
+            print(f" Playing Clio's voice: '{text[:50]}...'")
             while pygame.mixer.music.get_busy():
                 time.sleep(0.1)
                 
@@ -357,7 +357,7 @@ def _audio_to_wav_bytes(audio_data):
 
 
 def _transcribe_audio(audio_data):
-    """Send audio to Nova's STT backend and return the transcript."""
+    """Send audio to Clio's STT backend and return the transcript."""
     try:
         wav_bytes = _audio_to_wav_bytes(audio_data)
         files = {'audio': ('chunk.wav', wav_bytes, 'audio/wav')}
@@ -373,12 +373,12 @@ def _transcribe_audio(audio_data):
         return ''
 
 
-def _get_nova_response(text):
-    """Send caller's text to Nova's LLM and return the reply."""
+def _get_clio_response(text):
+    """Send caller's text to Clio's LLM and return the reply."""
     try:
         user_name = _get_user_name()
         prompt = (
-            f"You are Nova, {user_name}'s AI assistant answering a WhatsApp call. "
+            f"You are Clio, {user_name}'s AI assistant answering a WhatsApp call. "
             f"The caller just said: '{text}'. "
             f"Reply helpfully in English in 1-3 short sentences. "
             f"Always refer to your user as {user_name}."
@@ -400,16 +400,16 @@ def _call_audio_loop():
     Dedicated call conversation loop:
     - Records caller's voice from Stereo Mix (system loopback)
     - Transcribes via Whisper STT
-    - Gets Nova's reply from LLM
+    - Gets Clio's reply from LLM
     - Speaks reply via edge-tts (Neural Voice)
     """
     global _call_active
     print("️ [CallLoop] Call audio loop started!")
 
-    # Give Nova's intro greeting first
+    # Give Clio's intro greeting first
     user_name = _get_user_name()
     intro = (
-        f"Hi! I'm Nova, {user_name}'s personal AI assistant. "
+        f"Hi! I'm Clio, {user_name}'s personal AI assistant. "
         f"I'm answering on their behalf. How can I help you today?"
     )
     _speak_tts(intro)
@@ -437,8 +437,8 @@ def _call_audio_loop():
                 continue
 
             print(f" [CallLoop] Caller said: '{text}'")
-            reply = _get_nova_response(text)
-            print(f" [CallLoop] Nova replies: '{reply[:80]}'")
+            reply = _get_clio_response(text)
+            print(f" [CallLoop] Clio replies: '{reply[:80]}'")
 
             _speak_tts(reply)
 
@@ -466,7 +466,7 @@ def _stop_call_audio_loop():
 def _trigger_live_mode():
 
     """
-    Notify NOVA's backend to enter Live Mode so it listens
+    Notify CLIO's backend to enter Live Mode so it listens
     to the user's voice and talks back.
     """
     try:
@@ -475,22 +475,22 @@ def _trigger_live_mode():
             json={"active": True},
             timeout=2
         )
-        print("️ Auto-triggered Nova Live Mode for WhatsApp call!")
+        print("️ Auto-triggered Clio Live Mode for WhatsApp call!")
     except Exception as e:
         print(f"⚠️ Could not trigger Live Mode: {e}")
 
 
 def _send_call_summary():
     """
-    Sends a 'daily summary' command to Nova's backend right after
-    a call is accepted. Nova will speak a brief briefing to the user.
+    Sends a 'daily summary' command to Clio's backend right after
+    a call is accepted. Clio will speak a brief briefing to the user.
     """
     try:
         user_name = _get_user_name()
         summary_prompt = (
-            f"You are Nova, {user_name}'s personal AI assistant. "
+            f"You are Clio, {user_name}'s personal AI assistant. "
             f"You just picked up an incoming WhatsApp voice call on {user_name}'s behalf. "
-            f"Greet the caller warmly, introduce yourself as Nova — {user_name}'s AI assistant — "
+            f"Greet the caller warmly, introduce yourself as Clio — {user_name}'s AI assistant — "
             f"and let them know you're answering on {user_name}'s behalf. "
             f"Ask the caller how you can help them or if they'd like to leave a message for {user_name}. "
             f"Be friendly, professional, and keep it to 3-4 sentences. "
@@ -534,7 +534,7 @@ def _monitor_loop():
                     if accepted:
                         print("✅ Call accepted! Starting call audio loop in 2s...")
                         time.sleep(2.0)
-                        _start_call_audio_loop()   # handles caller voice + Nova TTS
+                        _start_call_audio_loop()   # handles caller voice + Clio TTS
 
                 # After handling a call, wait before polling again
                 time.sleep(6)
@@ -623,8 +623,8 @@ def cmd_start_call_monitor(args=""):
 def register(dispatcher):
     # The monitor starts automatically when this skill is loaded (via desktop.py)
     # WARNING (Permanent Fix): Auto-starting this monitor locks the Windows audio
-    # drivers, preventing the main `NovaHearingEngine` from accessing the microphone.
-    # Users must manually trigger this skill to avoid deafening Nova.
+    # drivers, preventing the main `ClioHearingEngine` from accessing the microphone.
+    # Users must manually trigger this skill to avoid deafening Clio.
     # start_call_monitor()
 
     dispatcher.register("accept whatsapp call", cmd_accept_whatsapp_call)

@@ -1,6 +1,6 @@
 
 """
-Optimized LLM Manager for Nova (Strictly API-Only)
+Optimized LLM Manager for Clio (Strictly API-Only)
 Uses Google Gemini API (free tier) as primary LLM provider.
 """
 
@@ -13,15 +13,17 @@ from core.key_manager import key_manager
 import base64
 import json
 import requests # type: ignore
-from core.chat_history import chat_history
+from core.conversation_memory import conversation_memory
 
-# Default validated free models on OpenRouter (Swarm priorities)
+# Default validated 100% FREE models on OpenRouter (Swarm priorities)
 DEFAULT_MODELS = [
-    "meta-llama/llama-3.3-70b-instruct:free",
-    "google/gemini-2.0-flash-exp:free",
-    "qwen/qwen-2.5-72b-instruct:free",
-    "deepseek/deepseek-r1:free",
-    "mistralai/mistral-7b-instruct:free",
+    "nvidia/nemotron-3-super-120b-a12b:free",
+    "google/gemma-4-31b-it:free",
+    "nvidia/nemotron-3.5-lightning:free",
+    "cohere/north-mini-code:free",
+    "z-ai/glm-5.2:free",
+    "poolside/laguna-s-2.1:free",
+    "minimax/minimax-m3:free",
     "openrouter/free"
 ]
 
@@ -40,7 +42,7 @@ class LLMManager:
         if not hasattr(self, 'initialized'):
             self._llm = None 
             self.provider = "custom" # Locked to Local
-            self.conversation_memory = chat_history.history[-5:] # Start with last 5 from disk
+            self.conversation_memory = conversation_memory.history[-5:] # Start with last 5 from disk
             self.max_memory = 10 
             self.emotion_detector = emotion_detector
             self.initialized = True
@@ -79,7 +81,7 @@ class LLMManager:
     def get_few_shot_examples(self, user_input, limit=3):
         """Load relevant reasoning examples from the dataset based on user input keywords."""
         examples = []
-        dataset_path = os.path.join("userdata", "datasets", "nova_skills_dataset.jsonl")
+        dataset_path = os.path.join("userdata", "datasets", "clio_skills_dataset.jsonl")
         try:
             if os.path.exists(dataset_path):
                 # Basic keyword extraction for relevance
@@ -106,7 +108,7 @@ class LLMManager:
                         ex = json.loads(line)
                         user_msg = ex["messages"][0]["content"]
                         assistant_msg = ex["messages"][1]["content"]
-                        examples.append(f"User: {user_msg}\nNova: {assistant_msg}")
+                        examples.append(f"User: {user_msg}\nClio: {assistant_msg}")
         except Exception as e:
             print(f"⚠️ Error loading few-shot examples: {e}")
         return "\n\n".join(examples)
@@ -128,7 +130,7 @@ class LLMManager:
             self.conversation_memory.pop(0)
             
         # Save to disk via history manager (use raw input if available)
-        chat_history.save_chat(raw_user_input if raw_user_input else user_input, assistant_response)
+        conversation_memory.save_chat(raw_user_input if raw_user_input else user_input, assistant_response)
     
     def get_temporal_context(self, user_profile=None):
         """Build temporal and profile context."""
@@ -189,7 +191,7 @@ class LLMManager:
 
     def get_context_prompt(self, limit=10):
         """Build conversation context from persistent history."""
-        return chat_history.get_recent_context(limit=limit)
+        return conversation_memory.get_recent_context(n=limit)
     
     def filter_response(self, response):
         if not response: return None
@@ -215,7 +217,7 @@ class LLMManager:
         bad_headers = [
             r"THOUGHT:", r"Example:", r"Scenario:", r"Internal reasoning:", 
             r"Action Performed:", r"Character Response:", 
-            r"Nova:", r"Rivu:", r"Riva:", r"User:", r"Speaker:"
+            r"Clio:", r"Rivu:", r"Riva:", r"User:", r"Speaker:"
         ]
         for header in bad_headers:
             response = re.sub(header, '', response, flags=re.IGNORECASE)
@@ -260,6 +262,63 @@ class LLMManager:
         """Deprecated: Replaced by Smart Key Manager get_working_key()"""
         pass
 
+    def _format_history_messages(self, history, max_turns=15):
+        """
+        Robustly converts history (List[Dict], Formatted String, or None) 
+        into OpenAI-compatible message dictionaries.
+        """
+        messages = []
+        
+        # 1. If history is None or empty, fetch from unified conversation_memory
+        if not history:
+            try:
+                from core.conversation_memory import conversation_memory
+                return conversation_memory.get_messages_for_llm(limit=max_turns)
+            except Exception:
+                return []
+                
+        # 2. If history is already a list of dicts:
+        if isinstance(history, list):
+            for item in history[-max_turns:]:
+                if isinstance(item, dict):
+                    if "role" in item and "content" in item:
+                        messages.append({"role": item["role"], "content": str(item["content"])})
+                    elif "user" in item:
+                        u = str(item.get("user", "")).strip()
+                        if u:
+                            messages.append({"role": "user", "content": u})
+                        a = str(item.get("clio") or item.get("assistant", "")).strip()
+                        if a:
+                            messages.append({"role": "assistant", "content": a})
+            return messages
+
+        # 3. If history is a string:
+        if isinstance(history, str):
+            lines = history.strip().split('\n')
+            for line in lines:
+                line_str = line.strip()
+                if not line_str or line_str.startswith("Recent conversation"):
+                    continue
+                
+                # Match User lines (handles [Just now] User:, User:, You:, Human:)
+                user_match = re.search(r'^(?:\[.*?\]\s*)?(?:User|Human|You):\s*(.*)', line_str, re.IGNORECASE)
+                if user_match:
+                    content = user_match.group(1).strip()
+                    if content:
+                        messages.append({"role": "user", "content": content})
+                    continue
+                    
+                # Match Clio / Assistant lines
+                clio_match = re.search(r'^(?:\[.*?\]\s*)?(?:Clio|Assistant|AI):\s*(.*)', line_str, re.IGNORECASE)
+                if clio_match:
+                    content = clio_match.group(1).strip()
+                    if content:
+                        messages.append({"role": "assistant", "content": content})
+                    continue
+                    
+            return messages[- (max_turns * 2):]
+            
+        return messages
 
     def _generate_openrouter(self, user_input, system_prompt, history=None, tools=None):
         """Primary Brain via OpenRouter API with Smart Multi-Key Swarm support."""
@@ -267,8 +326,8 @@ class LLMManager:
             import requests # type: ignore
             headers_base = {
                 "Content-Type": "application/json",
-                "HTTP-Referer": "https://nova-assistant.local", 
-                "X-Title": "Nova AI"
+                "HTTP-Referer": "https://clio-assistant.local", 
+                "X-Title": "Clio AI"
             }
             
             is_multimodal = isinstance(user_input, dict) and user_input.get("image_path")
@@ -277,7 +336,6 @@ class LLMManager:
                 models.insert(0, "google/gemini-2.0-flash-exp:free")
                 models.insert(1, "mistralai/pixtral-12b:free")
 
-            
             for model in models:
                 # Max 3 retries (swarm rotations) per model
                 for attempt in range(3):
@@ -295,19 +353,15 @@ class LLMManager:
                     # Persona-first instructions for the model
                     enhanced_system_prompt = f"{system_prompt}\n" \
                                              f"- Be reactive — respond emotionally to what the user says. Laugh, show surprise, be genuinely engaged.\n" \
-                                             f"- Stay in character as Nova at all times.\n" \
+                                             f"- Stay in character as Clio at all times.\n" \
                                              f"### FEW-SHOT REASONING EXAMPLES:\n{few_shot}"
                     
                     # Construct messages
                     messages_payload = [{"role": "system", "content": enhanced_system_prompt}]
                     
-                    if history:
-                        lines = history.strip().split('\n')
-                        for line in lines:
-                            if line.startswith("User:"):
-                                messages_payload.append({"role": "user", "content": line.replace("User:", "").strip()})
-                            elif line.startswith("Nova:"):
-                                messages_payload.append({"role": "assistant", "content": line.replace("Nova:", "").strip()})
+                    # Inject dialogue history turns
+                    history_messages = self._format_history_messages(history)
+                    messages_payload.extend(history_messages)
                     
                     # Multimodal Support (Image + Text)
                     if isinstance(user_input, dict) and user_input.get("image_path"):
@@ -390,13 +444,8 @@ class LLMManager:
                     }
                     
                     messages = [{"role": "system", "content": system_prompt}]
-                    if history:
-                        lines = history.strip().split('\n')
-                        for line in lines:
-                            if line.startswith("User:"):
-                                messages.append({"role": "user", "content": line.replace("User:", "").strip()})
-                            elif line.startswith("Nova:"):
-                                messages.append({"role": "assistant", "content": line.replace("Nova:", "").strip()})
+                    history_messages = self._format_history_messages(history)
+                    messages.extend(history_messages)
                     
                     # Ensure user_input is a string for Groq (No vision support yet)
                     groq_text = user_input.get("text", "") if isinstance(user_input, dict) else str(user_input)
@@ -449,12 +498,8 @@ class LLMManager:
             try:
                 url_chat = "http://localhost:11434/api/chat"
                 messages = [{"role": "system", "content": system_prompt}]
-                if history:
-                    for line in history.strip().split('\n'):
-                        if line.startswith("User:"):
-                            messages.append({"role": "user", "content": line.replace("User:", "").strip()})
-                        elif line.startswith("Nova:"):
-                            messages.append({"role": "assistant", "content": line.replace("Nova:", "").strip()})
+                history_messages = self._format_history_messages(history)
+                messages.extend(history_messages)
                 messages.append({"role": "user", "content": text_input})
                 
                 payload = {
@@ -543,21 +588,33 @@ class LLMManager:
                 except: pass
             
             current_persona = self.personality_manager.get_active_personality()["system_prompt"]
+
+            # Unified Personal Brain context (profile + LTM facts + goals + mood + life events)
+            brain_context = ""
+            try:
+                from core.personal_brain import personal_brain
+                brain_context = personal_brain.get_rich_context()
+            except Exception as e:
+                print(f"⚠️ PersonalBrain context error: {e}")
+
+            # Inject Semantic Past Recall if relevant (conversation window search)
+            past_recall_context = ""
+            try:
+                from core.conversation_memory import conversation_memory
+                text_for_search = user_input if isinstance(user_input, str) else (user_input.get("text", "") if isinstance(user_input, dict) else "")
+                past_memories = conversation_memory.find_relevant_memories(text_for_search, limit=2)
+                if past_memories:
+                    past_recall_context = f"\n{past_memories}"
+            except Exception:
+                pass
+
             if system_prompt:
-                # Merge: Persona first, then technical instructions if any
-                full_system_prompt = f"{current_persona}\n\n{system_prompt}{context}{emotion_guide}{intent_guide}{gender_guide}"
+                # Merge: Persona first, then technical instructions, personal brain, past recall, emotion/intent/name guides
+                full_system_prompt = f"{current_persona}\n\n{system_prompt}{brain_context}{past_recall_context}{emotion_guide}{intent_guide}{gender_guide}"
             else:
-                full_system_prompt = f"{current_persona}{context}{emotion_guide}{intent_guide}{gender_guide}"
+                full_system_prompt = f"{current_persona}{brain_context}{context}{past_recall_context}{emotion_guide}{intent_guide}{gender_guide}"
         
             try: # Outer try block for overall generation process
-                # ADVANCED BRAIN TRIGGER
-                # Route to Gemini if:
-                # 1. Specifically forced
-                # 2. Online Mode is enabled AND query is complex/long
-                # 3. Intent is knowledge-seeking
-                is_complex = len(text_for_emotion.split()) > 15 or "?" in text_for_emotion
-                knowledge_intents = ['knowledge_query', 'science_query', 'history_query', 'philosophical_queries', 'problem_solving', 'search_query', 'news_query', 'news', 'search']
-                
                 # Provider Routing: OpenRouter -> Groq -> Gemini -> Ollama
                 if not raw_gen:
                     import os
@@ -603,6 +660,14 @@ class LLMManager:
         """Dummy method for compatibility."""
         return True
 
+    def add_to_memory(self, user_input, response_text, raw_user_input=None):
+        """Add exchange to unified conversation memory"""
+        try:
+            from core.conversation_memory import conversation_memory
+            u = raw_user_input if raw_user_input else (user_input if isinstance(user_input, str) else user_input.get("text", ""))
+            conversation_memory.add_conversation(u, response_text)
+        except Exception as e:
+            print(f"⚠️ Error saving exchange to memory: {e}")
 
     def _process_response_text(self, response_text, user_input, include_tags, raw_user_input=None):
         """Helper to filter, store response text, and perform autonomous learning."""
@@ -634,18 +699,25 @@ class LLMManager:
             ltm = LTMManager()
             
             # Feed input to the local extraction engine (No data leaves the PC)
-            ltm.auto_extract_facts(user_input)
+            text_str = user_input if isinstance(user_input, str) else user_input.get("text", "")
+            ltm.auto_extract_facts(text_str)
             
         except Exception as e:
             print(f"⚠️ Learning process error: {e}")
 
     def get_stats(self):
         """Get LLM statistics status."""
+        try:
+            from core.conversation_memory import conversation_memory
+            mem_size = len(conversation_memory.conversations)
+        except Exception:
+            mem_size = len(self.conversation_memory)
+
         return {
             "model_loaded": True,
             "provider": f"{self.last_provider} API",
             "model_name": self.last_model,
-            "memory_size": len(self.conversation_memory)
+            "memory_size": mem_size
         }
 
 # Singleton

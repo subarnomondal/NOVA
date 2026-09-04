@@ -1,5 +1,5 @@
 """
-Financial Manager Skill for NOVA
+Financial Manager Skill for CLIO
 Provides expense tracking, budgeting, and currency conversion.
 """
 

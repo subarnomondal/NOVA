@@ -3,7 +3,7 @@ import json
 import os
 
 class CharTokenizer:
-    """ Simple character-level tokenizer for NOVA's scratch LLM """
+    """ Simple character-level tokenizer for CLIO's scratch LLM """
     def __init__(self, vocab=None):
         if vocab:
             self.chars = vocab

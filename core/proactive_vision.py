@@ -73,9 +73,9 @@ class ProactiveVisionEngine:
             except:
                 window_title = "Unknown"
 
-            # Prepare System Prompt for Nova to decide if she should speak
+            # Prepare System Prompt for Clio to decide if she should speak
             active_persona = self.personality_manager.get_active_personality()
-            personality_name = active_persona.get('name', 'Nova')
+            personality_name = active_persona.get('name', 'Clio')
             mode = self.personality_manager.current_mode
 
             prompt = (
@@ -112,13 +112,13 @@ class ProactiveVisionEngine:
             prompt += (
                 "- Return 'IGNORE' ONLY if the user is doing something truly private or empty.\n"
                 "- Keep the response VERY SHORT (under 15 words).\n"
-                "- Nova:"
+                "- Clio:"
             )
 
             response = llm_manager.generate(prompt, max_tokens=100, image_path=filepath)
             
             if response and "IGNORE" not in response.upper():
-                print(f"️ Proactive Vision Engine: Nova has something to say: {response}")
+                print(f"️ Proactive Vision Engine: Clio has something to say: {response}")
                 if self.callback:
                     # Clean up filepath after callback or keep for a bit
                     self.callback(response)

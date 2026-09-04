@@ -1,4 +1,4 @@
-# Skills package for NOVA
+# Skills package for CLIO
 import os
 import sys
 

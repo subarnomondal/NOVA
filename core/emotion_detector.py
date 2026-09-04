@@ -1,6 +1,6 @@
 
 """
-Emotion Detector for Nova
+Emotion Detector for Clio
 Rule-based emotion detection inspired by GoEmotions dataset (27 emotions)
 """
 

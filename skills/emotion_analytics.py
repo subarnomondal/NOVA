@@ -1,6 +1,6 @@
 """
-Emotion Analytics Skill for NOVA
-Allows NOVA to explain her emotional intelligence and analyze user emotions.
+Emotion Analytics Skill for CLIO
+Allows CLIO to explain her emotional intelligence and analyze user emotions.
 """
 
 import random

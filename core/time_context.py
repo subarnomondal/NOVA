@@ -1,5 +1,5 @@
 """
-Time Context Manager for NOVA
+Time Context Manager for CLIO
 Provides time-aware context for responses based on current time, date, and special occasions
 """
 
@@ -71,13 +71,13 @@ class TimeContextManager:
         else:
             return "late_night"
     
-    def get_greeting(self, personality: str = "nova") -> str:
+    def get_greeting(self, personality: str = "clio") -> str:
         """Get time-appropriate greeting based on personality"""
         time_period = self.get_time_of_day()
         now = self.get_current_time()
         
-        # Standard Nova greetings
-        if personality in ["sweetheart", "friendly", "nova", "savage", "cookie"]:
+        # Standard Clio greetings
+        if personality in ["sweetheart", "friendly", "clio", "savage", "cookie"]:
             greetings = {
                 "late_night": [
                     "You're still working? It's quite late. Make sure you get some rest soon.",
@@ -238,7 +238,7 @@ class TimeContextManager:
             
         return prompt
 
-    def get_contextual_response(self, query: str, personality: str = "nova") -> Optional[str]:
+    def get_contextual_response(self, query: str, personality: str = "clio") -> Optional[str]:
         """Get time-aware contextual response"""
         # ... logic mostly moved to LLM via get_time_prompt, but keeping specific triggers ...
         query_lower = query.lower()
@@ -252,7 +252,7 @@ class TimeContextManager:
         
         return None
     
-    def enhance_response_with_time_context(self, response: str, personality: str = "nova") -> str:
+    def enhance_response_with_time_context(self, response: str, personality: str = "clio") -> str:
         """Disabled to prevent repetitive time-shaming."""
         return response
     

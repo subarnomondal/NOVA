@@ -1,5 +1,5 @@
 """
-Comprehensive System & Skill Verification Suite for NOVA
+Comprehensive System & Skill Verification Suite for CLIO
 Tests all core modules, skills, dispatch routing, and fallback pipelines.
 """
 
@@ -16,7 +16,7 @@ os.makedirs("userdata", exist_ok=True)
 os.makedirs("userdata/temp", exist_ok=True)
 
 
-class TestNovaCore(unittest.TestCase):
+class TestClioCore(unittest.TestCase):
     def test_01_core_imports(self):
         """Test that all core and engine modules import cleanly."""
         import core.llm_manager
@@ -26,7 +26,7 @@ class TestNovaCore(unittest.TestCase):
         import core.key_manager
         import core.personality_manager
         import core.emotion_detector
-        import core.chat_history
+        import core.conversation_memory
         import core.conversation_memory
         import core.ltm_manager
         import core.nlp_processor
@@ -90,9 +90,9 @@ class TestNovaCore(unittest.TestCase):
 
     def test_07_mcp_server_tools(self):
         """Test that MCP server registers all expected tools."""
-        from mcp_nova import mcp
+        from mcp_clio import mcp
         tool_names = [t.name for t in mcp._tool_manager.list_tools()]
-        expected = ["ask_nova", "execute_skill", "get_system_health", "list_skills", "take_screenshot", "search_web", "calculate", "add_expense"]
+        expected = ["ask_clio", "execute_skill", "get_system_health", "list_skills", "take_screenshot", "search_web", "calculate", "add_expense"]
         for exp in expected:
             self.assertIn(exp, tool_names)
 
@@ -117,13 +117,13 @@ class TestNovaCore(unittest.TestCase):
 
 if __name__ == "__main__":
     print("=" * 70)
-    print("🚀 RUNNING NOVA COMPREHENSIVE VERIFICATION SUITE")
+    print("🚀 RUNNING CLIO COMPREHENSIVE VERIFICATION SUITE")
     print("=" * 70)
-    suite = unittest.TestLoader().loadTestsFromTestCase(TestNovaCore)
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestClioCore)
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
     if result.wasSuccessful():
-        print("\n✅ ALL NOVA SYSTEMS & SKILLS PASS VERIFICATION!")
+        print("\n✅ ALL CLIO SYSTEMS & SKILLS PASS VERIFICATION!")
         sys.exit(0)
     else:
         print("\n❌ SYSTEM TESTS HAD FAILURES")

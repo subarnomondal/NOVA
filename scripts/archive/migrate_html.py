@@ -12,8 +12,8 @@ def migrate_html():
 
     # 2. Add user-input ID
     html = html.replace(
-        '<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md px-4 placeholder:text-outline/50" placeholder="Command NOVA AI..." type="text"/>',
-        '<input id="user-input" class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md px-4 placeholder:text-outline/50" placeholder="Command NOVA AI..." type="text"/>'
+        '<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md px-4 placeholder:text-outline/50" placeholder="Command CLIO AI..." type="text"/>',
+        '<input id="user-input" class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md px-4 placeholder:text-outline/50" placeholder="Command CLIO AI..." type="text"/>'
     )
 
     # 3. Add send-btn ID

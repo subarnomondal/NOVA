@@ -1,5 +1,5 @@
 """
-Vision Module for NOVA
+Vision Module for CLIO
 Uses Torchvision (MobileNetV3) to classify images and return object labels.
 Serves as the "Eye" for the Multimodal system.
 """

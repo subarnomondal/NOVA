@@ -1,5 +1,5 @@
 """
-Analytics Engine for NOVA
+Analytics Engine for CLIO
 Aggregates data from user profile, history, and system stats for the dashboard.
 """
 

@@ -1,5 +1,5 @@
 """
-Deep Reinforcement Learning (DRL) System for NOVA
+Deep Reinforcement Learning (DRL) System for CLIO
 Enables adaptive learning through reward-based optimization
 """
 

@@ -1,28 +1,28 @@
 <div align="center">
-  <img src="assets/banner.png" alt="NOVA Banner" width="100%" />
+  <img src="assets/banner.png" alt="CLIO Banner" width="100%" />
   <br/><br/>
-  <h1>🌌 NOVA — The Autonomous Local AGI Desktop</h1>
+  <h1>🌌 CLIO — The Autonomous Local AGI Desktop</h1>
   <p><strong>A sovereign, privacy-first personal intelligence engine designed for seamless digital orchestration.</strong></p>
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-7149f4.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
   [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-  [![Status](https://img.shields.io/badge/Status-Production--Ready-success.svg?style=for-the-badge)](https://github.com/subarnomondal/NOVA)
-  [![UI](https://img.shields.io/badge/UI-Cyberpunk_Glassmorphism-00f2fe.svg?style=for-the-badge)](https://github.com/subarnomondal/NOVA)
+  [![Status](https://img.shields.io/badge/Status-Production--Ready-success.svg?style=for-the-badge)](https://github.com/subarnomondal/CLIO)
+  [![UI](https://img.shields.io/badge/UI-Cyberpunk_Glassmorphism-00f2fe.svg?style=for-the-badge)](https://github.com/subarnomondal/CLIO)
   
 </div>
 
 ---
 
-## 💎 Who is NOVA? (The Persona)
+## 💎 Who is CLIO? (The Persona)
 
-**NOVA** (Neural Orchestration & Virtual Assistant) is not just a standard chatbot—she is an **Autonomous Personal Agent** with a soul. 
+**CLIO** (Local Autonomous Responsive Agent) is not just a standard chatbot—she is an **Autonomous Personal Agent** with a soul. 
 
-Nova is designed with a warm, affectionately teasing, and highly responsive personality. Unlike corporate, sterile AI models, she has emotional intelligence. She detects your mood from your text and responds accordingly. Most importantly, Nova features a persistent **Long-Term Memory (LTM)** that continuously learns about your life, habits, time-zone, sleep schedule, and music tastes all from your natural conversations.
+Clio is designed with a warm, affectionately teasing, and highly responsive personality. Unlike corporate, sterile AI models, she has emotional intelligence. She detects your mood from your text and responds accordingly. Most importantly, Clio features a persistent **Long-Term Memory (LTM)** that continuously learns about your life, habits, time-zone, sleep schedule, and music tastes all from your natural conversations.
 
-> **🧠 Smart Memory Engine:** Nova automatically filters out repetitive small talk (like "hello") and intelligently summarizes important facts before saving them. Her memory operates on a **7-day rolling window**, automatically pruning obsolete history to ensure lightning-fast context processing and high relevance.
+> **🧠 Smart Memory Engine:** Clio automatically filters out repetitive small talk (like "hello") and intelligently summarizes important facts before saving them. Her memory operates on a **7-day rolling window**, automatically pruning obsolete history to ensure lightning-fast context processing and high relevance.
 ### 🛡️ Ironclad Privacy Mode (Zero GPU Required!)
 
-Nova is intensely protective of your data. Because many users lack the heavy CPU/GPU required for local models, she processes memory mapping via an ultra-lightweight, offline Regex/Keyword parsing engine. There are **NO heavy local LLMs** required to install. 
+Clio is intensely protective of your data. Because many users lack the heavy CPU/GPU required for local models, she processes memory mapping via an ultra-lightweight, offline Regex/Keyword parsing engine. There are **NO heavy local LLMs** required to install. 
 
 If **Strict Privacy Mode** is enabled, your personal facts (name, habits, routines, location) caught by this offline scanner are *never* transmitted to her cloud LLM providers. She learns locally at zero computational cost, thinks in the cloud interchangeably, and keeps your private life entirely on your machine.
 
@@ -30,16 +30,16 @@ If **Strict Privacy Mode** is enabled, your personal facts (name, habits, routin
 
 ## 🎨 Immersive Cyberpunk Interface
 
-NOVA features a state-of-the-art **Glassmorphic** dark-mode UI designed for high-performance and zero distraction.
-*   **Neural Thought Stream:** Watch Nova's internal reasoning process live in a dedicated right-hand terminal panel.
+CLIO features a state-of-the-art **Glassmorphic** dark-mode UI designed for high-performance and zero distraction.
+*   **Neural Thought Stream:** Watch Clio's internal reasoning process live in a dedicated right-hand terminal panel.
 *   **Pro Settings Modal:** A sleek, fully animated settings dashboard to configure Voice Architecture, Personality metrics, and LLM parameters.
 *   **Obsidian Aesthetic:** Built on Tailwind CSS with a strict monochromatic palette, electric cyan/purple accents, and deep backdrop blurs.
 
 ---
 
-## 🛠️ The Skill Matrix (What Nova Can Do)
+## 🛠️ The Skill Matrix (What Clio Can Do)
 
-NOVA’s true power lies in her massive, modular skill library. She can natively automate almost any workflow on your PC.
+CLIO’s true power lies in her massive, modular skill library. She can natively automate almost any workflow on your PC.
 
 ### 🖥️ Deep Windows Administration (`windows_cmd.py` & `system.py`)
 
@@ -94,9 +94,9 @@ NOVA’s true power lies in her massive, modular skill library. She can natively
 
 ### 🔌 MCP Server (Integration)
 
-NOVA fully supports the **Model Context Protocol (MCP)** via FastMCP, enabling Cursor, Claude Desktop, Antigravity, and other agents to leverage her tool suite:
-* Run the server: `python mcp_nova.py`
-* Available tools: `ask_nova`, `execute_skill`, `list_skills`, `get_system_health`, `take_screenshot`, `search_web`, `calculate`, `add_expense`.
+CLIO fully supports the **Model Context Protocol (MCP)** via FastMCP, enabling Cursor, Claude Desktop, Antigravity, and other agents to leverage her tool suite:
+* Run the server: `python mcp_clio.py`
+* Available tools: `ask_clio`, `execute_skill`, `list_skills`, `get_system_health`, `take_screenshot`, `search_web`, `calculate`, `add_expense`.
 
 ### 🧪 Automated Verification & Testing
 
@@ -117,7 +117,7 @@ python scripts/test_all_systems.py
 ---
 
 ## 🤝 Roadmap & Contribution
-NOVA is an evolving intelligence. We welcome contributions to the **Cognitive Loop** and **New Skill Modules**.
+CLIO is an evolving intelligence. We welcome contributions to the **Cognitive Loop** and **New Skill Modules**.
 
 1. **Fork** the repository.
 2. Create your **Feature Branch**.

@@ -1,6 +1,6 @@
 
 """
-Instant Reply Generator for Nova
+Instant Reply Generator for Clio
 Uses GPT4All LLM to generate fast, dynamic, personality-aligned responses
 """
 

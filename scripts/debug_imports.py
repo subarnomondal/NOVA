@@ -13,7 +13,7 @@ def debug_import(module_name, from_module=None, import_name=None):
     except Exception as e:
         print(f"DEBUG: {module_name} FAILED: {e}")
 
-debug_import("core.assistant", "core.assistant", "Nova")
+debug_import("core.assistant", "core.assistant", "Clio")
 debug_import("core.conversation_memory", "core.conversation_memory", "ConversationMemory")
 debug_import("core.nlp_processor", "core.nlp_processor", "NLUProcessor")
 debug_import("core.hitl_system", "core.hitl_system", "HITLSystem")

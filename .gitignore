@@ -1,4 +1,4 @@
-# NOVA - Local AI Desktop Assistant
+# LARA - Local AI Desktop Assistant
 
 # Python & Environment
 __pycache__/
@@ -61,7 +61,7 @@ protected/
 # Logs & Debug
 logs/
 *.log
-nova_errors.log
+lara_errors.log
 pyarmor.bug.log
 
 # OS / Editor specifics
@@ -95,3 +95,4 @@ web/*_old*.html
 # Temp skills
 skills/temp_skills/*
 !skills/temp_skills/__init__.py
+*.bak

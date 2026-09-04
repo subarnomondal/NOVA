@@ -34,7 +34,7 @@ def cmd_ocr_screen(args):
             "- If it's code, explain what it does or find any obvious errors.\n"
             "- If it's a website or document, summarize the main points.\n"
             "- Be very specific. Quote text if necessary.\n"
-            "Nova:"
+            "Clio:"
         )
 
         # Send to multimodal LLM

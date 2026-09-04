@@ -1,5 +1,5 @@
 """
-Calendar Skill for Nova
+Calendar Skill for Clio
 Provides access to Google Calendar (Web) and Windows Calendar
 """
 

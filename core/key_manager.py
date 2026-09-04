@@ -1,6 +1,6 @@
 
 """
-Key Manager for NOVA
+Key Manager for CLIO
 Centralized handling of API keys for various services
 """
 

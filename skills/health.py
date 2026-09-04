@@ -1,5 +1,5 @@
 """
-Health, Diet & Medical Intelligence Skill for Nova
+Health, Diet & Medical Intelligence Skill for Clio
 Provides grounded medical advice, dietary plans, and nutritional information.
 """
 

@@ -1,5 +1,5 @@
 """
-Speech-To-Text (STT) & Voice Listening Manager for NOVA
+Speech-To-Text (STT) & Voice Listening Manager for CLIO
 Provides high-performance audio transcription with multi-tier routing:
 1. Cloud Groq Whisper (whisper-large-v3-turbo) - ultra-fast sub-250ms latency
 2. Local Faster-Whisper (small.en / base.en) - offline neural transcription with CUDA/CPU auto-tuning
@@ -18,9 +18,9 @@ from typing import Optional, Dict, Any, Tuple
 
 from core.key_manager import key_manager
 
-# Expanded domain-vocabulary prompt to bias Whisper toward NOVA commands
+# Expanded domain-vocabulary prompt to bias Whisper toward CLIO commands
 STT_INITIAL_PROMPT = (
-    "Nova, Hey Nova, weather forecast, latest news, remind me, set a reminder, "
+    "Clio, Hey Clio, weather forecast, latest news, remind me, set a reminder, "
     "call, phone call, WhatsApp, what time is it, play music, play song, "
     "search for, Google, screenshot, take a screenshot, volume up, volume down, "
     "mute, unmute, lock screen, shutdown, restart, sleep mode, open, close, "
@@ -104,11 +104,12 @@ class STTManager:
             if self._local_model is not None:
                 return self._local_model
 
-            if os.environ.get("NOVA_TESTING") == "1":
+            if os.environ.get("CLIO_TESTING") == "1":
                 return None
 
             preferred = self.get_preferred_model_name()
-            candidate_models = [preferred, "small.en", "base.en", "tiny.en"]
+            # Prefer multilingual models (base, small) over .en models because they are significantly better at understanding non-native accents.
+            candidate_models = [preferred, "base", "small", "base.en"]
             # Deduplicate while preserving order
             models_to_try = []
             for m in candidate_models:
@@ -180,7 +181,7 @@ class STTManager:
             audio = AudioSegment.from_file(file_path)
 
             # High-pass filter at 80Hz to remove mic rumble
-            audio = audio.high_pass_filter(80)
+            audio = audio.high_pass_filter(80)  # type: ignore
 
             # Normalize to -20 dBFS
             target_dBFS = -20.0
@@ -259,22 +260,25 @@ class STTManager:
                 file_path,
                 beam_size=5,
                 language="en",
-                vad_filter=True,
+                vad_filter=False,
                 vad_parameters=dict(
                     min_silence_duration_ms=500,
                     speech_pad_ms=150
                 ),
                 initial_prompt=STT_INITIAL_PROMPT,
                 condition_on_previous_text=False,
-                no_speech_threshold=0.45,
+                no_speech_threshold=0.6,
                 word_timestamps=False
             )
 
+            raw_parts = []
             filtered_parts = []
             for seg in segments:
                 avg_logprob = getattr(seg, 'avg_logprob', -0.5)
                 no_speech = getattr(seg, 'no_speech_prob', 0.0)
-                if avg_logprob > -1.1 and no_speech < 0.5:
+                raw_parts.append(seg.text)
+                print(f"🎤 [STT Debug] Heard: '{seg.text}' (logprob: {avg_logprob:.2f}, no_speech: {no_speech:.2f})")
+                if avg_logprob > -2.0 and no_speech < 0.6:
                     filtered_parts.append(seg.text)
 
             text = " ".join(filtered_parts).strip()
@@ -330,13 +334,13 @@ class STTManager:
             # Tier 1: Ultra-fast Groq Whisper Cloud (if key present)
             text = self._transcribe_groq(input_audio)
 
-            # Tier 2: Local Faster-Whisper
-            if not text:
-                text = self._transcribe_local_whisper(input_audio)
-
-            # Tier 3: Google SpeechRecognition Fallback
+            # Tier 2: Google SpeechRecognition (Fast, free, lightweight like Edge TTS)
             if not text:
                 text = self._transcribe_google_fallback(input_audio)
+
+            # Tier 3: Local Faster-Whisper Fallback
+            if not text:
+                text = self._transcribe_local_whisper(input_audio)
 
             if text and not self.is_hallucination(text):
                 result["transcript"] = text

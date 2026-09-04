@@ -29,7 +29,7 @@ class IntentRouter:
 
         # 2. Build the zero-shot prompt
         system_prompt = (
-            "You are an intent-routing engine for Nova AI.\n"
+            "You are an intent-routing engine for Clio AI.\n"
             "Your ONLY job is to map the user's natural language request to exactly ONE of the available system commands.\n"
             "If the user is asking you to perform an action (e.g. searching the web, opening an app, taking a screenshot), output the EXACT command string from the list.\n"
             "If the user is just chatting, asking a conversational question, or no command matches, output 'NONE'.\n"

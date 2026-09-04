@@ -1,5 +1,5 @@
 """
-SmallTalk Skill for Nova
+SmallTalk Skill for Clio
 Handles casual conversation using the LLM to ensure Personality Consistency.
 Merges personality switching and general chit-chat.
 """
@@ -25,8 +25,8 @@ def cmd_switch_personality(args):
     target_mode = None
     if "troll" in text or "roast" in text or "savage" in text or "cookie" in text:
         target_mode = "troll"
-    elif "friendly" in text or "standard" in text or "normal" in text or "nova" in text:
-        target_mode = "nova"
+    elif "friendly" in text or "standard" in text or "normal" in text or "clio" in text:
+        target_mode = "clio"
     elif "professional" in text or "work" in text:
         target_mode = "professional"
     elif "expressive" in text or "emotion" in text or "human" in text or "punch" in text:
@@ -97,8 +97,8 @@ def cmd_status(args):
 
 def cmd_identity(args):
     """Usage: who are you / introduce yourself"""
-    prompt = "The user asks who you are or to introduce yourself. Introduce yourself proudly as Nova, a highly advanced local AI assistant built to help the user. Keep it natural and expressive, showing off your personality."
-    return generate_response(prompt, "identity", 0.8) or "I am Nova, your personal AI assistant. I'm here to help you with whatever you need!"
+    prompt = "The user asks who you are or to introduce yourself. Introduce yourself proudly as Clio, a highly advanced local AI assistant built to help the user. Keep it natural and expressive, showing off your personality."
+    return generate_response(prompt, "identity", 0.8) or "I am Clio, your personal AI assistant. I'm here to help you with whatever you need!"
 
 def cmd_hello(args):
     """Usage: hello"""
@@ -131,7 +131,7 @@ def cmd_bored(args):
 
 def cmd_miss_you(args):
     """Usage: I missed you"""
-    prompt = "The user says they missed you. Respond naturally as Nova."
+    prompt = "The user says they missed you. Respond naturally as Clio."
     return generate_response(prompt, "affection", 0.8) or "Welcome back."
 
 def cmd_celebration(args):
@@ -146,7 +146,7 @@ def cmd_encouragement(args):
 
 def cmd_plans(args):
     """Usage: what are your plans / plans"""
-    prompt = "The user asks about your plans. Give a creative, personal answer as an AI assistant named Nova."
+    prompt = "The user asks about your plans. Give a creative, personal answer as an AI assistant named Clio."
     return generate_response(prompt, "plans", 0.7) or "I'm always here with you."
 
 def cmd_weather_small_talk(args):

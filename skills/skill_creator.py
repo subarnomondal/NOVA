@@ -10,21 +10,21 @@ def create_temp_skill(user_input):
     Input example: "create temp skill that tells a random joke"
     """
     from core.llm_manager import llm_manager
-    from core.assistant import Nova # Assuming we can get the dispatcher instance from global or context if needed.
+    from core.assistant import Clio # Assuming we can get the dispatcher instance from global or context if needed.
     
     # Actually, we need access to the dispatcher. Since handlers get called, 
     # we can use the AGI context or we can just access the dispatcher from the skill creator.
     # The dispatcher is passed during register, but we need to pass it to the handler or store it.
     
     prompt = f"""
-Write a Python script for a new NOVA skill based on the following request:
+Write a Python script for a new CLIO skill based on the following request:
 "{user_input}"
 
 REQUIREMENTS:
 1. It MUST contain a function `def register(dispatcher):` that registers at least one command trigger. Example: `dispatcher.register("my trigger", my_handler_function)`
 2. The handler function MUST accept a single argument `user_input` and return a string (the response).
 3. Do NOT include any markdown code blocks (like ```python). Return ONLY raw Python code.
-4. Keep dependencies to standard library or packages already in NOVA's environment.
+4. Keep dependencies to standard library or packages already in CLIO's environment.
 """
     
     console.print(f"[bold cyan]🧠 Generating Temp Skill for:[/bold cyan] {user_input}")

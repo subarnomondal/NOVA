@@ -20,7 +20,7 @@ class VisionSkill:
 
     def solve_mcq(self, text, image_path=None):
         prompt = f"""
-        You are Nova, an intelligent and highly capable digital companion.
+        You are Clio, an intelligent and highly capable digital companion.
         You are looking at a question extracted from an image.
         
         Your Goal: Solve it correctly, but respond in a natural, helpful way. 
@@ -36,7 +36,7 @@ class VisionSkill:
         YOUR RESPONSE (In character):
         """
         
-        print(" Nova Brain: Analyzing MCQ...")
+        print(" Clio Brain: Analyzing MCQ...")
         try:
             actual_image_path = image_path if image_path else (text if os.path.exists(text) else None)
             response = llm_manager.generate(
@@ -81,7 +81,7 @@ class VisionSkill:
             if raw_text and self._is_question(raw_text):
                 print(" Detecting question... Engaging Reasoning Core.")
                 answer = self.solve_mcq(raw_text, image_path=path)
-                formatted += f"\n\n **Nova Analysis**:\n{answer}"
+                formatted += f"\n\n **Clio Analysis**:\n{answer}"
             else:
                 # If no question, use LLM to comment on visual content
                 if isinstance(analysis, dict) and analysis.get("objects"):
@@ -93,12 +93,12 @@ class VisionSkill:
                     if isinstance(metadata, dict) and metadata.get("timestamp"):
                         context += f" | Taken: {metadata['timestamp']}"
                     
-                    prompt = f"""You are Nova. The user showed you an image.
+                    prompt = f"""You are Clio. The user showed you an image.
                     
 VISUAL CONTENT: {context}
 
 Respond briefly (1-2 sentences) in character. Be observant and helpful.
-Nova:"""
+Clio:"""
                     
                     try:
                         comment = llm_manager.generate(

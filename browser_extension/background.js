@@ -1,4 +1,4 @@
-// Nova Extensions - Browser Control Service Worker
+// Clio Extensions - Browser Control Service Worker
 // Handles persistent browser actions and tab management
 
 // Cross-browser shim
@@ -15,7 +15,7 @@ ext.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     target: { tabId: tabs[0].id },
                     func: () => {
                         // Remove existing
-                        document.querySelectorAll('.nova-dom-label').forEach(el => el.remove());
+                        document.querySelectorAll('.clio-dom-label').forEach(el => el.remove());
                         
                         let elements = document.querySelectorAll('a, button, input, select, textarea, [role="button"], [role="link"], [role="menuitem"], [onclick]');
                         let interactables = [];
@@ -30,10 +30,10 @@ ext.runtime.onMessage.addListener((request, sender, sendResponse) => {
                             
                             if (isVisible) {
                                 let id = id_counter++;
-                                el.setAttribute('nova-id', id);
+                                el.setAttribute('clio-id', id);
                                 
                                 let label = document.createElement('div');
-                                label.className = 'nova-dom-label';
+                                label.className = 'clio-dom-label';
                                 label.textContent = id;
                                 label.style.position = 'absolute';
                                 label.style.left = (rect.left + window.scrollX) + 'px';
@@ -76,19 +76,19 @@ ext.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (tabs[0]) {
                 ext.scripting.executeScript({
                     target: { tabId: tabs[0].id },
-                    args: [request.nova_id, request.action, request.value],
-                    func: (novaId, actionType, val) => {
-                        let el = document.querySelector(`[nova-id="${novaId}"]`);
+                    args: [request.clio_id, request.action, request.value],
+                    func: (clioId, actionType, val) => {
+                        let el = document.querySelector(`[clio-id="${clioId}"]`);
                         if (!el) return { success: false, error: "Element not found" };
                         
                         if (actionType === "click_element") {
                             el.click();
-                            return { success: true, message: `Clicked element ${novaId}` };
+                            return { success: true, message: `Clicked element ${clioId}` };
                         } else if (actionType === "type_element") {
                             el.value = val;
                             el.dispatchEvent(new Event('input', { bubbles: true }));
                             el.dispatchEvent(new Event('change', { bubbles: true }));
-                            return { success: true, message: `Typed into element ${novaId}` };
+                            return { success: true, message: `Typed into element ${clioId}` };
                         }
                     }
                 }, (results) => {

@@ -1,6 +1,6 @@
 """
-Correction Manager for NOVA
-Detects when user is correcting NOVA, fact-checks corrections, and learns from them
+Correction Manager for CLIO
+Detects when user is correcting CLIO, fact-checks corrections, and learns from them
 """
 
 import json
@@ -40,7 +40,7 @@ class CorrectionManager:
         with open(self.corrections_file, 'w', encoding='utf-8') as f:
             json.dump(self.corrections, f, indent=2, ensure_ascii=False)
     
-    def is_correction(self, user_input: str, nova_last_response: str = "") -> bool:
+    def is_correction(self, user_input: str, clio_last_response: str = "") -> bool:
         """Detect if user is making a correction"""
         user_lower = user_input.lower()
         
@@ -127,7 +127,7 @@ class CorrectionManager:
     def get_correction_response(self, correction: str, verified: bool, evidence: str, personality: str = "alya") -> str:
         """Generate appropriate response to correction"""
         
-        if personality in ["nova", "sweetheart", "friendly"]:
+        if personality in ["clio", "sweetheart", "friendly"]:
             if verified:
                 responses = [
                     f"*adjusts glasses* You're absolutely right! {correction} I've updated my knowledge. Thank you for teaching me! ✨",

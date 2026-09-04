@@ -1,5 +1,5 @@
 """
-Science, Chemistry, and Medical Research Skill for Nova
+Science, Chemistry, and Medical Research Skill for Clio
 Provides direct, high-performance wrappers for PubChem, PubMed, arXiv, and OpenFDA.
 Written completely from scratch using standard HTTP requests.
 """
@@ -12,14 +12,14 @@ import re
 import logging
 
 # Initialize logger
-logger = logging.getLogger("nova.science")
+logger = logging.getLogger("clio.science")
 
 def _http_get_json(url):
     """Helper to perform HTTP GET and parse JSON response safely."""
     try:
         req = urllib.request.Request(
             url, 
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) NovaScienceSkill/1.0"}
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ClioScienceSkill/1.0"}
         )
         with urllib.request.urlopen(req, timeout=10) as response:
             return json.loads(response.read().decode('utf-8'))
@@ -32,7 +32,7 @@ def _http_get_xml(url):
     try:
         req = urllib.request.Request(
             url, 
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) NovaScienceSkill/1.0"}
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ClioScienceSkill/1.0"}
         )
         with urllib.request.urlopen(req, timeout=10) as response:
             return response.read()

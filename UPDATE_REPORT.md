@@ -1,4 +1,4 @@
-# NOVA Project — Update Report
+# CLIO Project — Update Report
 
 > **Session Date:** 2026-07-03
 > **Total Files Modified:** 12+

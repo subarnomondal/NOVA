@@ -65,7 +65,7 @@ class DocumentReader:
                 return {"error": f"Failed to read file: {str(e)}"}
         
         # Generic Fallback for Binary Files (Zip, Exe, etc.)
-        # Instead of erroring, return metadata so Nova can acknowledge receipt.
+        # Instead of erroring, return metadata so Clio can acknowledge receipt.
         file_size = os.path.getsize(file_path)
         size_str = f"{file_size / 1024:.1f} KB" if file_size < 1024*1024 else f"{file_size / (1024*1024):.1f} MB"
         

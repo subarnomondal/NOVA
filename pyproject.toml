@@ -1,7 +1,7 @@
 [project]
-name = "nova"
+name = "lara"
 version = "1.0.0"
-description = "NOVA - Personal AI Assistant"
+description = "LARA - Personal AI Assistant"
 
 [tool.pyrefly]
 source = ["."]
