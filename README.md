@@ -6,8 +6,8 @@
 
   [![License: MIT](https://img.shields.io/badge/License-MIT-7149f4.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
   [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-  [![Status](https://img.shields.io/badge/Status-Production--Ready-success.svg?style=for-the-badge)](https://github.com/subarnomondal/CLIO)
-  [![UI](https://img.shields.io/badge/UI-Cyberpunk_Glassmorphism-00f2fe.svg?style=for-the-badge)](https://github.com/subarnomondal/CLIO)
+  [![Status](https://img.shields.io/badge/Status-Production--Ready-success.svg?style=for-the-badge)](https://github.com/subarnomondal/NOVA)
+  [![UI](https://img.shields.io/badge/UI-Cyberpunk_Glassmorphism-00f2fe.svg?style=for-the-badge)](https://github.com/subarnomondal/NOVA)
   
 </div>
 
@@ -86,16 +86,30 @@ CLIO’s true power lies in her massive, modular skill library. She can natively
 *   **Windows OS:** Highly recommended for full system automation skills.
 *   Playwright & YT-DLP dependencies
 
-### 2. Quick Install
+### 📖 Comprehensive Installation Guide
 
-1.  Clone this repository.
-2.  Rename `keys.example.json` to `keys.json`.
-3.  Inject your API keys (OpenRouter is recommended for autonomous logic routing).
+For detailed, step-by-step installation instructions including troubleshooting, API Key setup, and microphone configuration, please read the **[setup/SETUP.md](setup/SETUP.md)** guide!
+
+### 2. Quick Install (Windows)
+
+The easiest way to get started is using the automated installer:
+1. Clone this repository to your PC.
+2. Open the **`setup`** folder and double-click the **`install.bat`** file. It will automatically install all required Python libraries, Playwright browsers, and media dependencies.
+3. Rename `keys.example.json` to `keys.json` (or place your API keys in `userdata/config/settings.yaml`).
+4. Run **`run_clio.bat`** to start the AI Desktop Assistant.
+
+### 3. Manual Install (Mac/Linux)
+
+1. Clone this repository.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Install browser engine for AI vision/web tools: `playwright install`
+4. Configure API keys (OpenRouter is recommended).
+5. Start the server: `python desktop.py`
 
 ### 🔌 MCP Server (Integration)
 
 CLIO fully supports the **Model Context Protocol (MCP)** via FastMCP, enabling Cursor, Claude Desktop, Antigravity, and other agents to leverage her tool suite:
-* Run the server: `python mcp_clio.py`
+* Run the server: `python mcp_lara.py`
 * Available tools: `ask_clio`, `execute_skill`, `list_skills`, `get_system_health`, `take_screenshot`, `search_web`, `calculate`, `add_expense`.
 
 ### 🧪 Automated Verification & Testing

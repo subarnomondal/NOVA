@@ -865,12 +865,10 @@ def export_conversation():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/history', methods=['GET'])
+@app.route('/api/chat_history', methods=['GET'])
 def get_chat_history():
-    """Returns the persistent chat history for the UI."""
     try:
-        from core.chat_history import chat_history
-        return jsonify({"history": chat_history.history})
+        return jsonify({"history": llm_manager.conversation_memory.history})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -884,14 +882,16 @@ def clear_memory():
         ltm.facts = {}
         ltm.save_memory()
         
-        # 2. Clear Short Term Memory (Volatile)
+        # 2. Clear Short Term Memory & Persistent History
         llm_manager.conversation_memory.clear()
         
-        # 3. Clear Persistent Chat History (Disk)
-        from core.chat_history import chat_history
-        chat_history.history = []
-        if os.path.exists(chat_history.history_file):
-            os.remove(chat_history.history_file)
+        # 3. Delete old legacy file if it exists
+        old_history = os.path.join("userdata", "chat_history.json")
+        if os.path.exists(old_history):
+            try:
+                os.remove(old_history)
+            except:
+                pass
             
         print("️ All memory, facts, and chat history have been cleared by user request.")
         return jsonify({"status": "success", "message": "All memories and chat history cleared."})
