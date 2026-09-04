@@ -1,5 +1,7 @@
 <div align="center">
-  <img src="assets/banner.png" alt="CLIO Banner" width="100%" />
+  <img src="web/assets/logo.png" alt="CLIO Logo" width="120" />
+  <br/>
+  <img src="web/assets/banner.png" alt="CLIO Banner" width="100%" />
   <br/><br/>
   <h1>🌌 CLIO — The Autonomous Local AGI Desktop</h1>
   <p><strong>A sovereign, privacy-first personal intelligence engine designed for seamless digital orchestration.</strong></p>

@@ -325,10 +325,10 @@ def cmd_mood_recommendation(args):
         "love": "romantic love songs",
         "anger": "aggressive heavy metal hard rock",
         "fear": "calming peaceful meditation nature sounds",
-        "neutral": "popular top hits"
+        "neutral": "My Supermix"
     }
     
-    search_query = mood_queries.get(user_mood, "popular songs")
+    search_query = mood_queries.get(user_mood, "My Supermix")
     print(f" Searching YTMusic for {user_mood} music: {search_query}")
 
     try:

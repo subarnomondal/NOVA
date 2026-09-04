@@ -1218,42 +1218,42 @@ def clean_text_for_tts(text):
 # Styles: "en-US-AnaNeural" (Default), "en-US-AndrewNeural" (Male), etc.
 EMOTION_PROSODY_MAP = {
     # Positive
-    "joy":          ("+10Hz", "+15%"),
-    "love":         ("-4Hz", "-10%"),  # Soft, tender, slightly deeper
-    "admiration":   ("+4Hz", "+0%"),
-    "amusement":    ("+12Hz", "+20%"), # Fast, laughing, high pitch
-    "excitement":   ("+15Hz", "+25%"), # High energy
-    "gratitude":    ("+2Hz", "-2%"),
-    "optimism":     ("+5Hz", "+5%"),
-    "pride":        ("+3Hz", "+0%"),
-    "relief":       ("-5Hz", "-10%"),
+    "joy":          ("+15Hz", "+35%"),
+    "love":         ("+1Hz", "+10%"),  # Soft, tender, slightly deeper
+    "admiration":   ("+9Hz", "+20%"),
+    "amusement":    ("+17Hz", "+40%"), # Fast, laughing, high pitch
+    "excitement":   ("+20Hz", "+45%"), # High energy
+    "gratitude":    ("+7Hz", "+18%"),
+    "optimism":     ("+10Hz", "+25%"),
+    "pride":        ("+8Hz", "+20%"),
+    "relief":       ("+0Hz", "+10%"),
     
     # Negative
-    "sadness":      ("-10Hz", "-25%"), # Slow, low pitch, trailing
-    "anger":        ("-15Hz", "+20%"), # Sharp, fast, aggressive pitch shift down
-    "fear":         ("+15Hz", "+15%"), # High pitched, tense, fast
-    "disgust":      ("-8Hz", "-15%"),
-    "grief":        ("-12Hz", "-30%"), # Very slow, low
-    "disappointment":("-6Hz", "-15%"),
-    "annoyance":    ("-3Hz", "+10%"),
-    "embarrassment":("+8Hz", "-5%"),
-    "nervousness":  ("+12Hz", "+15%"), # Stuttery/fast
-    "remorse":      ("-5Hz", "-15%"),
+    "sadness":      ("-5Hz", "-5%"), # Slow, low pitch, trailing
+    "anger":        ("-10Hz", "+40%"), # Sharp, fast, aggressive pitch shift down
+    "fear":         ("+20Hz", "+35%"), # High pitched, tense, fast
+    "disgust":      ("-3Hz", "+5%"),
+    "grief":        ("-7Hz", "-10%"), # Very slow, low
+    "disappointment":("-1Hz", "+5%"),
+    "annoyance":    ("+2Hz", "+30%"),
+    "embarrassment":("+13Hz", "+15%"),
+    "nervousness":  ("+17Hz", "+35%"), # Stuttery/fast
+    "remorse":      ("+0Hz", "+5%"),
     
     # Ambiguous
-    "surprise":     ("+20Hz", "+10%"),
-    "confusion":    ("+2Hz", "-10%"),
-    "curiosity":    ("+5Hz", "+0%"),
-    "realization":  ("+5Hz", "+2%"),
-    "caring":       ("-3Hz", "-8%"),
-    "desire":       ("-6Hz", "-10%"), # Husky, slow
-    "approval":     ("+3Hz", "+0%"),
-    "disapproval":  ("-3Hz", "-5%"),
-    "whispering":   ("-8Hz", "-15%"),
+    "surprise":     ("+25Hz", "+30%"),
+    "confusion":    ("+7Hz", "+10%"),
+    "curiosity":    ("+10Hz", "+20%"),
+    "realization":  ("+10Hz", "+22%"),
+    "caring":       ("+2Hz", "+12%"),
+    "desire":       ("-1Hz", "+10%"), # Husky, slow
+    "approval":     ("+8Hz", "+20%"),
+    "disapproval":  ("+2Hz", "+15%"),
+    "whispering":   ("-3Hz", "+5%"),
     
     # Default
-    "neutral":      ("+0Hz", "+0%"),
-    "friendly":     ("+2Hz", "+2%")
+    "neutral":      ("+5Hz", "+20%"),
+    "friendly":     ("+8Hz", "+25%")
 }
 
 def detect_emotion(text):
@@ -1620,7 +1620,7 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
                 result_payload = {
                     "response": response, 
                     "skill_direct": True, 
-                    "emotion": detect_emotion(response)
+                    "emotion": skill_response.get("emotion") if (isinstance(skill_response, dict) and "emotion" in skill_response) else detect_emotion(response)
                 }
                 if isinstance(skill_response, dict) and "data" in skill_response:
                     result_payload["data"] = skill_response["data"]

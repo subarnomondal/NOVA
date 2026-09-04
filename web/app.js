@@ -438,7 +438,12 @@ document.addEventListener('DOMContentLoaded', () => {
             'thinking': 'relaxed', // using relaxed for thinking
             'neutral': 'neutral',
             'listening': 'neutral',
-            'surprised': 'surprised'
+            'surprised': 'surprised',
+            'dance': 'happy',
+            'wave': 'happy',
+            'shy': 'sad',
+            'proud': 'happy',
+            'yawn': 'relaxed'
         };
 
         const targetExpression = vrmMap[emotion];
@@ -467,11 +472,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let lastActivityTime = Date.now();
     let isSleeping = false;
+    let isYawning = false;
 
     function resetActivityTimer() {
         lastActivityTime = Date.now();
-        if (isSleeping) {
+        if (isSleeping || isYawning) {
             isSleeping = false;
+            isYawning = false;
             
             // 1/10 chance to wake up angry
             if (Math.random() < 0.1) {
@@ -582,6 +589,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 setHandPose(h, 'left', 'open'); // hands splayed
                 setHandPose(h, 'right', 'open');
                 break;
+            case 'yawn':
+                targetPose.head.x = -0.1; // head tilted slightly back to stretch
+                targetPose.spine.x = -0.15; // arch back
+                targetPose.leftArm.z = 0.5; // arms stretching up and out
+                targetPose.rightArm.z = -0.5;
+                targetPose.leftLowerArm.z = -0.3;
+                targetPose.rightLowerArm.z = 0.3;
+                targetPose.leftArm.x = -0.6; // arms raised
+                targetPose.rightArm.x = -0.6;
+                setHandPose(h, 'left', 'open');
+                setHandPose(h, 'right', 'open');
+                break;
             case 'sleep':
                 targetPose.head.x = 0.3; // head heavily down
                 targetPose.head.z = 0.2; // head tilted side
@@ -591,6 +610,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 targetPose.rightArm.z = -1.15;
                 setHandPose(h, 'left', 'relaxed');
                 setHandPose(h, 'right', 'relaxed');
+                break;
+            case 'dance':
+                targetPose.head.z = Math.sin(Date.now() / 300) * 0.1; // head bob
+                targetPose.spine.z = Math.sin(Date.now() / 400) * 0.1; // body sway
+                targetPose.leftArm.z = 0.5; // arms out dancing
+                targetPose.rightArm.z = -0.5;
+                targetPose.leftLowerArm.z = -0.5;
+                targetPose.rightLowerArm.z = 0.5;
+                setHandPose(h, 'left', 'open');
+                setHandPose(h, 'right', 'open');
+                break;
+            case 'wave':
+                targetPose.head.x = -0.05;
+                targetPose.rightArm.z = 0.3; // Arm raised up and out
+                targetPose.rightLowerArm.z = 1.2; // forearm pointing up
+                // The wave motion will just be a static pose, but it looks like a wave
+                targetPose.leftArm.z = 1.0; // left arm relaxed
+                setHandPose(h, 'right', 'open');
+                break;
+            case 'shy':
+                targetPose.head.x = 0.15; // look down
+                targetPose.head.y = 0.15; // look away
+                targetPose.leftArm.z = 1.1; 
+                targetPose.rightArm.z = -1.1;
+                targetPose.leftLowerArm.z = -1.0; // hands clasped in front
+                targetPose.rightLowerArm.z = 1.0;
+                targetPose.leftHand.x = 0.2;
+                targetPose.rightHand.x = -0.2;
+                setHandPose(h, 'left', 'relaxed');
+                setHandPose(h, 'right', 'relaxed');
+                break;
+            case 'proud':
+                targetPose.head.x = -0.15; // head up proud
+                targetPose.spine.x = -0.1; // chest out
+                targetPose.leftArm.z = 0.9;
+                targetPose.rightArm.z = -0.9;
+                targetPose.leftLowerArm.z = -0.8; // hands on hips
+                targetPose.rightLowerArm.z = 0.8;
+                setHandPose(h, 'left', 'fist');
+                setHandPose(h, 'right', 'fist');
                 break;
             default:
                 // Neutral
@@ -680,12 +739,12 @@ document.addEventListener('DOMContentLoaded', () => {
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
         
-        // Light
-        const light = new THREE.DirectionalLight(0xffffff, 1);
+        // Light (Lower contrast for a softer look)
+        const light = new THREE.DirectionalLight(0xffffff, 0.4);
         light.position.set(1.0, 1.0, 1.0).normalize();
         scene.add(light);
         
-        const ambient = new THREE.AmbientLight(0x404040, 2); // Soft white light
+        const ambient = new THREE.AmbientLight(0xffffff, 0.8); // Brighter ambient fill
         scene.add(ambient);
 
         // Resize handler
@@ -730,48 +789,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Start automatic blinking
                     scheduleNextBlink();
 
-                    // Play Welcome Animation & Message
+                    // Play Welcome Animation & Message (Silent Wave)
                     setTimeout(async () => {
                         const welcomeText = "Hi! I'm Clio, your Local Autonomous Responsive Agent! I'm fully loaded and ready whenever you are!";
                         appendMessage('clio', welcomeText + " 💖");
-                        
-                        try {
-                            const res = await fetch('/api/voice/test', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ 
-                                    sample_text: welcomeText,
-                                    voice_model: "en-US-AnaNeural",
-                                    speed: 1.0,
-                                    pitch: 0
-                                })
-                            });
-                            const data = await res.json();
-                            if (data.audio_base64) {
-                                const audio = new Audio('data:audio/mpeg;base64,' + data.audio_base64);
-                                window.isClioSpeaking = true;
-                                audio.onended = () => { window.isClioSpeaking = false; };
-                                audio.onerror = () => { window.isClioSpeaking = false; };
-                                
-                                audio.play().catch(e => {
-                                    console.warn("Welcome audio autoplay blocked by mobile browser! Waiting for user tap...");
-                                    const playOnTap = () => {
-                                        audio.play().catch(err => console.error(err));
-                                        document.removeEventListener('click', playOnTap);
-                                        document.removeEventListener('touchstart', playOnTap);
-                                    };
-                                    document.addEventListener('click', playOnTap);
-                                    document.addEventListener('touchstart', playOnTap);
-                                    window.isClioSpeaking = false; // Free up lock until they tap
-                                });
-                            }
-                        } catch (e) {
-                            console.error("Failed to load welcome audio:", e);
-                        }
 
-                        setVTuberEmotion('happy');
+                        // Trigger the wave animation instead of playing audio
+                        setVTuberEmotion('wave');
                         setLiveEmotion('happy');
-                        startTalking(2500); 
+                        
                         setTimeout(() => {
                             setVTuberEmotion('neutral');
                             setLiveEmotion('neutral');
@@ -796,14 +822,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const time = clock.elapsedTime;
                 
                 // Sleep Tracker (prevent sleep if she is actively vibing to music)
-                if (window.isVibing && isSleeping) {
+                if (window.isVibing && (isSleeping || isYawning)) {
                     resetActivityTimer(); // Wake up immediately if she starts vibing
                 }
                 
-                if (!isTalking && !window.isVibing && Date.now() - lastActivityTime > 120000 && !isSleeping) {
+                let idleTime = Date.now() - lastActivityTime;
+                
+                if (!isTalking && !window.isVibing && idleTime > 115000 && idleTime <= 120000 && !isYawning && !isSleeping) {
+                    isYawning = true;
+                    setVTuberEmotion('yawn');
+                    if (currentVrm.expressionManager) {
+                        currentVrm.expressionManager.setValue('aa', 0.8); // open mouth to yawn
+                        currentVrm.expressionManager.setValue('blink', 0.7); // squint eyes
+                    }
+                }
+
+                if (!isTalking && !window.isVibing && idleTime > 120000 && !isSleeping) {
                     isSleeping = true;
+                    isYawning = false;
                     setVTuberEmotion('sleep');
                     if (currentVrm.expressionManager) {
+                        currentVrm.expressionManager.setValue('aa', 0.0); // ensure mouth is closed
                         currentVrm.expressionManager.setValue('blink', 1.0);
                         isBlinking = true; // pause random blinks
                     }

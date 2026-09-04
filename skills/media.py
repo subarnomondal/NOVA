@@ -139,7 +139,23 @@ def cmd_play(args):
                     return "Toggled media playback. ⏯️"
                 else:
                     # e.g., user just said "play music" or "play song"
-                    query = "lofi chill beats"            
+                    try:
+                        from core.ltm_manager import LTMManager
+                        ltm = LTMManager()
+                        taste_clues = []
+                        for cat in ["artist", "band", "genre", "singer"]:
+                            fact = ltm.get_fact(cat)
+                            if fact: taste_clues.append(fact)
+                        for item in ltm.facts.get("interest", []):
+                            if "music" in item["value"].lower():
+                                taste_clues.append(item["value"])
+                        if taste_clues:
+                            query = random.choice(taste_clues)
+                        else:
+                            import random
+                            query = random.choice(["popular hits", "top 50 global", "lofi chill beats", "classic rock", "upbeat pop"])
+                    except Exception:
+                        query = "popular hits"
         # --- NEW: LOCAL FILE SEARCH ---
         if "local" in query_raw or "pc" in query_raw or "computer" in query_raw:
             clean_query = query.replace("local", "").replace("pc", "").replace("on", "").strip()

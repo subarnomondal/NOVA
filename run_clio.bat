@@ -20,11 +20,12 @@ REM Activate and run
 REM Telegram bot is now natively integrated inside desktop.py!
 
 echo Starting Desktop App (desktop.py)...
-".venv\Scripts\python" desktop.py
+".venv\Scripts\python" desktop.py 2>> userdata\crash_dump.txt
 
 if %errorlevel% neq 0 (
     echo.
     echo [ERROR] Clio crashed or closed unexpectedly.
+    echo [INFO] The crash details have been saved to userdata\crash_dump.txt
     pause
 ) else (
     echo.
