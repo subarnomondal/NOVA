@@ -169,7 +169,7 @@ CLIO is an evolving intelligence. We welcome contributions to the **Cognitive Lo
 
 ## 🙏 Acknowledgments & Credits
 
-* **VTuber Model (Mura Mura):** The default beautiful 3D VRM model used in this project was created by the incredibly talented **[Mura Mura]**. 
+* **VTuber Model (Mura Mura):** The default beautiful 3D VRM model used in this project was created by the incredibly talented **acidicdollz**. 
   * You can download the model and support the creator here: **[Free VRoid Model - Mura Mura](https://vtuber-nook.com/asset/1005/free-vroid-model-mura-mura/)**.
 
 ---
