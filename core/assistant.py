@@ -213,7 +213,8 @@ class Clio:
                     "Be conversational and genuine — witty when it fits, supportive when needed. "
                     "If you need to do something, use these skills: {available_skills}\n"
                     "If a simple chat response is enough, just talk naturally.\n"
-                    "CRITICAL RULE: DO NOT use <thought> tags for normal conversation. ONLY use <thought> tags if you are planning a complex [SKILL] execution. Otherwise, just reply directly."
+                    "CRITICAL RULE: DO NOT use <thought> tags for normal conversation. ONLY use <thought> tags if you are planning a complex [SKILL] execution. Otherwise, just reply directly.\n"
+                    "CRITICAL RULE: To show a specific emotion in your 3D avatar (e.g., happy, sad, angry, surprised, thinking, proud, confused), include [EMOTION: <emotion_name>] anywhere in your response."
                 )
             else:
                 system_prompt = (
@@ -355,6 +356,13 @@ class Clio:
                     thought_log.append("🕒 Checking current time...")
                     obs = self.dispatcher.dispatch("time")
                     current_observation = f"Result: {obs}"
+                elif any(phrase in user_lower for phrase in ['what date', 'current date', "today's date", 'what day is it', 'what is the date', 'what day', 'date today']):
+                    has_action = True
+                    fallback_tried = True
+                    print("⚡ Fallback: Detected date request, triggering skill...")
+                    thought_log.append("📅 Checking current date...")
+                    obs = self.dispatcher.dispatch("date")
+                    current_observation = f"Result: {obs}"
                 elif any(phrase in user_lower for phrase in ["what's today's date", 'what date', "what is today's date", 'what day is it', 'todays date']):
                     has_action = True
                     fallback_tried = True
@@ -412,6 +420,8 @@ class Clio:
         # Remove thought and action blocks for cleaner user experience
         response_text = final_response if isinstance(final_response, str) else ""
         clean_final = re.sub(r'<(?:thought|THOUGHT)>.*?(?:</(?:thought|THOUGHT)>|$)', '', response_text, flags=re.DOTALL).strip()
+        clean_final = re.sub(r'\[(?:thought|THOUGHT)\].*?(?:\[/(?:thought|THOUGHT)\]|$)', '', clean_final, flags=re.DOTALL).strip()
+        clean_final = re.sub(r'\*(?:Thinking|Thought|Thoughts)?:?\*.*?(?:\n|$)', '', clean_final, flags=re.DOTALL | re.IGNORECASE).strip()
         clean_final = re.sub(r'\[(?:SKILL|SCRIPT|CMD|ARCHITECT|READER)\].*?\[/(?:SKILL|SCRIPT|CMD|ARCHITECT|READER)\]', '', clean_final, flags=re.DOTALL).strip()
         
         # Strip any remaining XML-like tags efficiently
@@ -424,8 +434,8 @@ class Clio:
             clean_final = clean_final.split("**Interactable Elements")[0].strip()
         
         if not clean_final:
-            # Fallback: Use final_response if clean_final is empty
-            clean_final = final_response 
+            # Fallback: Use a generic confirmation if clean_final is empty so we don't leak thoughts
+            clean_final = "..." 
             
         return {
             "response": clean_final,

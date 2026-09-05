@@ -161,7 +161,18 @@ def cmd_news(args):
         if not query: query = "World News"
         
         with DDGS() as ddgs:
-            results = list(ddgs.news(query, region='wt-wt', max_results=6))
+            try:
+                results = list(ddgs.news(query, region='wt-wt', max_results=6))
+            except Exception as e:
+                # Fallback to standard web search if News API blocks with 403
+                print(f"DDGS News blocked, falling back to text search: {e}")
+                results = list(ddgs.text(f"{query} news", region='wt-wt', max_results=6))
+                
+                # Transform text search results to match news result format
+                for r in results:
+                    r['url'] = r.get('href')
+                    r['source'] = 'Web Search'
+
                 
         if not results:
             return f"I couldn't find any recent news headlines about '{query}'. "

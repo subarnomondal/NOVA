@@ -176,9 +176,13 @@ class STTManager:
 
     def preprocess_audio(self, file_path: str) -> str:
         """Normalize audio volume and apply high-pass filter for cleaner transcription."""
+        import pydub
+        from pydub import AudioSegment
+        wav_path = None
         try:
-            from pydub import AudioSegment  # type: ignore
-            audio = AudioSegment.from_file(file_path)
+            fmt = file_path.rsplit('.', 1)[-1].lower() if '.' in file_path else "wav"
+            with open(file_path, 'rb') as f_in:
+                audio = AudioSegment.from_file(f_in, format=fmt)
 
             # High-pass filter at 80Hz to remove mic rumble
             audio = audio.high_pass_filter(80)  # type: ignore
@@ -191,9 +195,22 @@ class STTManager:
 
             # Export as 16kHz mono WAV for optimal Whisper input
             wav_path = file_path.rsplit('.', 1)[0] + '_processed.wav'
-            audio.export(wav_path, format='wav', parameters=["-ar", "16000", "-ac", "1"])
+            with audio.export(wav_path, format='wav', parameters=["-ar", "16000", "-ac", "1"]) as out_f:
+                pass
             return wav_path
-        except Exception:
+        except FileNotFoundError:
+            if wav_path is not None and os.path.exists(wav_path):
+                try: os.remove(wav_path)
+                except: pass
+            # Missing ffmpeg/sox - silently skip preprocessing
+            return file_path
+        except Exception as e:
+            if wav_path is not None and os.path.exists(wav_path):
+                try: os.remove(wav_path)
+                except: pass
+            if getattr(e, 'winerror', None) == 2:
+                return file_path
+            logging.error(f"Audio preprocess error: {e}")
             return file_path
 
     def is_hallucination(self, text: str) -> bool:

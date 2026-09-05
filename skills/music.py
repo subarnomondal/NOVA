@@ -311,7 +311,8 @@ def cmd_mood_recommendation(args):
         # If input is too short to detect, check common keywords manually
         if any(w in args.lower() for w in ["happy", "good", "great", "party"]): user_mood = "joy"
         elif any(w in args.lower() for w in ["sad", "lonely", "down"]): user_mood = "sadness"
-        elif any(w in args.lower() for w in ["chill", "study", "relax", "lofi"]): user_mood = "chill"
+        elif any(w in args.lower() for w in ["lofi", "sleep"]): user_mood = "lofi"
+        elif any(w in args.lower() for w in ["chill", "study", "relax"]): user_mood = "chill"
         elif any(w in args.lower() for w in ["gym", "workout", "pumped"]): user_mood = "excitement"
 
     print(f" Mood-Music Inference: {user_mood}")
@@ -321,14 +322,15 @@ def cmd_mood_recommendation(args):
         "joy": "happy upbeat songs",
         "sadness": "sad melancholic songs",
         "excitement": "high energy gym workout power music",
-        "chill": "lofi hip hop chill study beats",
+        "chill": "relaxing acoustic chill pop hits",
+        "lofi": "lofi hip hop sad study beats",
         "love": "romantic love songs",
         "anger": "aggressive heavy metal hard rock",
         "fear": "calming peaceful meditation nature sounds",
-        "neutral": "My Supermix"
+        "neutral": "top trending hits pop popular"
     }
     
-    search_query = mood_queries.get(user_mood, "My Supermix")
+    search_query = mood_queries.get(user_mood, "top trending hits pop popular")
     print(f" Searching YTMusic for {user_mood} music: {search_query}")
 
     try:
@@ -355,7 +357,8 @@ def cmd_mood_recommendation(args):
             "joy": "*dances slightly* You're in a great mood! Let me keep that energy up!",
             "sadness": "*pats your head* It's okay to feel a bit down. Here's something to help you relax...",
             "excitement": "*fists go up* Hell yeah! Let's get pumped!",
-            "chill": "*leans back* Perfect. Let's just vibe for a while...",
+            "chill": "*leans back* Perfect. Let's just vibe with some relaxing acoustic pop...",
+            "lofi": "*puts on headphones* Some chill, sad lofi beats for you...",
             "love": "*blushes* Oh... something romantic? How sweet...",
             "anger": "*nods* I get it. Let some steam out with these...",
             "neutral": "*smiles* How about we try something popular today?"

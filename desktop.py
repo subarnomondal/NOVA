@@ -43,15 +43,24 @@ llm_executor = concurrent.futures.ThreadPoolExecutor(max_workers=3)
 # ERROR LOGGING SYSTEM (Capture Bugs & Glitches)
 # ==================================================================================
 
-# Configure logging to save errors AND fixes to a permanent file
+# Configure logging to save errors AND previous context to a permanent file
+from logging.handlers import MemoryHandler
 LOG_FILE = os.path.join("userdata", "clio_errors.log")
+
+# FileHandler for writing the flushed logs
+file_handler = logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8')
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# MemoryHandler buffers the last 5 logs and flushes to file only when an ERROR occurs
+memory_handler = MemoryHandler(capacity=5, flushLevel=logging.ERROR, target=file_handler)
+
+# StreamHandler keeps printing all logs to the console live
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
 logging.basicConfig(
-    level=logging.INFO, # Changed from ERROR to INFO to track resolutions
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_FILE, mode='a', encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ]
+    level=logging.INFO,
+    handlers=[memory_handler, stream_handler]
 )
 # Silence Flask access logs
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
@@ -404,7 +413,7 @@ def cleanup_temp_files():
         voice_temp_dir = "temp"
         if os.path.exists(voice_temp_dir):
             for f in os.listdir(voice_temp_dir):
-                if any(f.endswith(ext) for ext in [".wav", ".mp3", ".webm"]):
+                if f.startswith("temp_audio_") or f.startswith("temp_voice_") or f.endswith("_processed.wav"):
                     try:
                         file_path = os.path.join(voice_temp_dir, f)
                         if os.path.exists(file_path):
@@ -413,9 +422,9 @@ def cleanup_temp_files():
                     except Exception:
                         pass  # Silently skip locked files
 
-        # 3. Clean root directory for specific patterns
+        # 3. Clean root directory (any stragglers)
         import glob
-        for pattern in ["temp_audio_*.webm", "temp_voice_*.webm", "temp_audio_*.wav", "temp_voice_*.wav"]:
+        for pattern in ["temp_audio_*.webm", "temp_voice_*.webm", "temp_audio_*.wav", "temp_voice_*.wav", "*_processed.wav"]:
             for f in glob.glob(pattern):
                 try:
                     if os.path.exists(f):
@@ -429,8 +438,14 @@ def cleanup_temp_files():
     except Exception as e:
         safe_print(f"⚠️ Cleanup Error: {e}")
 
+_cached_mic = None
+
 def select_best_microphone():
-    """Scavenges for a real microphone, avoiding 'Stereo Mix' or 'Loopback'."""
+    """Scavenges for a real microphone, avoiding 'Stereo Mix' or 'Loopback'. Caches instance to prevent PyAudio crash."""
+    global _cached_mic
+    if _cached_mic is not None:
+        return _cached_mic
+
     try:
         import speech_recognition as sr  # type: ignore
         mics = sr.Microphone.list_microphone_names()
@@ -454,7 +469,8 @@ def select_best_microphone():
             best_idx = candidates[0][1]
             best_name = candidates[0][2]
             print(f"️ [HearingConfig] Scavenged real mic: {best_name} (Index {best_idx})")
-            return sr.Microphone(device_index=best_idx)
+            _cached_mic = sr.Microphone(device_index=best_idx)
+            return _cached_mic
     except Exception as e:
         print(f"⚠️ [HearingConfig] Mic scavenging error: {e}")
     
@@ -462,7 +478,8 @@ def select_best_microphone():
     # Use the global sr import
     try:
         import speech_recognition as sr_func # type: ignore
-        return sr_func.Microphone() # type: ignore
+        _cached_mic = sr_func.Microphone() # type: ignore
+        return _cached_mic
     except Exception:
         return None
 
@@ -868,7 +885,7 @@ def export_conversation():
 @app.route('/api/chat_history', methods=['GET'])
 def get_chat_history():
     try:
-        return jsonify({"history": llm_manager.conversation_memory.history})
+        return jsonify({"history": llm_manager.conversation_memory})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -1038,6 +1055,8 @@ def trigger_voice():
         r = sr.Recognizer()
         r.energy_threshold = 300
         r.dynamic_energy_threshold = True
+        r.pause_threshold = 2.0  # Wait for 2 seconds of silence before cutting off
+        r.non_speaking_duration = 0.5
         
         mic = select_best_microphone()
         if not mic:
@@ -1198,6 +1217,12 @@ def clean_text_for_tts(text):
     
     # NEW: Strip multi-line thought blocks completely so TTS never speaks them
     text = re.sub(r'<thought>.*?</thought>', '', text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r'<thought>.*', '', text, flags=re.IGNORECASE | re.DOTALL) # Catch unclosed tags
+    
+    # Catch [THOUGHT] format and *Thinking:* format
+    text = re.sub(r'\[thought\].*?(?:\[/thought\]|$)', '', text, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r'\*(?:Thinking|Thought|Thoughts)?:?\*.*?(?:\n|$)', '', text, flags=re.IGNORECASE | re.DOTALL)
+    
     # Remove any remaining XML-like tags
     text = re.sub(r'<.*?>', '', text)
     
@@ -1273,7 +1298,7 @@ def construct_ssml(text, voice, rate="+0%", pitch="+0Hz"):
     </speak>
     """
 
-def quick_tts(text: str, lang: str = "en") -> t.Optional[str]:
+def quick_tts(text: str, lang: str = "en", explicit_emotion: t.Optional[str] = None) -> t.Optional[str]:
     try:
         voice = "en-US-AnaNeural"
         try: 
@@ -1283,7 +1308,7 @@ def quick_tts(text: str, lang: str = "en") -> t.Optional[str]:
         except: pass
         
         # 1. Detect Emotion
-        emotion = detect_emotion(text)
+        emotion = explicit_emotion if explicit_emotion else detect_emotion(text)
         
         # 2. Get Prosody Settings
         e_pitch, e_rate = EMOTION_PROSODY_MAP.get(emotion, ("+0Hz", "+0%"))
@@ -1637,10 +1662,14 @@ def process_command_text(user_input, detected_lang="en", voice_mode=False, provi
         reward = drl.calculate_reward(user_feedback="neutral", response_time=0.5, confidence=float(primary_res.get('confidence') or 1.0))
         drl.update_q_value(state, action, reward, state)
         memory.add_conversation(user_input, response, detected_lang)
+        
+        explicit_emotion = clio_data.get("explicit_emotion")
+        emotion_to_use = explicit_emotion if explicit_emotion else detect_emotion(response)
+        
         agent_payload = {
             "response": response,
             "thoughts": clio_data.get("thoughts", []),
-            "emotion": detect_emotion(response),
+            "emotion": emotion_to_use,
             "agi": True,
             "llm_model": llm_manager.last_model
         }
@@ -1670,7 +1699,7 @@ def handle_command():
     audio_b64 = None
     response_text = str(result.get("response", ""))
     if response_text:
-        audio_b64 = quick_tts(response_text, "en")
+        audio_b64 = quick_tts(response_text, "en", explicit_emotion=result.get("emotion"))
 
     return jsonify({
         **result,
@@ -1770,6 +1799,18 @@ def shutdown_sequence():
     cleanup_uploads()
     cleanup_temp_files()
 
+def start_temp_cleaner_thread():
+    def _cleaner_loop():
+        import time
+        while True:
+            time.sleep(20)
+            try:
+                cleanup_temp_files()
+            except Exception as e:
+                pass
+    t = threading.Thread(target=_cleaner_loop, daemon=True)
+    t.start()
+
 def main():
     # Initial cleanup
     cleanup_uploads()
@@ -1806,7 +1847,15 @@ def main():
         print(f"⚠️ Failed to start Proactive Vision: {e}")
 
     webview_storage_path = os.path.join(root_dir, 'userdata', 'webview_storage')
+    import shutil, uuid
+    shutil.rmtree(webview_storage_path, ignore_errors=True)
+    if os.path.exists(webview_storage_path):
+        webview_storage_path += "_" + uuid.uuid4().hex[:8]
     os.makedirs(webview_storage_path, exist_ok=True)
+    
+    # Start the continuous background cleanup thread
+    start_temp_cleaner_thread()
+    
     webview.start(
         debug=False, 
         icon=os.path.join(root_dir, 'assets', 'banner.png'),

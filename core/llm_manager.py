@@ -353,6 +353,7 @@ class LLMManager:
                     # Persona-first instructions for the model
                     enhanced_system_prompt = f"{system_prompt}\n" \
                                              f"- Be reactive — respond emotionally to what the user says. Laugh, show surprise, be genuinely engaged.\n" \
+                                             f"- CRITICAL RULE: To show a specific emotion in your 3D avatar (e.g., happy, sad, angry, surprised, thinking, proud, yawn, sleep, confused), include [EMOTION: <emotion_name>] anywhere in your response.\n" \
                                              f"- Stay in character as Clio at all times.\n" \
                                              f"### FEW-SHOT REASONING EXAMPLES:\n{few_shot}"
                     
