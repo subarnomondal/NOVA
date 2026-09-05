@@ -30,12 +30,15 @@ Clio is designed with a warm, affectionately teasing, and highly responsive pers
 > **🧠 Smart Memory Engine**  
 > Clio automatically filters out repetitive small talk (like "hello") and intelligently summarizes important facts before saving them. Her memory operates on a **7-day rolling window**, automatically pruning obsolete history to ensure lightning-fast context processing and high relevance.
 
-### 💫 The Virtual VTuber Avatar
+### 💫 The Virtual VTuber Avatar (Interactive 3D Engine)
 
-To bridge the gap between human and machine, CLIO is embodied by a fully interactive **3D VTuber Avatar**. 
-* **Dynamic Lip-Sync:** When Clio speaks, a built-in Audio FFT analyzer tracks her voice volume and precisely animates her mouth in real-time.
-* **Emotional Body Language:** Her LLM acts as the "director," dynamically triggering emotional states (like `happy`, `sad`, or `wave`) that cause her avatar to change posture and facial expressions. 
-* **Gaze Tracking:** Her eyes naturally follow your mouse cursor, breaking the fourth wall and making her feel truly present on your desktop.
+To completely bridge the gap between human and machine, CLIO isn't just text on a screen—she is embodied by a fully interactive, GPU-accelerated **3D VTuber Avatar**. Powered by Three.js and a custom VRM skeletal animation engine, Clio feels alive on your desktop. 
+
+* **🎙️ Dynamic FFT Lip-Sync:** Say goodbye to robotic, hardcoded mouth flaps. When Clio speaks, a built-in Fast Fourier Transform (FFT) audio analyzer tracks her voice volume and pitch frequencies in real-time, precisely animating her mouth blendshapes to match the exact words she is speaking.
+* **🎭 LLM-Directed Emotional Body Language:** Her AI brain acts as a real-time "director." Depending on the context of your conversation, the LLM dynamically injects emotional states (like `happy`, `sad`, `angry`, `confused`, or `wave`). The 3D engine reads these commands and morphs her posture, facial expressions, and hand gestures on the fly!
+* **👀 Gaze Tracking & Micro-Saccades:** Her eyes don't just stare blankly. They naturally follow your mouse cursor across the screen, breaking the fourth wall. She even simulates human-like "micro-saccades" (tiny involuntary eye movements) and periodic blinking to make her feel truly present.
+* **👗 Physics & Wind Simulation:** Her hair, clothing, and accessories are fully governed by real-time spring physics. Move your mouse quickly past her, and the localized "wind" simulation will cause her hair and skirt to react dynamically!
+* **💤 Idle Animations & Sleep Cycles:** Leave her alone for too long? She will get bored, yawn, and eventually close her eyes to take a nap right on your desktop, only waking up when you return!
 
 ### 🛡️ Ironclad Privacy Mode (Zero GPU Required!)
 
