@@ -108,8 +108,7 @@
 }
 
 /* VTuber Backgrounds */
-.bg-void { background: #0f172a; }
-.bg-pastel-gaming { background: url('/assets/bg_pastel_gaming.jpg') no-repeat center center; background-size: cover; }
-.bg-pastel-clouds { background: url('/assets/bg_pastel_clouds.jpg') no-repeat center center; background-size: cover; }
-.bg-pastel-cafe { background: url('/assets/bg_pastel_cafe.jpg') no-repeat center center; background-size: cover; }
 .bg-pastel-bedroom { background: url('/assets/bg_pastel_bedroom.jpg') no-repeat center center; background-size: cover; }
+.bg-magical-library { background: url('/assets/bg_magical_library.jpg') no-repeat center center; background-size: cover; }
+.bg-cozy-gaming { background: url('/assets/bg_cozy_gaming.jpg') no-repeat center center; background-size: cover; }
+.bg-fantasy-sky { background: url('/assets/bg_fantasy_sky.jpg') no-repeat center center; background-size: cover; }

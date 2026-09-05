@@ -14,25 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Live Mode Background Toggle
     const liveBgBtn = document.getElementById('live-bg-btn');
     const liveSection = document.getElementById('mode-live');
-    const backgrounds = ['bg-pastel-bedroom', 'bg-pastel-gaming', 'bg-pastel-clouds', 'bg-pastel-cafe'];
+    const backgrounds = ['bg-pastel-bedroom', 'bg-magical-library', 'bg-cozy-gaming', 'bg-fantasy-sky'];
     let currentBgIndex = 0;
     
     if (liveBgBtn) {
         liveBgBtn.addEventListener('click', () => {
             liveSection.classList.remove(backgrounds[currentBgIndex]);
             currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
-            liveSection.classList.add(backgrounds[currentBgIndex]);
+            const newBg = backgrounds[currentBgIndex];
+            liveSection.classList.add(newBg);
+            if (window.setVTuberLighting) window.setVTuberLighting(newBg);
         });
     }
     
     // Vibe Mode Toggle
     const liveVibeBtn = document.getElementById('live-vibe-btn');
-    let isVibing = false;
+    window.isVibing = false;
     
     if (liveVibeBtn) {
         liveVibeBtn.addEventListener('click', () => {
-            isVibing = !isVibing;
-            if (isVibing) {
+            window.isVibing = !window.isVibing;
+            if (window.isVibing) {
                 liveVibeBtn.classList.add('bg-white/20', 'text-white', 'border-white/50');
                 liveVibeBtn.classList.remove('bg-white/5', 'border-white/10');
             } else {
@@ -49,7 +51,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Random Animation Toggle
+    const liveAnimBtn = document.getElementById('live-anim-btn');
+    const allEmotions = ['happy', 'sad', 'angry', 'thinking', 'dance', 'wave', 'shy', 'proud', 'yawn', 'excited', 'scared', 'confused', 'sleep'];
     
+    if (liveAnimBtn) {
+        liveAnimBtn.addEventListener('click', () => {
+            const randomEmotion = allEmotions[Math.floor(Math.random() * allEmotions.length)];
+            if (window.setVTuberEmotion) window.setVTuberEmotion(randomEmotion);
+            if (window.setLiveEmotion) window.setLiveEmotion(randomEmotion);
+            
+            // Auto reset to neutral after 4 seconds
+            setTimeout(() => {
+                if (window.setVTuberEmotion) window.setVTuberEmotion('neutral');
+                if (window.setLiveEmotion) window.setLiveEmotion('neutral');
+            }, 4000);
+        });
+    }
+
     // Voice Chat Button
     const liveToggleBtn = document.getElementById('live-toggle-btn');
     const liveToggleText = document.getElementById('live-toggle-text');
@@ -204,13 +224,15 @@ document.addEventListener('DOMContentLoaded', () => {
     bgSelector.addEventListener('change', (e) => {
         const liveMode = document.getElementById('mode-live');
         // Remove existing bg classes
-        liveMode.classList.remove('bg-void', 'bg-cyber', 'bg-space', 'bg-banana', 'bg-studio');
+        liveMode.classList.remove('bg-pastel-bedroom', 'bg-magical-library', 'bg-cozy-gaming', 'bg-fantasy-sky');
         // Add selected
-        liveMode.classList.add(e.target.value);
+        const newBg = e.target.value;
+        liveMode.classList.add(newBg);
+        if (window.setVTuberLighting) window.setVTuberLighting(newBg);
     });
 
     // --- Chat Logic ---
-    function appendMessage(sender, text) {
+    window.appendMessage = function(sender, text) {
         // Remove empty state message if it exists
         const emptyState = chatHistory.querySelector('.opacity-50.select-none');
         if (emptyState) emptyState.remove();
@@ -362,7 +384,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (data.audio_base64) {
                     const audio = new Audio('data:audio/mpeg;base64,' + data.audio_base64);
+                    audio.crossOrigin = "anonymous";
                     window.isClioSpeaking = true;
+                    
+                    if (window.startAudioLipSync) {
+                        window.startAudioLipSync(audio);
+                    }
                     
                     audio.onended = () => { window.isClioSpeaking = false; };
                     audio.onerror = () => { window.isClioSpeaking = false; };
@@ -374,6 +401,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     audio.onloadedmetadata = () => {
                         talkDuration = audio.duration * 1000;
+                    };
+
+                    audio.onplay = () => {
                         startTalking(talkDuration);
                         
                         setTimeout(() => {
@@ -413,505 +443,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- VTuber Logic (Three.js + VRM Setup) ---
-    let vrmSceneInitialized = false;
-    let currentVrm = null;
-    
-    function setVTuberEmotion(emotion) {
-        if (!currentVrm || !currentVrm.expressionManager) return;
-        
-        // Reset all expressions first
-        const presetNames = ['happy', 'angry', 'sad', 'relaxed', 'surprised', 'neutral'];
-        presetNames.forEach(preset => {
-            currentVrm.expressionManager.setValue(preset, 0.0);
-        });
-
-        // Map abstract emotion names to VRM preset blendshapes
-        const vrmMap = {
-            'happy': 'happy',
-            'joy': 'happy',
-            'success': 'happy',
-            'angry': 'angry',
-            'error': 'angry',
-            'sad': 'sad',
-            'sorrow': 'sad',
-            'thinking': 'relaxed', // using relaxed for thinking
-            'neutral': 'neutral',
-            'listening': 'neutral',
-            'surprised': 'surprised',
-            'dance': 'happy',
-            'wave': 'happy',
-            'shy': 'sad',
-            'proud': 'happy',
-            'yawn': 'relaxed'
-        };
-
-        const targetExpression = vrmMap[emotion];
-        if (targetExpression) {
-            currentVrm.expressionManager.setValue(targetExpression, 1.0);
-            currentVrm.expressionManager.update();
-        }
-        
-        // Trigger body language animation based on emotion
-        animateEmotionBodyLanguage(emotion);
-    }
-    window.setVTuberEmotion = setVTuberEmotion;
-    
-    // --- VTuber Animation Logic ---
-    const targetPose = {
-        head: {x:0, y:0, z:0},
-        neck: {x:0, y:0, z:0},
-        spine: {x:0, y:0, z:0},
-        leftArm: {x:0, y:0, z:1.1}, // A-pose default
-        rightArm: {x:0, y:0, z:-1.1},
-        leftLowerArm: {x:0, y:0, z:0},
-        rightLowerArm: {x:0, y:0, z:0},
-        leftHand: {x:0, y:0, z:0},
-        rightHand: {x:0, y:0, z:0}
-    };
-    
-    let lastActivityTime = Date.now();
-    let isSleeping = false;
-    let isYawning = false;
-
-    function resetActivityTimer() {
-        lastActivityTime = Date.now();
-        if (isSleeping || isYawning) {
-            isSleeping = false;
-            isYawning = false;
-            
-            // 1/10 chance to wake up angry
-            if (Math.random() < 0.1) {
-                setVTuberEmotion('angry');
-                // Automatically calm down after 4 seconds
-                setTimeout(() => setVTuberEmotion('neutral'), 4000);
-            } else {
-                setVTuberEmotion('neutral');
-            }
-            
-            if (currentVrm && currentVrm.expressionManager) {
-                currentVrm.expressionManager.setValue('blink', 0.0);
-            }
-        }
-    }
-    window.resetActivityTimer = resetActivityTimer;
-    function setHandPose(humanoid, side, pose) {
-        const prefix = side === 'left' ? 'left' : 'right';
-        const fingers = ['Thumb', 'Index', 'Middle', 'Ring', 'Little'];
-        const joints = ['Proximal', 'Intermediate', 'Distal'];
-        
-        let curlAmount = 0; // relaxed
-        if (pose === 'fist') curlAmount = 1.2;
-        if (pose === 'open') curlAmount = -0.1;
-        
-        fingers.forEach(finger => {
-            joints.forEach(joint => {
-                const bone = humanoid.getNormalizedBoneNode(`${prefix}${finger}${joint}`);
-                if (bone) {
-                    // Thumbs curl on a different axis slightly, but z-axis generally curls fingers inward for VRM A-pose
-                    if (finger === 'Thumb') {
-                        bone.rotation.set(0, side === 'left' ? curlAmount : -curlAmount, 0);
-                    } else {
-                        bone.rotation.set(0, 0, side === 'left' ? curlAmount : -curlAmount);
-                    }
-                }
-            });
-        });
-    }
-
-    function animateEmotionBodyLanguage(emotion) {
-        if (!currentVrm || !currentVrm.humanoid) return;
-        
-        const h = currentVrm.humanoid;
-        
-        // Reset base pose targets
-        targetPose.head = {x: 0, y: 0, z: 0};
-        targetPose.neck = {x: 0, y: 0, z: 0};
-        targetPose.spine = {x: 0, y: 0, z: 0};
-        targetPose.leftArm = {x: 0, y: 0, z: 1.1}; // A-Pose
-        targetPose.rightArm = {x: 0, y: 0, z: -1.1};
-        targetPose.leftLowerArm = {x: 0, y: 0, z: 0};
-        targetPose.rightLowerArm = {x: 0, y: 0, z: 0};
-        targetPose.leftHand = {x: 0, y: 0, z: 0};
-        targetPose.rightHand = {x: 0, y: 0, z: 0};
-        
-        setHandPose(h, 'left', 'relaxed');
-        setHandPose(h, 'right', 'relaxed');
-        
-        switch (emotion.toLowerCase()) {
-            case 'happy':
-            case 'joy':
-            case 'success':
-                targetPose.head.x = -0.1; // look up slightly
-                targetPose.spine.x = -0.05; // lean back slightly
-                targetPose.leftArm.z = 0.8; // arms slightly raised
-                targetPose.rightArm.z = -0.8;
-                targetPose.leftLowerArm.z = -0.2;
-                targetPose.rightLowerArm.z = 0.2;
-                setHandPose(h, 'left', 'open');
-                setHandPose(h, 'right', 'open');
-                break;
-            case 'sad':
-            case 'sorrow':
-                targetPose.head.x = 0.2; // look down
-                targetPose.spine.x = 0.1; // slouch forward
-                targetPose.neck.x = 0.1;
-                targetPose.leftArm.z = 1.2;
-                targetPose.rightArm.z = -1.2;
-                break;
-            case 'angry':
-            case 'error':
-                targetPose.head.x = 0.1; // stare down
-                targetPose.spine.x = 0.1; // lean forward aggressive
-                targetPose.leftArm.z = 1.3; // shoulders tense
-                targetPose.rightArm.z = -1.3;
-                targetPose.leftLowerArm.z = -0.5; // bend elbows
-                targetPose.rightLowerArm.z = 0.5;
-                setHandPose(h, 'left', 'fist'); // Clenched fists
-                setHandPose(h, 'right', 'fist');
-                break;
-            case 'thinking':
-                targetPose.head.x = -0.1;
-                targetPose.head.y = 0.2; // look to the side
-                targetPose.neck.y = 0.1;
-                targetPose.leftArm.z = 1.0;
-                targetPose.leftLowerArm.z = -2.0; // Hand to chin
-                targetPose.leftHand.x = 0.5;
-                setHandPose(h, 'left', 'fist'); // Pondering fist
-                break;
-            case 'surprised':
-                targetPose.head.x = -0.15; // jerk head back
-                targetPose.spine.x = -0.1; 
-                targetPose.leftArm.z = 0.7; // arms up
-                targetPose.rightArm.z = -0.7;
-                targetPose.leftLowerArm.z = -1.0;
-                targetPose.rightLowerArm.z = 1.0;
-                setHandPose(h, 'left', 'open'); // hands splayed
-                setHandPose(h, 'right', 'open');
-                break;
-            case 'yawn':
-                targetPose.head.x = -0.1; // head tilted slightly back to stretch
-                targetPose.spine.x = -0.15; // arch back
-                targetPose.leftArm.z = 0.5; // arms stretching up and out
-                targetPose.rightArm.z = -0.5;
-                targetPose.leftLowerArm.z = -0.3;
-                targetPose.rightLowerArm.z = 0.3;
-                targetPose.leftArm.x = -0.6; // arms raised
-                targetPose.rightArm.x = -0.6;
-                setHandPose(h, 'left', 'open');
-                setHandPose(h, 'right', 'open');
-                break;
-            case 'sleep':
-                targetPose.head.x = 0.3; // head heavily down
-                targetPose.head.z = 0.2; // head tilted side
-                targetPose.neck.x = 0.1;
-                targetPose.spine.x = 0.1; // slouched
-                targetPose.leftArm.z = 1.15; // totally relaxed
-                targetPose.rightArm.z = -1.15;
-                setHandPose(h, 'left', 'relaxed');
-                setHandPose(h, 'right', 'relaxed');
-                break;
-            case 'dance':
-                targetPose.head.z = Math.sin(Date.now() / 300) * 0.1; // head bob
-                targetPose.spine.z = Math.sin(Date.now() / 400) * 0.1; // body sway
-                targetPose.leftArm.z = 0.5; // arms out dancing
-                targetPose.rightArm.z = -0.5;
-                targetPose.leftLowerArm.z = -0.5;
-                targetPose.rightLowerArm.z = 0.5;
-                setHandPose(h, 'left', 'open');
-                setHandPose(h, 'right', 'open');
-                break;
-            case 'wave':
-                targetPose.head.x = -0.05;
-                targetPose.rightArm.z = 0.3; // Arm raised up and out
-                targetPose.rightLowerArm.z = 1.2; // forearm pointing up
-                // The wave motion will just be a static pose, but it looks like a wave
-                targetPose.leftArm.z = 1.0; // left arm relaxed
-                setHandPose(h, 'right', 'open');
-                break;
-            case 'shy':
-                targetPose.head.x = 0.15; // look down
-                targetPose.head.y = 0.15; // look away
-                targetPose.leftArm.z = 1.1; 
-                targetPose.rightArm.z = -1.1;
-                targetPose.leftLowerArm.z = -1.0; // hands clasped in front
-                targetPose.rightLowerArm.z = 1.0;
-                targetPose.leftHand.x = 0.2;
-                targetPose.rightHand.x = -0.2;
-                setHandPose(h, 'left', 'relaxed');
-                setHandPose(h, 'right', 'relaxed');
-                break;
-            case 'proud':
-                targetPose.head.x = -0.15; // head up proud
-                targetPose.spine.x = -0.1; // chest out
-                targetPose.leftArm.z = 0.9;
-                targetPose.rightArm.z = -0.9;
-                targetPose.leftLowerArm.z = -0.8; // hands on hips
-                targetPose.rightLowerArm.z = 0.8;
-                setHandPose(h, 'left', 'fist');
-                setHandPose(h, 'right', 'fist');
-                break;
-            default:
-                // Neutral
-                break;
-        }
-    }
-    let isBlinking = false;
-    let isTalking = false;
-    let talkingTimer = null;
-    let blinkTimer = null;
-
-    function triggerBlink() {
-        if (!currentVrm || !currentVrm.expressionManager || isBlinking) return;
-        isBlinking = true;
-        currentVrm.expressionManager.setValue('blink', 1.0);
-        currentVrm.expressionManager.update();
-        
-        setTimeout(() => {
-            if (currentVrm) {
-                currentVrm.expressionManager.setValue('blink', 0.0);
-                currentVrm.expressionManager.update();
-            }
-            isBlinking = false;
-        }, 150); // Blink duration 150ms
-    }
-
-    function scheduleNextBlink() {
-        const nextBlink = Math.random() * 4000 + 2000; // between 2s and 6s
-        blinkTimer = setTimeout(() => {
-            triggerBlink();
-            scheduleNextBlink();
-        }, nextBlink);
-    }
-
-    function simulateLipSync() {
-        if (!currentVrm || !currentVrm.expressionManager || !isTalking) {
-            // Reset mouth if not talking
-            if (currentVrm) {
-                ['aa', 'ih', 'ou', 'ee', 'oh'].forEach(shape => currentVrm.expressionManager.setValue(shape, 0.0));
-                currentVrm.expressionManager.update();
-            }
-            return;
-        }
-
-        // Randomize mouth shapes to simulate talking
-        const shapes = ['aa', 'ih', 'ou', 'ee', 'oh'];
-        shapes.forEach(shape => currentVrm.expressionManager.setValue(shape, 0.0));
-        
-        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
-        const intensity = Math.random() * 0.8 + 0.2; // 0.2 to 1.0
-        
-        currentVrm.expressionManager.setValue(randomShape, intensity);
-        currentVrm.expressionManager.update();
-
-        // Change mouth shape every 50-150ms
-        setTimeout(simulateLipSync, Math.random() * 100 + 50);
-    }
-
-    function startTalking(durationMs) {
-        if (window.resetActivityTimer) window.resetActivityTimer();
-        isTalking = true;
-        simulateLipSync();
-        
-        if (talkingTimer) clearTimeout(talkingTimer);
-        if (durationMs > 0) {
-            talkingTimer = setTimeout(() => {
-                isTalking = false;
-            }, durationMs);
-        }
-    }
-
-    function stopTalking() {
-        isTalking = false;
-        if (talkingTimer) clearTimeout(talkingTimer);
-    }
-    // --- End VTuber Animation Logic ---
-    function initVTuber() {
-        const container = document.getElementById('vrm-container');
-        
-        // Scene, Camera, Renderer
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(30.0, container.clientWidth / container.clientHeight, 0.1, 20.0);
-        camera.position.set(0.0, 1.4, 2.5); // Zoomed out slightly to avoid UI overlap
-        
-        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-        renderer.setSize(container.clientWidth, container.clientHeight);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        container.appendChild(renderer.domElement);
-        
-        // Light (Lower contrast for a softer look)
-        const light = new THREE.DirectionalLight(0xffffff, 0.4);
-        light.position.set(1.0, 1.0, 1.0).normalize();
-        scene.add(light);
-        
-        const ambient = new THREE.AmbientLight(0xffffff, 0.8); // Brighter ambient fill
-        scene.add(ambient);
-
-        // Resize handler
-        window.addEventListener('resize', () => {
-            if (currentMode !== 'live') return;
-            camera.aspect = container.clientWidth / container.clientHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(container.clientWidth, container.clientHeight);
-        });
-
-        // Load VRM Model (three-vrm v1.x API)
-        const loader = new THREE.GLTFLoader();
-        loader.crossOrigin = 'anonymous';
-        
-        loader.register((parser) => {
-            return new THREE_VRM.VRMLoaderPlugin(parser);
-        });
-
-        loader.load(
-            '/assets/model.vrm',
-            (gltf) => {
-                const vrm = gltf.userData.vrm;
-                if (vrm) {
-                    THREE_VRM.VRMUtils.removeUnnecessaryJoints(gltf.scene);
-                    scene.add(vrm.scene);
-                    currentVrm = vrm;
-
-                    // Setup basic pose or facing camera
-                    vrm.scene.rotation.y = Math.PI; // Face the camera
-                    
-                    // Fix T-Pose by lowering the arms (A-Pose)
-                    if (vrm.humanoid) {
-                        const leftArm = vrm.humanoid.getNormalizedBoneNode('leftUpperArm');
-                        if (leftArm) leftArm.rotation.z = 1.1; // roughly 60 degrees down
-                        
-                        const rightArm = vrm.humanoid.getNormalizedBoneNode('rightUpperArm');
-                        if (rightArm) rightArm.rotation.z = -1.1; // negative Z for right arm down
-                    }
-
-                    console.log('VRM model loaded successfully!');
-                    
-                    // Start automatic blinking
-                    scheduleNextBlink();
-
-                    // Play Welcome Animation & Message (Silent Wave)
-                    setTimeout(async () => {
-                        const welcomeText = "Hi! I'm Clio, your Local Autonomous Responsive Agent! I'm fully loaded and ready whenever you are!";
-                        appendMessage('clio', welcomeText + " 💖");
-
-                        // Trigger the wave animation instead of playing audio
-                        setVTuberEmotion('wave');
-                        setLiveEmotion('happy');
-                        
-                        setTimeout(() => {
-                            setVTuberEmotion('neutral');
-                            setLiveEmotion('neutral');
-                        }, 3000);
-                    }, 5000);
-                }
-            },
-            (progress) => console.log('Loading model...', Math.round(100.0 * (progress.loaded / progress.total)), '%'),
-            (error) => console.error('Failed to load VRM:', error)
-        );
-
-
-        // Animation Loop
-        const clock = new THREE.Clock();
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-            
-            // Update VRM
-            if (currentVrm) {
-                currentVrm.update(delta);
-                const time = clock.elapsedTime;
-                
-                // Sleep Tracker (prevent sleep if she is actively vibing to music)
-                if (window.isVibing && (isSleeping || isYawning)) {
-                    resetActivityTimer(); // Wake up immediately if she starts vibing
-                }
-                
-                let idleTime = Date.now() - lastActivityTime;
-                
-                if (!isTalking && !window.isVibing && idleTime > 115000 && idleTime <= 120000 && !isYawning && !isSleeping) {
-                    isYawning = true;
-                    setVTuberEmotion('yawn');
-                    if (currentVrm.expressionManager) {
-                        currentVrm.expressionManager.setValue('aa', 0.8); // open mouth to yawn
-                        currentVrm.expressionManager.setValue('blink', 0.7); // squint eyes
-                    }
-                }
-
-                if (!isTalking && !window.isVibing && idleTime > 120000 && !isSleeping) {
-                    isSleeping = true;
-                    isYawning = false;
-                    setVTuberEmotion('sleep');
-                    if (currentVrm.expressionManager) {
-                        currentVrm.expressionManager.setValue('aa', 0.0); // ensure mouth is closed
-                        currentVrm.expressionManager.setValue('blink', 1.0);
-                        isBlinking = true; // pause random blinks
-                    }
-                }
-                
-                // Enforce Pose Targets via Lerp (fixes T-pose snap)
-                if (currentVrm.humanoid && typeof targetPose !== 'undefined') {
-                    const h = currentVrm.humanoid;
-                    const lerpSpeed = 5.0 * delta;
-                    
-                    const bones = {
-                        'head': targetPose.head,
-                        'neck': targetPose.neck,
-                        'spine': targetPose.spine,
-                        'leftUpperArm': targetPose.leftArm,
-                        'rightUpperArm': targetPose.rightArm,
-                        'leftLowerArm': targetPose.leftLowerArm,
-                        'rightLowerArm': targetPose.rightLowerArm,
-                        'leftHand': targetPose.leftHand,
-                        'rightHand': targetPose.rightHand
-                    };
-                    
-                    for (const [boneName, target] of Object.entries(bones)) {
-                        const bone = h.getNormalizedBoneNode(boneName);
-                        if (bone) {
-                            bone.rotation.x = THREE.MathUtils.lerp(bone.rotation.x, target.x, lerpSpeed);
-                            bone.rotation.y = THREE.MathUtils.lerp(bone.rotation.y, target.y, lerpSpeed);
-                            bone.rotation.z = THREE.MathUtils.lerp(bone.rotation.z, target.z, lerpSpeed);
-                        }
-                    }
-                }
-
-                if (isVibing && currentVrm.humanoid) {
-                    // Slow, chill lofi vibe (approx 60-70 BPM)
-                    const slowTime = time * Math.PI * 1.2;
-                    const bounce = Math.abs(Math.sin(slowTime)); 
-                    const sway = Math.sin(slowTime * 0.5); 
-                    const deepSway = Math.sin(slowTime * 0.25);
-                    
-                    const spine = currentVrm.humanoid.getNormalizedBoneNode('spine');
-                    const head = currentVrm.humanoid.getNormalizedBoneNode('head');
-                    const neck = currentVrm.humanoid.getNormalizedBoneNode('neck');
-                    
-                    if (spine) {
-                        spine.rotation.x = targetPose.spine.x + (bounce * 0.05); // very subtle forward lean
-                        spine.rotation.z = targetPose.spine.z + (deepSway * 0.03); // slow body sway
-                    }
-                    if (neck) neck.rotation.x = targetPose.neck.x - (bounce * 0.02);
-                    if (head) {
-                        head.rotation.x = targetPose.head.x + (bounce * 0.03); 
-                        head.rotation.y = targetPose.head.y + (deepSway * 0.05); // slow looking left/right
-                        head.rotation.z = targetPose.head.z - (sway * 0.08); // slow head tilt side-to-side
-                    }
-                } else if (currentVrm.humanoid && isSleeping) {
-                    // Sleeping breathing
-                    const spine = currentVrm.humanoid.getNormalizedBoneNode('spine');
-                    if (spine) spine.rotation.x = targetPose.spine.x + Math.sin(time * 1.5) * 0.02;
-                } else if (currentVrm.humanoid) {
-                    // Normal Subtle breathing
-                    const spine = currentVrm.humanoid.getNormalizedBoneNode('spine');
-                    if (spine) spine.rotation.x = targetPose.spine.x + Math.sin(time * 2) * 0.01;
-                }
-            }
-
-            renderer.render(scene, camera);
-        }
-        animate();
-        
-        vrmSceneInitialized = true;
-        console.log("VTuber Three.js Engine Initialized");
-    }
 });

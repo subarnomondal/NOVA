@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +10,9 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
-    
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+        rel="stylesheet" />
+
     <!-- Three.js and VRM for VTuber mode -->
     <script src="https://unpkg.com/three@0.146.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.146.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -36,34 +38,41 @@
     </script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-background text-text font-sans h-screen w-screen overflow-hidden flex flex-col md:flex-row antialiased selection:bg-primary/30">
+
+<body
+    class="bg-background text-text font-sans h-screen w-screen overflow-hidden flex flex-col md:flex-row antialiased selection:bg-primary/30">
 
     <!-- Sidebar Navigation -->
-    <nav class="md:w-20 w-full md:h-full h-16 bg-surface/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-white/5 flex md:flex-col items-center justify-between p-4 z-50 shrink-0">
+    <nav
+        class="md:w-20 w-full md:h-full h-16 bg-surface/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-white/5 flex md:flex-col items-center justify-between p-4 z-50 shrink-0">
         <!-- Logo -->
-        <div class="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg shadow-primary/20 overflow-hidden bg-surface border border-white/10">
+        <div
+            class="flex items-center justify-center w-12 h-12 rounded-xl shadow-lg shadow-primary/20 overflow-hidden bg-surface border border-white/10">
             <img src="assets/logo.jpg" alt="CLIO Logo" class="w-full h-full object-cover">
         </div>
 
         <!-- Mode Switches -->
         <div class="flex md:flex-col items-center gap-2 md:gap-6 flex-1 justify-center">
             <button class="nav-btn active group" data-mode="chat" title="Chat Mode">
-                <span class="material-symbols-outlined transition-transform group-hover:scale-110 text-primary">chat</span>
+                <span
+                    class="material-symbols-outlined transition-transform group-hover:scale-110 text-primary">chat</span>
             </button>
             <button class="nav-btn group" data-mode="live">
-                <span class="material-symbols-outlined text-[28px] text-text-muted group-hover:text-primary transition-colors">graphic_eq</span>
+                <span
+                    class="material-symbols-outlined text-[28px] text-text-muted group-hover:text-primary transition-colors">graphic_eq</span>
             </button>
         </div>
 
         <!-- Settings -->
         <button id="settings-btn" class="nav-btn group mt-auto" title="Settings">
-            <span class="material-symbols-outlined transition-transform group-hover:rotate-90 text-text-muted">settings</span>
+            <span
+                class="material-symbols-outlined transition-transform group-hover:rotate-90 text-text-muted">settings</span>
         </button>
     </nav>
 
     <!-- Main Content Area -->
     <main class="flex-1 relative h-full w-full bg-background/50 overflow-hidden">
-        
+
         <!-- Mode 1: Chat -->
         <section id="mode-chat" class="mode-view active flex flex-col h-full w-full max-w-4xl mx-auto p-4 md:p-8">
             <div id="chat-history" class="flex-1 overflow-y-auto pr-4 space-y-6 scroll-smooth pb-4 custom-scrollbar">
@@ -74,15 +83,23 @@
                     <p class="text-sm">Start a conversation to begin.</p>
                 </div>
             </div>
-            
+
             <div class="mt-4 relative group">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity rounded-3xl"></div>
-                <div class="relative bg-surface border border-white/10 rounded-3xl flex items-center p-2 shadow-2xl backdrop-blur-md">
-                    <button class="p-3 text-text-muted hover:text-primary transition-colors rounded-full hover:bg-white/5">
+                <div
+                    class="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity rounded-3xl">
+                </div>
+                <div
+                    class="relative bg-surface border border-white/10 rounded-3xl flex items-center p-2 shadow-2xl backdrop-blur-md">
+                    <button
+                        class="p-3 text-text-muted hover:text-primary transition-colors rounded-full hover:bg-white/5">
                         <span class="material-symbols-outlined">add_circle</span>
                     </button>
-                    <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-transparent border-none outline-none text-text px-4 py-3 placeholder-text-muted/50" autocomplete="off">
-                    <button class="p-3 text-white bg-primary hover:bg-blue-400 transition-colors rounded-full shadow-lg ml-2" id="chat-send">
+                    <input type="text" id="chat-input" placeholder="Type a message..."
+                        class="flex-1 bg-transparent border-none outline-none text-text px-4 py-3 placeholder-text-muted/50"
+                        autocomplete="off">
+                    <button
+                        class="p-3 text-white bg-primary hover:bg-blue-400 transition-colors rounded-full shadow-lg ml-2"
+                        id="chat-send">
                         <span class="material-symbols-outlined">send</span>
                     </button>
                 </div>
@@ -91,74 +108,117 @@
 
         <!-- Mode 2: Live Talk + VTuber (Redesigned) -->
         <section id="mode-live" class="hidden w-full h-full relative overflow-hidden bg-pastel-bedroom">
-            
+
             <!-- Three.js Canvas Container (Background) -->
             <div id="vrm-container" class="absolute inset-0 w-full h-full z-0 opacity-100"></div>
             
+
+
             <!-- Thought Bubble Overlay -->
-            <div id="thought-bubble" class="absolute top-1/4 right-[15%] max-w-[200px] p-2 px-3 bg-white/90 backdrop-blur-md rounded-2xl rounded-bl-none text-slate-800 font-medium text-xs shadow-xl shadow-black/20 border border-white/50 z-30 transition-all duration-300 opacity-0 scale-95 origin-bottom-left" style="pointer-events: none;">
+            <div id="thought-bubble"
+                class="absolute top-1/4 right-[15%] max-w-[200px] p-2 px-3 bg-white/90 backdrop-blur-md rounded-2xl rounded-bl-none text-slate-800 font-medium text-xs shadow-xl shadow-black/20 border border-white/50 z-30 transition-all duration-300 opacity-0 scale-95 origin-bottom-left"
+                style="pointer-events: none;">
                 <p id="thought-bubble-text">...</p>
                 <!-- Little tail for the bubble -->
-                <div class="absolute -bottom-2 left-0 w-4 h-4 bg-white/90 border-b border-l border-white/50 clip-path-polygon-[100%_0,0_100%,0_0]" style="clip-path: polygon(100% 0, 0 100%, 0 0);"></div>
+
+                <div class="absolute -bottom-2 left-0 w-4 h-4 bg-white/90 border-b border-l border-white/50 clip-path-polygon-[100%_0,0_100%,0_0]"
+                    style="clip-path: polygon(100% 0, 0 100%, 0 0);"></div>
             </div>
-            
+
             <!-- Top Status Bar (Glass) -->
-            <div class="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-2 rounded-full backdrop-blur-md bg-black/40 border jarvis-border-mid z-20 shadow-2xl transition-all duration-500" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--r-glow-strong);">
-                <div class="w-3 h-3 rounded-full animate-pulse jarvis-bg" style="box-shadow: 0 0 10px var(--r-glow);"></div>
-                <span id="live-status" class="text-sm tracking-[0.2em] uppercase font-mono text-white/90">AUDIO LINK ACTIVE</span>
+            <div class="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-4 px-6 py-2 rounded-full backdrop-blur-md bg-black/40 border jarvis-border-mid z-20 shadow-2xl transition-all duration-500"
+                style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), 0 0 15px var(--r-glow-strong);">
+                <div class="w-3 h-3 rounded-full animate-pulse jarvis-bg" style="box-shadow: 0 0 10px var(--r-glow);">
+                </div>
+                <span id="live-status" class="text-sm tracking-[0.2em] uppercase font-mono text-white/90">AUDIO LINK
+                    ACTIVE</span>
             </div>
 
             <!-- Side Deco -->
-            <div class="absolute left-8 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 opacity-40 pointer-events-none">
+            <div
+                class="absolute left-8 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-20 opacity-40 pointer-events-none">
                 <div class="w-1 h-8 jarvis-bg rounded-full"></div>
                 <div class="w-1 h-12 jarvis-bg rounded-full opacity-60"></div>
                 <div class="w-1 h-4 jarvis-bg rounded-full opacity-30"></div>
             </div>
-            
+
             <!-- Right Sidebar (Subtitles & Controls) -->
-            <div class="absolute top-24 bottom-8 right-8 w-80 rounded-2xl backdrop-blur-xl bg-black/50 border border-white/10 z-20 p-6 flex flex-col items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden">
-                
+            <div
+                class="absolute top-24 bottom-8 right-8 w-80 rounded-2xl backdrop-blur-xl bg-black/50 border border-white/10 z-20 p-6 flex flex-col items-center gap-6 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden">
+
                 <!-- Transcription Area -->
                 <div class="relative w-full flex-1 flex flex-col items-center justify-center p-4">
                     <!-- Glow effect behind text -->
-                    <div class="absolute w-full h-full bg-primary/10 blur-[40px] mix-blend-screen transition-opacity rounded-xl" id="live-glow"></div>
-                    
-                    <p id="live-transcript" class="text-xl font-light tracking-wide text-white/90 text-center z-10 drop-shadow-md transition-all duration-300">
+                    <div class="absolute w-full h-full bg-primary/10 blur-[40px] mix-blend-screen transition-opacity rounded-xl"
+                        id="live-glow"></div>
+
+                    <p id="live-transcript"
+                        class="text-xl font-light tracking-wide text-white/90 text-center z-10 drop-shadow-md transition-all duration-300">
                         <span class="italic opacity-50">Listening to your voice...</span>
                     </p>
                 </div>
-                
+
                 <!-- Controls & Audio Wave -->
                 <div class="flex flex-col items-center justify-between w-full pt-6 border-t border-white/10 gap-6">
-                    
+
                     <!-- Simulated Audio Wave -->
                     <div class="flex items-center gap-1 h-12">
                         <div class="w-1.5 h-full jarvis-bg rounded-full animate-[wave_1s_ease-in-out_infinite]"></div>
-                        <div class="w-1.5 h-3/4 jarvis-bg rounded-full animate-[wave_1.2s_ease-in-out_infinite_0.1s]"></div>
-                        <div class="w-1.5 h-1/2 jarvis-bg rounded-full animate-[wave_0.9s_ease-in-out_infinite_0.2s]"></div>
-                        <div class="w-1.5 h-full jarvis-bg rounded-full animate-[wave_1.1s_ease-in-out_infinite_0.3s]"></div>
-                        <div class="w-1.5 h-2/3 jarvis-bg rounded-full animate-[wave_1s_ease-in-out_infinite_0.4s]"></div>
+                        <div class="w-1.5 h-3/4 jarvis-bg rounded-full animate-[wave_1.2s_ease-in-out_infinite_0.1s]">
+                        </div>
+                        <div class="w-1.5 h-1/2 jarvis-bg rounded-full animate-[wave_0.9s_ease-in-out_infinite_0.2s]">
+                        </div>
+                        <div class="w-1.5 h-full jarvis-bg rounded-full animate-[wave_1.1s_ease-in-out_infinite_0.3s]">
+                        </div>
+                        <div class="w-1.5 h-2/3 jarvis-bg rounded-full animate-[wave_1s_ease-in-out_infinite_0.4s]">
+                        </div>
                     </div>
-                    
+
+                    <!-- Camera Frame Adjuster -->
+                    <div class="w-full flex flex-col gap-2 pb-2">
+                        <div class="flex justify-between items-center px-1">
+                            <span class="text-[10px] text-white/50 uppercase tracking-[0.2em]">Close</span>
+                            <span class="text-[10px] text-white/50 uppercase tracking-[0.2em]">Framing</span>
+                            <span class="text-[10px] text-white/50 uppercase tracking-[0.2em]">Wide</span>
+                        </div>
+                        <input type="range" id="camera-frame-slider" min="1.5" max="4.5" step="0.1" value="1.5"
+                            class="w-full accent-primary h-1 bg-white/20 rounded-lg appearance-none cursor-pointer hover:bg-white/40 transition-colors">
+                    </div>
+
                     <!-- Buttons -->
                     <div class="flex items-center gap-4">
                         <!-- Vibe Mode Button -->
-                        <button id="live-vibe-btn" title="Vibe to Music" class="w-12 h-12 rounded-full backdrop-blur-md bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all shadow-lg group">
-                            <span class="material-symbols-outlined text-white/70 group-hover:text-white text-xl transition-transform group-hover:scale-110">music_note</span>
+                        <button id="live-vibe-btn" title="Vibe to Music"
+                            class="w-12 h-12 rounded-full backdrop-blur-md bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all shadow-lg group">
+                            <span
+                                class="material-symbols-outlined text-white/70 group-hover:text-white text-xl transition-transform group-hover:scale-110">music_note</span>
                         </button>
-                        
+
                         <!-- BG Toggle Button -->
-                        <button id="live-bg-btn" title="Change Background" class="w-12 h-12 rounded-full backdrop-blur-md bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all shadow-lg group">
-                            <span class="material-symbols-outlined text-white/70 group-hover:text-white text-xl transition-transform group-hover:rotate-12">wallpaper</span>
+                        <button id="live-bg-btn" title="Change Background"
+                            class="w-12 h-12 rounded-full backdrop-blur-md bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all shadow-lg group">
+                            <span
+                                class="material-symbols-outlined text-white/70 group-hover:text-white text-xl transition-transform group-hover:rotate-12">wallpaper</span>
                         </button>
+
+                        <!-- Random Animation Button -->
+                        <button id="live-anim-btn" title="Random Animation"
+                            class="w-12 h-12 rounded-full backdrop-blur-md bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all shadow-lg group">
+                            <span
+                                class="material-symbols-outlined text-white/70 group-hover:text-white text-xl transition-transform group-hover:scale-110">emoji_people</span>
+                        </button>
+
+
                     </div>
 
                     <!-- Voice Chat Button -->
-                    <button id="live-toggle-btn" class="w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center gap-3 transition-all font-mono text-sm tracking-[0.15em] uppercase hover:border-primary/50 hover:text-primary group">
-                        <span class="material-symbols-outlined text-2xl transition-transform group-hover:scale-110">mic</span> 
+                    <button id="live-toggle-btn"
+                        class="w-full py-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center gap-3 transition-all font-mono text-sm tracking-[0.15em] uppercase hover:border-primary/50 hover:text-primary group">
+                        <span
+                            class="material-symbols-outlined text-2xl transition-transform group-hover:scale-110">mic</span>
                         <span id="live-toggle-text">Start Chat</span>
                     </button>
-                    
+
                 </div>
             </div>
         </section>
@@ -166,9 +226,11 @@
     </main>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center opacity-0 transition-opacity flex">
-        <div class="bg-surface w-full max-w-4xl h-[600px] rounded-2xl border border-white/10 shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 m-auto flex flex-col md:flex-row" id="settings-content">
-            
+    <div id="settings-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center opacity-0 transition-opacity flex">
+        <div class="bg-surface w-full max-w-4xl h-[600px] rounded-2xl border border-white/10 shadow-2xl overflow-hidden transform scale-95 transition-transform duration-300 m-auto flex flex-col md:flex-row"
+            id="settings-content">
+
             <!-- Settings Sidebar -->
             <aside class="w-full md:w-64 border-b md:border-b-0 md:border-r border-white/10 bg-black/20 flex flex-col">
                 <div class="p-6 flex items-center gap-3 border-b border-white/5">
@@ -176,19 +238,24 @@
                     <h2 class="text-lg font-semibold tracking-wide">SETTINGS</h2>
                 </div>
                 <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-                    <button class="settings-nav-btn active flex items-center gap-3 w-full p-3 rounded-lg bg-primary/10 text-primary transition-colors text-sm font-medium">
+                    <button
+                        class="settings-nav-btn active flex items-center gap-3 w-full p-3 rounded-lg bg-primary/10 text-primary transition-colors text-sm font-medium">
                         <span class="material-symbols-outlined text-[20px]">person</span> General
                     </button>
-                    <button class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
+                    <button
+                        class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
                         <span class="material-symbols-outlined text-[20px]">record_voice_over</span> Voice
                     </button>
-                    <button class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
+                    <button
+                        class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
                         <span class="material-symbols-outlined text-[20px]">memory</span> Model
                     </button>
-                    <button class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
+                    <button
+                        class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
                         <span class="material-symbols-outlined text-[20px]">history</span> Old Chats
                     </button>
-                    <button class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
+                    <button
+                        class="settings-nav-btn flex items-center gap-3 w-full p-3 rounded-lg text-text-muted hover:bg-white/5 hover:text-white transition-colors text-sm font-medium">
                         <span class="material-symbols-outlined text-[20px]">face</span> VTuber
                     </button>
                 </nav>
@@ -196,22 +263,24 @@
 
             <!-- Settings Content Area -->
             <div class="flex-1 flex flex-col bg-background/30 relative">
-                <button id="close-settings" class="absolute top-4 right-4 text-text-muted hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
+                <button id="close-settings"
+                    class="absolute top-4 right-4 text-text-muted hover:text-white transition-colors p-2 rounded-full hover:bg-white/10">
                     <span class="material-symbols-outlined">close</span>
                 </button>
-                
+
                 <div class="p-8 overflow-y-auto h-full space-y-8 custom-scrollbar">
-                    
+
                     <!-- General Section -->
                     <section class="settings-section space-y-6">
                         <h3 class="text-sm uppercase tracking-widest text-primary font-semibold">General Options</h3>
-                        
+
                         <div class="flex justify-between items-center bg-surface p-4 rounded-xl border border-white/5">
                             <div>
                                 <p class="font-medium">System Personality</p>
                                 <p class="text-xs text-text-muted mt-1">Choose how CLIO behaves.</p>
                             </div>
-                            <select class="bg-background border border-white/10 rounded-lg px-4 py-2 text-sm outline-none focus:border-primary text-text">
+                            <select
+                                class="bg-background border border-white/10 rounded-lg px-4 py-2 text-sm outline-none focus:border-primary text-text">
                                 <option>Clio (Default)</option>
                                 <option>Professional</option>
                                 <option>Sweetheart</option>
@@ -222,7 +291,7 @@
                     <!-- Voice Section -->
                     <section class="settings-section space-y-6">
                         <h3 class="text-sm uppercase tracking-widest text-primary font-semibold">Voice Architecture</h3>
-                        
+
                         <div class="flex justify-between items-center bg-surface p-4 rounded-xl border border-white/5">
                             <div>
                                 <p class="font-medium">Voice Output</p>
@@ -230,7 +299,9 @@
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" value="" class="sr-only peer" checked>
-                                <div class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                                <div
+                                    class="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                </div>
                             </label>
                         </div>
 
@@ -240,7 +311,8 @@
                                     <p class="font-medium">Pitch Frequency</p>
                                     <p class="text-xs text-text-muted mt-1">Adjust voice resonance.</p>
                                 </div>
-                                <span class="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">Normal</span>
+                                <span
+                                    class="text-xs font-mono text-primary bg-primary/10 px-2 py-1 rounded">Normal</span>
                             </div>
                             <input type="range" class="w-full accent-primary" min="0" max="100" value="50">
                         </div>
@@ -254,7 +326,8 @@
                                 <p class="font-medium">Active Engine</p>
                                 <p class="text-xs text-text-muted mt-1">Select the LLM backend.</p>
                             </div>
-                            <select class="bg-background border border-white/10 rounded-lg px-4 py-2 text-sm outline-none focus:border-primary text-text">
+                            <select
+                                class="bg-background border border-white/10 rounded-lg px-4 py-2 text-sm outline-none focus:border-primary text-text">
                                 <option>Clio Lightning (Local)</option>
                                 <option>OpenRouter API</option>
                             </select>
@@ -269,14 +342,18 @@
                                 <p class="font-medium">Clear Conversation Memory</p>
                                 <p class="text-xs text-text-muted mt-1">Wipe the active conversation context.</p>
                             </div>
-                            <button class="px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-sm transition-colors border border-red-500/20">Clear Current</button>
+                            <button
+                                class="px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-sm transition-colors border border-red-500/20">Clear
+                                Current</button>
                         </div>
                         <div class="flex justify-between items-center bg-surface p-4 rounded-xl border border-white/5">
                             <div>
                                 <p class="font-medium">Manage Old Chats</p>
                                 <p class="text-xs text-text-muted mt-1">View or delete archived conversations.</p>
                             </div>
-                            <button class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm transition-colors">Open Archive</button>
+                            <button
+                                class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm transition-colors">Open
+                                Archive</button>
                         </div>
                     </section>
 
@@ -288,20 +365,22 @@
                                 <p class="font-medium">Avatar Model (.vrm)</p>
                                 <p class="text-xs text-text-muted mt-1">Path to 3D avatar file.</p>
                             </div>
-                            <button class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm transition-colors">Select File</button>
+                            <button
+                                class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm transition-colors">Select
+                                File</button>
                         </div>
-                        
+
                         <div class="flex justify-between items-center bg-surface p-4 rounded-xl border border-white/5">
                             <div>
                                 <p class="font-medium">Environment Background</p>
                                 <p class="text-xs text-text-muted mt-1">Select the backdrop for Live mode.</p>
                             </div>
-                            <select id="bg-selector" class="bg-background border border-white/10 rounded-lg px-4 py-2 text-sm outline-none focus:border-primary text-text">
-                                <option value="bg-void">Deep Void (Dark)</option>
-                                <option value="bg-cyber">Cyber City (Neon)</option>
-                                <option value="bg-space">Cosmic Space</option>
-                                <option value="bg-banana">Neon Banana (Cyberpunk)</option>
-                                <option value="bg-studio">Studio Light</option>
+                            <select id="bg-selector"
+                                class="bg-background border border-white/10 rounded-lg px-4 py-2 text-sm outline-none focus:border-primary text-text">
+                                <option value="bg-pastel-bedroom">Pastel Bedroom (Cozy)</option>
+                                <option value="bg-magical-library">Magical Library (Dreamy)</option>
+                                <option value="bg-cozy-gaming">Cozy Gaming (Lo-Fi)</option>
+                                <option value="bg-fantasy-sky">Fantasy Sky (Ethereal)</option>
                             </select>
                         </div>
                     </section>
@@ -312,6 +391,8 @@
     </div>
 
     <!-- Scripts -->
+    <script src="vtuber.js"></script>
     <script src="app.js"></script>
 </body>
+
 </html>
