@@ -30,6 +30,13 @@ Clio is designed with a warm, affectionately teasing, and highly responsive pers
 > **🧠 Smart Memory Engine**  
 > Clio automatically filters out repetitive small talk (like "hello") and intelligently summarizes important facts before saving them. Her memory operates on a **7-day rolling window**, automatically pruning obsolete history to ensure lightning-fast context processing and high relevance.
 
+### 💫 The Virtual VTuber Avatar
+
+To bridge the gap between human and machine, CLIO is embodied by a fully interactive **3D VTuber Avatar**. 
+* **Dynamic Lip-Sync:** When Clio speaks, a built-in Audio FFT analyzer tracks her voice volume and precisely animates her mouth in real-time.
+* **Emotional Body Language:** Her LLM acts as the "director," dynamically triggering emotional states (like `happy`, `sad`, or `wave`) that cause her avatar to change posture and facial expressions. 
+* **Gaze Tracking:** Her eyes naturally follow your mouse cursor, breaking the fourth wall and making her feel truly present on your desktop.
+
 ### 🛡️ Ironclad Privacy Mode (Zero GPU Required!)
 
 Clio is intensely protective of your data. Because many users lack the heavy CPU/GPU required for local models, she processes memory mapping via an ultra-lightweight, offline Regex/Keyword parsing engine. There are **NO heavy local LLMs** required to install.
