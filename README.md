@@ -1,3 +1,5 @@
+# 🌌 C L I O
+
 <div align="center">
   <img src="web/assets/logo.png" alt="CLIO Logo" width="120" />
   <br/>
@@ -6,7 +8,6 @@
   </a>
   <br/><br/>
   
-  <h1>🌌 C L I O</h1>
   <p><strong>The Autonomous Local AGI Desktop & VTuber Engine</strong></p>
   <p><i>A sovereign, privacy-first personal intelligence agent designed for seamless digital orchestration.</i></p>
 
@@ -55,12 +56,14 @@ CLIO features a state-of-the-art **Glassmorphic** dark-mode UI designed for high
 CLIO’s true power lies in her massive, modular skill library. She can natively automate almost any workflow on your PC.
 
 ### 🖥️ Deep Windows Administration
+
 * **Hardware Diagnostics:** Monitors CPU, RAM, and Disk space in real-time.
 * **Network Intelligence:** Flushes DNS, checks IP status, and monitors connectivity.
 * **Process Management:** Autonomous killing of frozen apps and identifying heavy resource hogs.
 * **Power & GUI Controls:** Restarts, sleep cycles, and window manipulation.
 
 ### 🎵 Advanced Local & Cloud Media
+
 * **"My Taste" Autoplay:** Analyzes your Long-Term Memory to automatically play bands/artists you enjoy.
 * **Authentic Chart Fetching:** Accesses real-time YouTube Music / Billboard charts directly from the source.
 * **Full Lyric Engine:** Fetches complete song lyrics via public APIs on demand.
@@ -68,15 +71,18 @@ CLIO’s true power lies in her massive, modular skill library. She can natively
 * **MP3 Downloader:** Uses background `yt-dlp` to download songs directly to your `Downloads` folder while you chat.
 
 ### 🌐 Autonomous Web & Development Skills
+
 * **Browser Agent:** Drives a thread-safe headless browser via Playwright to read web pages, bypass popups, and summarize long articles autonomously.
 * **Code Architect:** Reviews your local repositories to suggest optimizations.
 * **Dataset Importer:** Cleans and analyzes complex CSV/JSON datasets.
 
 ### 👁️ Perception & Sentiment
+
 * **Screen Analysis:** Uses screenshots and vision models to literally "see" what is currently rendering on your desktop.
 * **Sentiment Tracking:** Adapts her response style if you are feeling sad, energetic, or romantic.
 
 ### 📚 Professional Automations
+
 * **Document Engines:** Drafts entire PDFs or Word Docs.
 * **Messaging Integration:** Dispatches emails and handles messaging logistics.
 * **Math & Finance:** Real-time stock lookups, market trend definitions, and heavy calculations.
